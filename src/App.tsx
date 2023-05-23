@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import Loading from "./components/Loading";
 import Layout from "./pages/Layout";
 import { MainContext } from "./common/context";
+import ProductManagement from "./pages/ProductManagement";
+import AddProduct from "./pages/AddProduct";
 
 function App() {
   useEffect(() => {
@@ -49,12 +51,19 @@ function App() {
     {
       path: "/",
       element: <Layout />,
-      // errorElement: <ErrorPage />,
-      // loader: rootLoader,
+
       children: [
         {
           path: "/",
           element: <Main />,
+        },
+        {
+          path: "/productmanage",
+          element: <ProductManagement />,
+        },
+        {
+          path: "/addproduct",
+          element: <AddProduct />,
         },
 
         {
