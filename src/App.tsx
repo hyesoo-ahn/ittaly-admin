@@ -11,6 +11,10 @@ import Layout from "./pages/Layout";
 import { MainContext } from "./common/context";
 import ProductManagement from "./pages/ProductManagement";
 import AddProduct from "./pages/AddProduct";
+import Brand from "./pages/Brand";
+import AddBrand from "./pages/AddBrand";
+import Category from "./pages/Category";
+import AddCategory from "./pages/AddCategory";
 
 function App() {
   useEffect(() => {
@@ -64,6 +68,25 @@ function App() {
         {
           path: "/addproduct",
           element: <AddProduct />,
+        },
+        {
+          path: "/brand",
+          element: <Brand />,
+        },
+
+        {
+          path: "/brand/addbrand",
+          element: <AddBrand />,
+        },
+
+        {
+          path: "/category",
+          element: <Category />,
+        },
+
+        {
+          path: "/category/addcategory",
+          element: <AddCategory />,
         },
 
         {

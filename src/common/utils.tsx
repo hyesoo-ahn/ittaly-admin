@@ -1,26 +1,22 @@
-import axios from "axios";
-import { URI } from "./config";
+export const moveValue = (array: object[], fromIndex: number, toIndex: number) => {
+  let temp = array;
 
-export const getSignin = async (body: any): Promise<any> => {
-  try {
-    const { data } = await axios.get(
-      `${URI}/openapi/user/signin?email=${body.email}&password=${body.password}`
-    );
-    if (!data) localStorage.removeItem("token");
-    return data;
-  } catch (error) {
-    localStorage.removeItem("token");
-    return false;
+  if (
+    (fromIndex + 1 !== temp.length && fromIndex < toIndex) ||
+    (fromIndex !== 0 && fromIndex > toIndex)
+  ) {
+    const item = temp.splice(fromIndex, 1)[0];
+    temp.splice(toIndex, 0, item);
   }
+
+  return temp;
 };
 
-export const postSignup = async (body: any): Promise<any> => {
-  try {
-    const { data } = await axios.post(`${URI}/openapi/user/signup`, body);
-    if (!data) localStorage.removeItem("token");
-    return data;
-  } catch (error) {
-    localStorage.removeItem("token");
-    return false;
-  }
+export const currency = (num: number): string => {
+  const n = Math.round(num); // 소수점 자르기
+
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
+
+// 반대로 풀때
+// const n: string = text.replace(/,/gi, "");

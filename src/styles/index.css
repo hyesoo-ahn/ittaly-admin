@@ -23,10 +23,15 @@ body {
 
 p {
   margin: 0;
+  font-size: 14px;
 }
 
 .flex {
   display: flex;
+}
+
+.flex1 {
+  flex: 1;
 }
 
 .f-direction-column {
@@ -50,17 +55,55 @@ p {
 }
 
 .align-c {
-  align-content: center;
+  align-items: center !important;
 }
 
 /* margin */
+.margin-0 {
+  margin: 0;
+}
+.mt_-2 {
+  margin-top: -2px;
+}
+
+.mt-3 {
+  margin-top: 3px;
+}
+
+.mt-4 {
+  margin-top: 4px;
+}
 
 .mt-6 {
   margin-top: 6px;
 }
 
+.mt-10 {
+  margin-top: 10px;
+}
+
+.mt-12 {
+  margin-top: 12px;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mt-34 {
+  margin-top: 34px;
+}
+
 .mb-6 {
   margin-bottom: 6px;
+}
+
+.mb-16 {
+  margin-bottom: 16px;
 }
 
 .mb-20 {
@@ -79,6 +122,10 @@ p {
   margin-right: 8px;
 }
 
+.mr-10 {
+  margin-right: 10px;
+}
+
 .mr-12 {
   margin-right: 12px;
 }
@@ -89,6 +136,10 @@ p {
 
 .mr-18 {
   margin-right: 18px;
+}
+
+.mr-24 {
+  margin-right: 24px;
 }
 
 .mr-30 {
@@ -120,8 +171,28 @@ p {
 }
 
 /* padding */
+
+.padding-24 {
+  padding: 24px;
+}
+
 .padding-40 {
   padding: 40px;
+}
+
+.pt-10 {
+  padding-top: 10px;
+}
+
+.pb-10 {
+  padding-bottom: 10px;
+}
+.pl-30 {
+  padding-left: 30px !important;
+}
+
+.pr-30 {
+  padding-right: 30px !important;
 }
 
 .pb-30 {
@@ -139,6 +210,10 @@ p {
   line-height: 23.87px;
 }
 
+.font-bold {
+  font-weight: 700;
+}
+
 .font-12 {
   font-size: 12px;
 }
@@ -151,10 +226,22 @@ p {
   color: #ff0000;
 }
 
+.font-gray {
+  color: #101828;
+}
+
 .font-catetory {
   font-weight: 700;
   font-size: 16px;
   line-height: 16.71px;
+}
+
+.font-400 {
+  font-weight: 400;
+}
+
+.font-desc {
+  font-size: 12px;
 }
 
 /* input component */
@@ -166,6 +253,12 @@ p {
 .input-s-width {
   width: 127px;
 }
+
+.input-f-width {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
 .input-r {
   /* width: 280px; */
   height: 32px;
@@ -286,7 +379,11 @@ p {
   width: 139px;
   background-color: #f1f1f1;
   padding: 12px 21px;
-  font-size: 13px;
+  /* box-sizing: content-box; */
+}
+
+.product-field > p {
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -322,4 +419,16 @@ input {
   position: absolute;
   left: 3px;
   top: 3px;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
 }

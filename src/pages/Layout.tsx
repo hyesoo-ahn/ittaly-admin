@@ -52,8 +52,26 @@ function Layout(): JSX.Element {
                 </NavLink>
               </div>
 
-              <p>브랜드 관리</p>
-              <p>카테고리 관리</p>
+              <div className="mb-20">
+                <NavLink
+                  to="brand"
+                  className={({ isActive }) => {
+                    return isActive ? "nav-active" : "nav-deactive";
+                  }}
+                >
+                  브랜드 관리
+                </NavLink>
+              </div>
+              <div className="mb-20">
+                <NavLink
+                  to="category"
+                  className={({ isActive }) => {
+                    return isActive ? "nav-active" : "nav-deactive";
+                  }}
+                >
+                  카테고리 관리
+                </NavLink>
+              </div>
             </div>
           </div>
         </nav>

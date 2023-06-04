@@ -1,0 +1,129 @@
+/* 상품등록 리스트 헤더 */
+.list-header {
+  height: 40px !important;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  background-color: #f1f1f1;
+  border-radius: 8px;
+}
+
+.list-header-content {
+  display: flex;
+  padding: 16px 0;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.list-header div {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.field-list-wrapper {
+  display: flex;
+  width: 100%;
+
+  /* align-content: stretch; */
+}
+
+.w100p {
+  width: 100%;
+}
+
+.w10p {
+  width: 10%;
+}
+
+.w20p {
+  width: 20%;
+}
+
+.w25p {
+  width: 25%;
+}
+
+.w26-6p {
+  width: 26.666%;
+}
+
+.w30p {
+  width: 30%;
+}
+
+.w35p {
+  width: 35%;
+}
+
+.w80p {
+  width: 80%;
+}
+
+.input-desc {
+  border: 1px solid #cccccc;
+  width: 100%;
+  height: 32px;
+  padding-left: 8px;
+}
+
+.input-textarea {
+  height: 114px;
+  width: 100%;
+  border: 1px solid #cccccc;
+  outline: none !important;
+  padding: 8px;
+  resize: none;
+}
+
+.input-desc::-webkit-input-placeholder {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+
+  color: rgba(0, 0, 0, 0.4);
+}
+.input-desc:-ms-input-placeholder {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.input-textarea::-webkit-input-placeholder {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+
+  color: rgba(0, 0, 0, 0.4);
+}
+.input-textarea:-ms-input-placeholder {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.btn-add {
+  border: 1px solid #000000;
+  background-color: #fff;
+  padding: 7px 12px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.btn-add-b {
+  border: none;
+  background-color: #000000;
+  padding: 8px 14px;
+  cursor: pointer;
+  color: #fff;
+}
+
+.list-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+}
+
+.border-bottom-gray {
+  border-bottom: 1px solid #d0d0d0;
+}
