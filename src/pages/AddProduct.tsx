@@ -248,7 +248,7 @@ export default function AddProduct(): JSX.Element {
         ...prev,
         productSetting: {
           ...prev.productSetting,
-          [type]: !prev.productSetting.noneCoupon,
+          [type]: !prev.productSetting[type],
         },
       };
     });

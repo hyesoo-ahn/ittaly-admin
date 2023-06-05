@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import forward from "../images/Forward.png";
+import up_g from "../images/up_g.png";
+import down_g from "../images/down_g.png";
 
 const AddCategory = () => {
   const navigate = useNavigate();
@@ -50,30 +52,6 @@ const AddCategory = () => {
         </div>
       </div>
 
-      {/* <div className="field-list-wrapper mt-2">
-        <div className="product-field mr-20">
-          <p>
-            브랜드 소개<span className="font-red">*</span>
-          </p>
-        </div>
-
-        <div className="mt-16 mb-16 flex1" style={{ position: "relative" }}>
-          <textarea className="input-textarea" placeholder="공백포함 60자 이내" />
-          <div
-            className="font-12"
-            style={{
-              position: "absolute",
-              bottom: 10,
-              right: 10,
-              fontWeight: 400,
-              color: "rgba(0,0,0,0.4)",
-            }}
-          >
-            0/80
-          </div>
-        </div>
-      </div> */}
-
       <div className="product-field-wrapper mt-2 w100p">
         <div className="product-field mr-20">
           <p>공개여부</p>
@@ -88,6 +66,80 @@ const AddCategory = () => {
         <div className="checkbox-c mr-4 cursor">{/* <div className="checkbox-c-filled" /> */}</div>
 
         <p className="mr-35">비공개</p>
+      </div>
+
+      <div className="mt-30">
+        <p className="font-catetory">하위분류</p>
+
+        <div className="product-field-wrapper w100p">
+          <div className="product-field mr-20 mt-13">
+            <p>하위분류 여부</p>
+          </div>
+
+          <div className="checkbox-c mr-4 cursor">
+            <div className="checkbox-c-filled"></div>
+          </div>
+
+          <p className="mr-30">없음</p>
+
+          <div className="checkbox-c mr-4 cursor">
+            {/* <div className="checkbox-c-filled" /> */}
+          </div>
+
+          <p className="mr-35">있음</p>
+        </div>
+      </div>
+
+      <div className="mt-2 field-list-wrapper">
+        <div className="product-field mr-20">
+          <p>하위분류 입력</p>
+        </div>
+
+        <div style={{ flex: 1 }}>
+          <div className="list-header">
+            <div className="text-center w20p">순서</div>
+            <div className="text-center w20p">옵션명</div>
+            <div className="text-center w20p">URL</div>
+            <div className="text-center w20p">공개여부</div>
+            <div className="text-center w20p">삭제/추가</div>
+          </div>
+
+          <div className="list-header-content">
+            <div className="text-center w20p">
+              <img src={up_g} style={{ width: 28, height: "auto" }} className="mr-4 cursor" />
+              <img src={down_g} style={{ width: 28, height: "auto" }} className="cursor" />
+            </div>
+            <div className="text-center w20p">
+              <div className="mr-4 ml-4">
+                <InputR size={"full"} />
+              </div>
+            </div>
+
+            <div className="text-center w20p">
+              <div className="mr-4 ml-4">
+                <InputR size={"full"} />
+              </div>
+            </div>
+
+            <div className="text-center w20p flex align-c justify-c">
+              <div className="checkbox-c mr-4 cursor">
+                <div className="checkbox-c-filled"></div>
+              </div>
+
+              <p className="mr-30">없음</p>
+
+              <div className="checkbox-c mr-4 cursor">
+                {/* <div className="checkbox-c-filled" /> */}
+              </div>
+
+              <p className="mr-35">있음</p>
+            </div>
+
+            <div className="text-center w20p">
+              <ButtonR onClick={() => {}} name={"추가"} />
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-fe mt-10">

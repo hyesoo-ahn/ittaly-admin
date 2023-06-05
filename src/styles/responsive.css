@@ -186,6 +186,10 @@
   width: 50%;
 }
 
+.w20 {
+  width: 20%;
+}
+
 input::-webkit-input-placeholder {
   color: #323232;
 }
