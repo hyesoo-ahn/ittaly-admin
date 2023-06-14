@@ -15,6 +15,9 @@ import Brand from "./pages/Brand";
 import AddBrand from "./pages/AddBrand";
 import Category from "./pages/Category";
 import AddCategory from "./pages/AddCategory";
+import BrandDetail from "./pages/BrandDetail";
+import CategoryDetail from "./pages/CategoryDetail";
+import { ADMIN_TOKEN } from "./common/config";
 
 function App() {
   useEffect(() => {
@@ -31,16 +34,13 @@ function App() {
   };
 
   const detectIsUser = (): void => {
-    // localStorage.removeItem("token"); // dev
-    // const token = localStorage.getItem("token");
-    // if (!token) {
-    //   localStorage.removeItem("token");
-    //   _handleStateChange("isUser", false);
-    //   setLoading(false);
-    // } else {
-    //   _handleStateChange("isUser", true);
-    //   setLoading(false);
-    // }
+    const adminToken = localStorage.getItem("admin");
+    if (adminToken === ADMIN_TOKEN) {
+      _handleStateChange("isUser", true);
+    } else {
+      _handleStateChange("isUser", false);
+    }
+
     setLoading(false);
   };
 
@@ -49,12 +49,16 @@ function App() {
     isUser: false,
   });
 
+  useEffect(() => {
+    console.log(data.isUser);
+  }, [data]);
+
   const [loading, setLoading] = useState<boolean>(true);
 
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Layout />,
+      element: data.isUser ? <Layout /> : <Login />,
 
       children: [
         {
@@ -75,6 +79,11 @@ function App() {
         },
 
         {
+          path: "/brand/:brandId",
+          element: <BrandDetail />,
+        },
+
+        {
           path: "/brand/addbrand",
           element: <AddBrand />,
         },
@@ -82,6 +91,11 @@ function App() {
         {
           path: "/category",
           element: <Category />,
+        },
+
+        {
+          path: "/category/:categoryId",
+          element: <CategoryDetail />,
         },
 
         {

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import forward from "../images/Forward.png";
@@ -8,11 +8,13 @@ import down_g from "../images/down_g.png";
 import up_b from "../images/up_b.png";
 import down_b from "../images/down_b.png";
 import { moveValue } from "../common/utils";
-import { postAddCategory } from "../common/apis";
+import { getDatas, postAddCategory } from "../common/apis";
 import { ISubCategory } from "../common/interfacs";
 
-const AddCategory = () => {
+const CategoryDetail = () => {
   const navigate = useNavigate();
+  const params = useParams();
+  const { categoryId } = params;
   const [name, setName] = useState<string>("");
   const [url, setUrl] = useState<string>("");
   const [subCategoryBool, setSubCategoryBool] = useState<boolean>(false);
@@ -23,6 +25,25 @@ const AddCategory = () => {
     URL: "",
     openStatus: true,
   });
+
+  useEffect(() => {
+    init();
+  }, []);
+
+  const init = async () => {
+    const getCategoryDetailData: any = await getDatas({
+      collection: "categories",
+      find: { _id: categoryId },
+    });
+
+    if (getCategoryDetailData.result && getCategoryDetailData.status === 200) {
+      setName(getCategoryDetailData.data[0]?.name);
+      setUrl(getCategoryDetailData.data[0]?.url);
+      setOpenStatus(getCategoryDetailData.data[0]?.openStatus);
+      setSubCategoryBool(getCategoryDetailData.data[0]?.subCategories.length === 0 ? false : true);
+      setSubCategories(getCategoryDetailData.data[0]?.subCategories);
+    }
+  };
 
   const handleAddForm = () => {
     let tempArr = [];
@@ -52,27 +73,26 @@ const AddCategory = () => {
     setSubCategories([...newArr]);
   };
 
-  const handleAddCategory = async (): Promise<void> => {
-    const _body: any = {
-      collection: "categories",
-      name,
-      url,
-      openStatus,
-      subCategories,
-    };
-
-    const postResult = await postAddCategory(_body);
-    if (postResult.result && postResult.status === 200) {
-      alert("카테고리 등록이 완료되었습니다.");
-      navigate(-1);
-    }
+  const handleUpdateCategory = async (): Promise<void> => {
+    // const _body: any = {
+    //   collection: "categories",
+    //   name,
+    //   url,
+    //   openStatus,
+    //   subCategories,
+    // };
+    // const postResult = await postAddCategory(_body);
+    // if (postResult.result && postResult.status === 200) {
+    //   alert("카테고리 등록이 완료되었습니다.");
+    //   navigate(-1);
+    // }
   };
 
   return (
     <div>
       <div className="flex align-c pb-30">
         <img onClick={() => navigate(-1)} className="img-close cursor mr-4" src={forward} />
-        <p className="page-title mt-3">카테고리 등록</p>
+        <p className="page-title mt-3">카테고리 상세</p>
       </div>
 
       <p className="font-catetory">카테고리 정보</p>
@@ -329,10 +349,10 @@ const AddCategory = () => {
 
       <div className="flex justify-fe mt-10">
         <ButtonR name={"취소"} onClick={() => {}} styleClass={"mr-4"} color={"white"} />
-        <ButtonR name={"저장"} onClick={handleAddCategory} />
+        <ButtonR name={"저장"} onClick={handleUpdateCategory} />
       </div>
     </div>
   );
 };
 
-export default AddCategory;
+export default CategoryDetail;

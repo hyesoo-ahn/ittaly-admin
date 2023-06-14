@@ -1,6 +1,6 @@
-import React, { ChangeEvent, useCallback, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { postAddBrand, postUploadImage } from "../common/apis";
+import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getDatas, postAddBrand, postUploadImage } from "../common/apis";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import forward from "../images/Forward.png";
@@ -10,8 +10,10 @@ interface IFile {
   url: string;
 }
 
-const AddBrand = () => {
+const BrandDetail = () => {
   const navigate = useNavigate();
+  const params = useParams();
+  const { brandId } = params;
   const [brandName, setBrandName] = useState<string>("");
   const [desc, setDesc] = useState<string>("");
   const [txtLength, setTxtLength] = useState(0);
@@ -21,6 +23,28 @@ const AddBrand = () => {
   });
   const fileRef = useRef<any>(null);
   const [openStatus, setOpenStatus] = useState<boolean>(true);
+
+  useEffect(() => {
+    init();
+  }, []);
+
+  const init = async () => {
+    const getBrandDetail: any = await getDatas({
+      collection: "brands",
+      find: { _id: brandId },
+    });
+
+    if (getBrandDetail.result && getBrandDetail.status === 200) {
+      setBrandName(getBrandDetail.data[0]?.brandName);
+      setDesc(getBrandDetail.data[0]?.desc);
+      setTxtLength(getBrandDetail.data[0]?.desc.length);
+      setFile({
+        file: null,
+        url: getBrandDetail.data[0]?.imgUrl,
+      });
+      setOpenStatus(getBrandDetail.data[0]?.openStatus);
+    }
+  };
 
   const onChangeHandler = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
     setDesc(e.target.value);
@@ -37,33 +61,32 @@ const AddBrand = () => {
     });
   };
 
-  // 브랜드 등록
-  const handleAddBrand = async () => {
-    const formData = new FormData();
-    formData.append("file", file.file as File);
-    const getUrl: any = await postUploadImage(formData);
-
-    if (getUrl.result && getUrl.status === 200) {
-      const body = {
-        collection: "brands",
-        brandName,
-        desc,
-        imgUrl: getUrl.url,
-        openStatus,
-      };
-      const addResult: any = await postAddBrand(body);
-      if (addResult.result && addResult.status === 200) {
-        alert("브랜드 등록이 완료되었습니다.");
-      }
-      navigate(-1);
-    }
+  // 브랜드 수정
+  const handleUpdateBrand = async () => {
+    // const formData = new FormData();
+    // formData.append("file", file.file as File);
+    // const getUrl: any = await postUploadImage(formData);
+    // if (getUrl.result && getUrl.status === 200) {
+    //   const body = {
+    //     collection: "brands",
+    //     brandName,
+    //     desc,
+    //     imgUrl: getUrl.url,
+    //     openStatus,
+    //   };
+    //   const addResult: any = await postAddBrand(body);
+    //   if (addResult.result && addResult.status === 200) {
+    //     alert("브랜드 등록이 완료되었습니다.");
+    //   }
+    //   navigate(-1);
+    // }
   };
 
   return (
     <div>
       <div className="flex align-c pb-30">
         <img onClick={() => navigate(-1)} className="img-close cursor mr-4" src={forward} />
-        <p className="page-title mt-3">브랜드 등록</p>
+        <p className="page-title mt-3">브랜드 상세</p>
       </div>
 
       <div className="product-field-wrapper mt-2 w100p">
@@ -182,11 +205,11 @@ const AddBrand = () => {
         </div>
         <div className="flex">
           <ButtonR name={"취소"} onClick={() => navigate(-1)} styleClass={"mr-4"} color={"white"} />
-          <ButtonR name={"저장"} onClick={handleAddBrand} />
+          <ButtonR name={"저장"} onClick={handleUpdateBrand} />
         </div>
       </div>
     </div>
   );
 };
 
-export default AddBrand;
+export default BrandDetail;

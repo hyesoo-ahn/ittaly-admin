@@ -13,6 +13,7 @@ import Modal from "../components/Modal";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { currency, moveValue } from "../common/utils";
 import CheckboxS from "../components/CheckboxS";
+import { getDatas, postUploadImage } from "../common/apis";
 
 const Cateogyoptions1 = [
   { value: "대분류 카테고리1", label: "대분류 카테고리1" },
@@ -71,6 +72,8 @@ export default function AddProduct(): JSX.Element {
     discounted: "",
   });
   const [productOptions, setProductOptions] = useState<any>({});
+  const [productItemOptions, setProductItemOptions] = useState<any>([]);
+
   const [selectedOption, setSelectedOption] = useState(null);
   const inputFileRef = useRef<any[]>([]);
   const [files, setFiles] = useState<any>({
@@ -83,6 +86,10 @@ export default function AddProduct(): JSX.Element {
   const [pointForm, setPointForm] = useState<IPoint>({
     summary: "",
     desc: "",
+    img: [],
+  });
+  const [productItemForm, setProductItemForm] = useState<any>({
+    optionName: "",
     img: [],
   });
   const [productInfoForm, setProductInfoForm] = useState<IProductInfo>({
@@ -102,6 +109,47 @@ export default function AddProduct(): JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
   const { lockScroll, openScroll } = useBodyScrollLock();
 
+  // 카테고리
+  const [categories, setCategories] = useState<any>([]);
+  // 서브카테고리
+  const [subCategories, setSubCategories] = useState<any>([]);
+
+  useEffect(() => {
+    init();
+  }, []);
+
+  useEffect(() => {
+    if (form.category1 !== "") {
+      // console.log(form.category1);
+      // let tempCategories = [];
+      // for (let i = 0; i < form.category1?.subCategories?.length; i++) {
+      //   tempCategories.push({
+      //     value: form.category1?.subCategories[i].optionName,
+      //     label: form.category1?.subCategories[i].optionName,
+      //   });
+      // }
+      // setSubCategories(tempCategories);
+    }
+  }, [form.category1]);
+
+  const init = async () => {
+    const getCategories: any = await getDatas({
+      collection: "categories",
+    });
+
+    let categories = [];
+    for (let i = 0; i < getCategories?.data?.length; i++) {
+      categories.push({
+        value: getCategories?.data[i]?.name,
+        label: getCategories?.data[i]?.name,
+        subCategories: getCategories?.data[i]?.subCategories,
+        _id: getCategories?.data[i]?._id,
+      });
+    }
+
+    setCategories(categories);
+    console.log(getCategories);
+  };
   const onChangeForm = (type: string, value: string | object | boolean) => {
     setForm((prev: any) => {
       return {
@@ -113,7 +161,8 @@ export default function AddProduct(): JSX.Element {
 
   useEffect(() => {
     console.log(productOptions);
-  }, [productOptions]);
+    console.log(form);
+  }, [productOptions, form]);
 
   const handleUploadClick = async (idx: number) => {
     inputFileRef?.current[idx]?.click();
@@ -146,6 +195,32 @@ export default function AddProduct(): JSX.Element {
               fileUrl: URL.createObjectURL(file),
             },
           ],
+        };
+      });
+    }
+  };
+
+  const handleFileChange2 = (evt: any, type: string) => {
+    const file = evt.target.files?.[0];
+    const imgUrl: any = URL.createObjectURL(file);
+    let imgArr = type === "pointForm" ? [...pointForm.img] : [...productItemForm.img];
+    imgArr.push({
+      file: file,
+      imgUrl: imgUrl,
+    });
+
+    if (type === "pointForm") {
+      setPointForm((prev: any) => {
+        return {
+          ...prev,
+          img: imgArr,
+        };
+      });
+    } else {
+      setProductItemForm((prev: any) => {
+        return {
+          ...prev,
+          img: imgArr,
         };
       });
     }
@@ -192,6 +267,17 @@ export default function AddProduct(): JSX.Element {
         });
 
         break;
+
+      case "productItem":
+        tempArr = [...productItemOptions];
+        tempArr.push(productItemForm);
+        setProductItemOptions(tempArr);
+        setProductItemForm({
+          optionName: "",
+          img: [],
+        });
+
+        break;
     }
   };
 
@@ -222,6 +308,10 @@ export default function AddProduct(): JSX.Element {
     if (type === "points") {
       setPoints([...newArr]);
     }
+
+    if (type === "productItem") {
+      setProductItemOptions([...newArr]);
+    }
   };
 
   const handleDeleteListItem = (type: string, i: number) => {
@@ -238,6 +328,12 @@ export default function AddProduct(): JSX.Element {
         tempArr = [...productInfos];
         tempArr.splice(i, 1);
         setProductInfos(tempArr);
+        break;
+
+      case "productItemOptions":
+        tempArr = [...productItemOptions];
+        tempArr.splice(i, 1);
+        setProductItemOptions(tempArr);
         break;
     }
   };
@@ -310,6 +406,66 @@ export default function AddProduct(): JSX.Element {
         },
       });
     }
+  };
+
+  const onChangeOptions = (aOption: any, index: number, event: any, value: string) => {
+    let tempOptions = [...productOptions[aOption].options];
+    tempOptions[index][value] = event.target.value;
+
+    setProductOptions((prev: any) => {
+      return {
+        ...prev,
+        [aOption]: {
+          ...prev[aOption],
+          options: tempOptions,
+        },
+      };
+    });
+  };
+
+  const handleAddOption = (option: any) => {
+    const tempOptions = [{}, ...productOptions[option].options];
+    setProductOptions((prev: any) => {
+      return {
+        ...prev,
+        [option]: {
+          optionName: prev[option].optionName,
+          options: tempOptions,
+        },
+      };
+    });
+  };
+
+  const handleDeleteOption = (option: any, index: number) => {
+    let tempOptions = [...productOptions[option].options];
+    tempOptions.splice(index, 1);
+    setProductOptions((prev: any) => {
+      return {
+        ...prev,
+        [option]: {
+          optionName: prev[option].optionName,
+          options: tempOptions,
+        },
+      };
+    });
+  };
+
+  const handleAddProduct = async () => {
+    // 판매/가격 정보까지 =>  form
+    // 옵션 여부 => productOptions
+    // 배송정책 form.freeship
+    // 대표 이미지 => files.thumbnail url: fileUrl
+    // 추가 이미지 => files.additionalImg url: fileUrl
+    // 구매 포인트 => points 요약: summary 설명: desc 이미지URL: imgUrl
+    // 상품 옵션 => productItemOptions 옵션명: optionName 이미지URL: imgUrl
+    // 상품정보제공공시 => productInfos 제목: title 설명: content
+    // 연관 추천상품 => relatedProducts 랜덤: random 직접입력: planned products: []...
+    // 판매상태 saleStatus 판매중: onSale 판매중지: saleStopped 일시품절: soldOut
+    console.log(files.thumbnail);
+    const formData = new FormData();
+    formData.append("file", files.thumbnail[0].file);
+    const getUrl: string | boolean = await postUploadImage(formData);
+    console.log(getUrl);
   };
 
   return (
@@ -519,7 +675,7 @@ export default function AddProduct(): JSX.Element {
               placeholder={"대분류"}
               defaultValue={null}
               onChange={(e: any) => onChangeForm("category1", e.value)}
-              options={Cateogyoptions1}
+              options={categories}
               className="react-select-container"
             />
             <Select
@@ -527,7 +683,7 @@ export default function AddProduct(): JSX.Element {
               placeholder={"하위분류"}
               defaultValue={null}
               onChange={(e: any) => onChangeForm("category2", e.value)}
-              options={Cateogyoptions2}
+              options={subCategories}
               className="react-select-container"
             />
           </div>
@@ -842,61 +998,53 @@ export default function AddProduct(): JSX.Element {
                         value={productOptions[aOption].optionName}
                       />
                     </div>
-                    <div className="w25p text-center">
-                      <InputR value={""} />
 
-                      {/* <InputR value={""} styleClass={"mt-6"} /> */}
-                    </div>
+                    <div style={{ width: "75%" }}>
+                      {productOptions[aOption].options.map((optionItem: any, index: number) => (
+                        <div className="flex w100p text-center">
+                          <div className="w33p text-center">
+                            <InputR
+                              innerStyle={{ marginTop: 4 }}
+                              value={optionItem.optionValue ? optionItem.optionValue : ""}
+                              onChange={(e: any) =>
+                                onChangeOptions(aOption, index, e, "optionValue")
+                              }
+                            />
+                          </div>
 
-                    <div className="w25p text-center">
-                      <InputR value={""} />
-                      {/* <InputR value={""} styleClass={"mt-6"} /> */}
-                    </div>
+                          <div className="w33p text-center">
+                            <InputR
+                              innerStyle={{ marginTop: 4 }}
+                              value={optionItem.price ? optionItem.price : ""}
+                              onChange={(e: any) => onChangeOptions(aOption, index, e, "price")}
+                            />
+                          </div>
 
-                    <div className="w25p text-center">
-                      <div className="flex justify-c">
-                        <button className="btn-add mr-4">삭제</button>
-                        <button className="btn-add">추가</button>
-                      </div>
-                      {/* <div className="flex justify-c mt-6">
-                      <button className="btn-add mr-4">삭제</button>
-                      <button className="btn-add">추가</button>
-                    </div> */}
+                          <div className="w33p text-center mt-4">
+                            <div className="flex justify-c">
+                              {index !== 0 && (
+                                <button
+                                  onClick={() => handleDeleteOption(aOption, index)}
+                                  className="btn-add"
+                                >
+                                  삭제
+                                </button>
+                              )}
+                              {index === 0 && (
+                                <button
+                                  onClick={() => handleAddOption(aOption)}
+                                  className="btn-add-b"
+                                >
+                                  추가
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ))}
-
-                {/* <div className="list-header-content">
-                  <div className="w25p text-center">
-                    <InputR size={"small"} value={""} />
-                  </div>
-                  <div className="w25p text-center">
-                    <InputR value={""} />
-                    <InputR value={""} styleClass={"mt-6"} />
-                    <InputR value={""} styleClass={"mt-6"} />
-                  </div>
-
-                  <div className="w25p text-center">
-                    <InputR value={""} />
-                    <InputR value={""} styleClass={"mt-6"} />
-                    <InputR value={""} styleClass={"mt-6"} />
-                  </div>
-
-                  <div className="w25p text-center">
-                    <div className="flex justify-c">
-                      <button className="btn-add mr-4">삭제</button>
-                      <button className="btn-add">추가</button>
-                    </div>
-                    <div className="flex justify-c mt-6">
-                      <button className="btn-add mr-4">삭제</button>
-                      <button className="btn-add">추가</button>
-                    </div>
-                    <div className="flex justify-c mt-6">
-                      <button className="btn-add mr-4">삭제</button>
-                      <button className="btn-add">추가</button>
-                    </div>
-                  </div>
-                </div> */}
               </div>
             </div>
           )}
@@ -958,30 +1106,6 @@ export default function AddProduct(): JSX.Element {
             <p className="font-catetory">이미지 등록</p>
           </div>
 
-          {/* <div className="field-list-wrapper mt-13">
-          <div className="product-field mr-20">
-            <p>
-              대표이미지
-              <br />
-              (썸네일)
-              <span className="font-red">*</span>
-            </p>
-          </div>
-
-          <div className="mr-12">
-            <input
-              style={{ display: "none" }}
-              ref={(el) => (inputFileRef.current[0] = el)}
-              onChange={(e) => handleFileChange(e, "thumbnail")}
-              type="file"
-            />
-            <ButtonR name={"이미지 추가 0/1"} onClick={handleUploadClick} />
-          </div>
-
-          <p className="font-desc">이미지 1장, 1080px x 1080px</p>
-
-          <div>으악</div>
-        </div> */}
           <div className="mt-13 field-list-wrapper">
             <div className="product-field mr-20">
               <p>
@@ -1019,7 +1143,8 @@ export default function AddProduct(): JSX.Element {
                   <ButtonR
                     name={`변경`}
                     color={"white"}
-                    onClick={() => handleUploadClick(0)}
+                    onClick={() => {}}
+                    // onClick={() => handleUploadClick(0)}
                     styles={{ marginRight: 4 }}
                   />
                   <ButtonR
@@ -1070,7 +1195,8 @@ export default function AddProduct(): JSX.Element {
                         <ButtonR
                           name={`변경`}
                           color={"white"}
-                          onClick={() => handleUploadClick(1)}
+                          onClick={() => {}}
+                          // onClick={() => handleUploadClick(1)}
                           styles={{ marginRight: 4 }}
                         />
                         <ButtonR
@@ -1177,24 +1303,64 @@ export default function AddProduct(): JSX.Element {
                     </div>
                   </div>
 
-                  <div className="flex align-c mt-10">
-                    <div className="justify-c font-14 font-bold" style={{ width: "10%" }}>
+                  <div className="flex mt-10">
+                    <div className="font-14 font-bold" style={{ width: "10%" }}>
                       이미지
                     </div>
-                    <div className="mr-12">
-                      <ButtonR onClick={() => {}} name="이미지 추가 0/5" />
-                    </div>
+                    <div
+                      className="mr-12 flex"
+                      style={{
+                        flexDirection: "column",
+                      }}
+                    >
+                      <div className="flex align-c">
+                        <input
+                          ref={(el) => (inputFileRef.current[2] = el)}
+                          onChange={(e: any) => handleFileChange2(e, "pointForm")}
+                          style={{ display: "none" }}
+                          type="file"
+                        />
+                        <ButtonR
+                          onClick={() => handleUploadClick(2)}
+                          name="이미지 추가 0/5"
+                          styles={{ marginRight: 12 }}
+                        />
 
-                    <p className="font-desc">이미지 최소 1장 ~ 최대 5장, 가로 1080px</p>
+                        <p className="font-desc">이미지 최소 1장 ~ 최대 5장, 가로 1080px</p>
+                      </div>
+
+                      <div className={`text-left flex ${pointForm.img.length !== 0 && "mt-10"}`}>
+                        {pointForm.img?.length !== 0 &&
+                          pointForm.img?.map((el: any, i: number) => (
+                            <div key={i} className="mr-12">
+                              <img src={el.imgUrl} style={{ width: 136, height: "auto" }} />
+                              <div className="flex mb-16">
+                                <ButtonR
+                                  name={`변경`}
+                                  color={"white"}
+                                  onClick={() => {}}
+                                  // onClick={() => handleUploadClick(1)}
+                                  styles={{ marginRight: 4 }}
+                                />
+                                <ButtonR
+                                  name={`삭제`}
+                                  color={"white"}
+                                  onClick={() =>
+                                    handleDeleteFile(
+                                      "additionalImg",
+                                      files?.additionalImg[i]?.fileUrl
+                                    )
+                                  }
+                                />
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
+
                 <div className="text-center w10p flex justify-c">
-                  {/* <ButtonR
-                    onClick={() => {}}
-                    name="삭제"
-                    color="white"
-                    styles={{ marginRight: 4 }}
-                  /> */}
                   <ButtonR onClick={() => handleAddForm("point")} name="추가" />
                 </div>
               </div>
@@ -1263,15 +1429,25 @@ export default function AddProduct(): JSX.Element {
                       </div>
                     </div>
 
-                    <div className="flex align-c mt-10">
-                      <div className="justify-c font-14 font-bold" style={{ width: "10%" }}>
+                    <div className="flex mt-10">
+                      <div className="font-14 font-bold" style={{ width: "10%" }}>
                         이미지
                       </div>
-                      <div className="mr-12">
-                        <ButtonR onClick={() => {}} name="이미지 추가 0/5" />
+                      <div
+                        className="mr-12 flex"
+                        style={{
+                          flexDirection: "column",
+                        }}
+                      >
+                        <div className={`text-left flex ${pointForm.img.length !== 0 && "mt-10"}`}>
+                          {aPoint.img?.length !== 0 &&
+                            aPoint.img?.map((el: any, i: number) => (
+                              <div key={i} className="mr-12">
+                                <img src={el.imgUrl} style={{ width: 136, height: "auto" }} />
+                              </div>
+                            ))}
+                        </div>
                       </div>
-
-                      <p className="font-desc">이미지 최소 1장 ~ 최대 5장, 가로 1080px</p>
                     </div>
                   </div>
                   <div className="text-center w10p">
@@ -1315,8 +1491,8 @@ export default function AddProduct(): JSX.Element {
 
               <div className="list-header-content">
                 <div className="text-center w10p">
-                  <img src={up_b} style={{ width: 28, height: "auto" }} className="mr-4 cursor" />
-                  <img src={down_b} style={{ width: 28, height: "auto" }} className="cursor" />
+                  <img src={up_g} style={{ width: 28, height: "auto" }} className="mr-4 cursor" />
+                  <img src={down_g} style={{ width: 28, height: "auto" }} className="cursor" />
                 </div>
                 <div className="text-center w80p">
                   <div className="flex align">
@@ -1329,8 +1505,17 @@ export default function AddProduct(): JSX.Element {
 
                     <div style={{ width: "80%" }}>
                       <input
+                        value={productItemForm.optionValue}
+                        onChange={(e: any) => {
+                          setProductItemForm((prev: any) => {
+                            return {
+                              ...prev,
+                              optionValue: e.target.value,
+                            };
+                          });
+                        }}
                         className="input-desc"
-                        placeholder="50자 이내로 입력해 주세요.(필수)"
+                        placeholder="10자 이내로 입력해 주세요.(필수)"
                       />
                     </div>
                   </div>
@@ -1339,18 +1524,137 @@ export default function AddProduct(): JSX.Element {
                     <div className="font-14 font-bold" style={{ width: "10%" }}>
                       이미지
                     </div>
-                    <div className="mr-12">
-                      <ButtonR onClick={() => {}} name="이미지 추가 0/5" />
-                    </div>
+                    <div
+                      className="mr-12 flex"
+                      style={{
+                        flexDirection: "column",
+                      }}
+                    >
+                      <div className="flex align-c">
+                        <input
+                          ref={(el) => (inputFileRef.current[3] = el)}
+                          onChange={(e: any) => handleFileChange2(e, "productItemForm")}
+                          style={{ display: "none" }}
+                          type="file"
+                        />
+                        <ButtonR
+                          onClick={() => handleUploadClick(3)}
+                          name="이미지 추가 0/5"
+                          styles={{ marginRight: 12 }}
+                        />
 
-                    <p className="font-desc">이미지 최소 1장 ~ 최대 5장, 가로 1080px</p>
+                        <p className="font-desc">이미지 최소 1장 ~ 최대 5장, 가로 1080px</p>
+                      </div>
+
+                      <div
+                        className={`text-left flex ${productItemForm?.img.length !== 0 && "mt-10"}`}
+                      >
+                        {productItemForm.img?.length !== 0 &&
+                          productItemForm.img?.map((el: any, i: number) => (
+                            <div key={i} className="mr-12">
+                              <img src={el.imgUrl} style={{ width: 136, height: "auto" }} />
+                              <div className="flex mb-16">
+                                <ButtonR
+                                  name={`변경`}
+                                  color={"white"}
+                                  onClick={() => {}}
+                                  // onClick={() => handleUploadClick(1)}
+                                  styles={{ marginRight: 4 }}
+                                />
+                                <ButtonR
+                                  name={`삭제`}
+                                  color={"white"}
+                                  onClick={() =>
+                                    handleDeleteFile(
+                                      "additionalImg",
+                                      files?.additionalImg[i]?.fileUrl
+                                    )
+                                  }
+                                />
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="text-center w10p">
-                  <button className="btn-add mr-4">삭제</button>
-                  <button className="btn-add">추가</button>
+                  <button onClick={() => handleAddForm("productItem")} className="btn-add-b">
+                    추가
+                  </button>
                 </div>
               </div>
+
+              {productItemOptions?.map((aItem: any, i: number) => (
+                <div key={i} className="list-header-content">
+                  <div className="text-center w10p">
+                    <img
+                      onClick={() => handleMoveOrder("productItem", productItemOptions, i, i - 1)}
+                      src={i === 0 ? up_g : up_b}
+                      style={{ width: 28, height: "auto" }}
+                      className="mr-4 cursor"
+                    />
+                    <img
+                      onClick={() => handleMoveOrder("productItem", productItemOptions, i, i + 1)}
+                      src={i === productItemOptions.length - 1 ? down_g : down_b}
+                      style={{ width: 28, height: "auto" }}
+                      className="cursor"
+                    />
+                  </div>
+                  <div className="text-center w80p">
+                    <div className="flex align">
+                      <div
+                        className="font-14 justify-c font-bold flex align-c"
+                        style={{ width: "10%" }}
+                      >
+                        옵션명
+                      </div>
+
+                      <div style={{ width: "80%" }}>
+                        <input
+                          value={aItem.optionName}
+                          className="input-desc"
+                          placeholder="10자 이내로 입력해 주세요.(필수)"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex mt-10">
+                      <div className="font-14 font-bold" style={{ width: "10%" }}>
+                        이미지
+                      </div>
+                      <div
+                        className="mr-12 flex"
+                        style={{
+                          flexDirection: "column",
+                        }}
+                      >
+                        <div
+                          className={`text-left flex ${
+                            productItemForm.img?.length !== 0 && "mt-10"
+                          }`}
+                        >
+                          {aItem.img?.length !== 0 &&
+                            aItem.img?.map((el: any, i: number) => (
+                              <div key={i} className="mr-12">
+                                <img src={el.imgUrl} style={{ width: 136, height: "auto" }} />
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-center w10p">
+                    <button
+                      onClick={() => handleDeleteListItem("productItemOptions", i)}
+                      className="btn-add"
+                    >
+                      삭제
+                    </button>
+                    {/* <button className="btn-add">추가</button> */}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -1570,7 +1874,9 @@ export default function AddProduct(): JSX.Element {
           <button className="btn-add pl-30 pr-30">삭제</button>
           <div className="flex">
             <button className="btn-add mr-4 pl-30 pr-30">취소</button>
-            <button className="btn-add-b pl-30 pr-30">저장</button>
+            <button onClick={handleAddProduct} className="btn-add-b pl-30 pr-30">
+              저장
+            </button>
           </div>
         </div>
       </div>
