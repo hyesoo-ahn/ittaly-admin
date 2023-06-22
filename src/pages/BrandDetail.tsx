@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getDatas, postAddBrand, postUploadImage } from "../common/apis";
+import { getDatas, postAddBrand, postUploadImage, putUpdateData } from "../common/apis";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import forward from "../images/Forward.png";
@@ -63,23 +63,27 @@ const BrandDetail = () => {
 
   // 브랜드 수정
   const handleUpdateBrand = async () => {
-    // const formData = new FormData();
-    // formData.append("file", file.file as File);
-    // const getUrl: any = await postUploadImage(formData);
-    // if (getUrl.result && getUrl.status === 200) {
-    //   const body = {
-    //     collection: "brands",
-    //     brandName,
-    //     desc,
-    //     imgUrl: getUrl.url,
-    //     openStatus,
-    //   };
-    //   const addResult: any = await postAddBrand(body);
-    //   if (addResult.result && addResult.status === 200) {
-    //     alert("브랜드 등록이 완료되었습니다.");
-    //   }
-    //   navigate(-1);
-    // }
+    let _body: any = {
+      collection: "brands",
+      _id: brandId,
+      brandName,
+      desc,
+      openStatus,
+    };
+    if (file.file) {
+      const formData = new FormData();
+      formData.append("file", file.file as File);
+      const getUrl: any = await postUploadImage(formData);
+
+      if (getUrl.result && getUrl.status === 200) {
+        _body.imgUrl = getUrl.url;
+      }
+    }
+    const updateResult: any = await putUpdateData(_body);
+    if (updateResult.result && updateResult.status === 200) {
+      alert("브랜드 수정이 완료되었습니다.");
+      navigate(-1);
+    }
   };
 
   return (
@@ -154,7 +158,10 @@ const BrandDetail = () => {
                 onChange={(e) => handleFileChange(e)}
                 type="file"
               />
-              <ButtonR onClick={() => fileRef?.current?.click()} name={`이미지 추가 0/1`} />
+              <ButtonR
+                onClick={() => fileRef?.current?.click()}
+                name={`이미지 추가 ${file.url ? 1 : 0}/1`}
+              />
             </div>
 
             <p className="font-desc">이미지 1장, 1080px x 1080px</p>
@@ -167,11 +174,20 @@ const BrandDetail = () => {
               <ButtonR
                 name={`변경`}
                 color={"white"}
-                onClick={() => {}}
+                onClick={() => fileRef?.current?.click()}
                 // onClick={() => handleUploadClick(0)}
                 styles={{ marginRight: 4 }}
               />
-              <ButtonR name={`삭제`} color={"white"} onClick={() => {}} />
+              <ButtonR
+                name={`삭제`}
+                color={"white"}
+                onClick={() =>
+                  setFile({
+                    file: null,
+                    url: "",
+                  })
+                }
+              />
             </div>
           )}
         </div>

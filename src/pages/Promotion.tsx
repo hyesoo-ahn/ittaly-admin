@@ -5,7 +5,7 @@ import { IBrandData } from "../common/interfacs";
 import { deleteItem } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 
-const Brand = () => {
+const Promotion = () => {
   const navigate = useNavigate();
   const [brandData, setBrandData] = useState<IBrandData[]>();
 
@@ -24,16 +24,16 @@ const Brand = () => {
   return (
     <div>
       <div className="flex justify-sb align-c">
-        <p className="page-title">브랜드 관리</p>
+        <p className="page-title">첫 화면 관리 {">"} 기획전</p>
       </div>
 
       <div className="mt-34 flex justify-sb align-c">
         <p>총 {brandData?.length}건</p>
         <ButtonR
           onClick={() => {
-            navigate("/brand/addbrand");
+            navigate("/promotion/addpromotion");
           }}
-          name="브랜드 등록"
+          name="기획전 등록"
         />
       </div>
 
@@ -94,4 +94,4 @@ const Brand = () => {
   );
 };
 
-export default Brand;
+export default Promotion;

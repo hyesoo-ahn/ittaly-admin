@@ -8,7 +8,7 @@ import down_g from "../images/down_g.png";
 import up_b from "../images/up_b.png";
 import down_b from "../images/down_b.png";
 import { moveValue } from "../common/utils";
-import { getDatas, postAddCategory } from "../common/apis";
+import { getDatas, postAddCategory, putUpdateData } from "../common/apis";
 import { ISubCategory } from "../common/interfacs";
 
 const CategoryDetail = () => {
@@ -74,18 +74,20 @@ const CategoryDetail = () => {
   };
 
   const handleUpdateCategory = async (): Promise<void> => {
-    // const _body: any = {
-    //   collection: "categories",
-    //   name,
-    //   url,
-    //   openStatus,
-    //   subCategories,
-    // };
-    // const postResult = await postAddCategory(_body);
-    // if (postResult.result && postResult.status === 200) {
-    //   alert("카테고리 등록이 완료되었습니다.");
-    //   navigate(-1);
-    // }
+    const _body: any = {
+      collection: "categories",
+      _id: categoryId,
+      name,
+      url,
+      openStatus,
+      subCategories,
+    };
+
+    const postResult: any = await putUpdateData(_body);
+    if (postResult.result && postResult.status === 200) {
+      alert("카테고리 수정이 완료되었습니다.");
+      navigate(-1);
+    }
   };
 
   return (
@@ -348,7 +350,7 @@ const CategoryDetail = () => {
       )}
 
       <div className="flex justify-fe mt-10">
-        <ButtonR name={"취소"} onClick={() => {}} styleClass={"mr-4"} color={"white"} />
+        <ButtonR name={"취소"} onClick={() => navigate(-1)} styleClass={"mr-4"} color={"white"} />
         <ButtonR name={"저장"} onClick={handleUpdateCategory} />
       </div>
     </div>

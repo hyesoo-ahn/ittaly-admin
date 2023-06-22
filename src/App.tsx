@@ -18,6 +18,10 @@ import AddCategory from "./pages/AddCategory";
 import BrandDetail from "./pages/BrandDetail";
 import CategoryDetail from "./pages/CategoryDetail";
 import { ADMIN_TOKEN } from "./common/config";
+import BannerTop from "./pages/BannerTop";
+import AddBannerTop from "./pages/AddBannerTop";
+import Promotion from "./pages/Promotion";
+import AddPromotion from "./pages/AddPromotion";
 
 function App() {
   useEffect(() => {
@@ -48,10 +52,6 @@ function App() {
     handleStateChange: _handleStateChange,
     isUser: false,
   });
-
-  useEffect(() => {
-    console.log(data.isUser);
-  }, [data]);
 
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -110,6 +110,24 @@ function App() {
         {
           path: "/signup",
           element: <Signup />,
+        },
+
+        {
+          path: "/banner",
+          element: <BannerTop />,
+        },
+        {
+          path: "/banner/addbanner",
+          element: <AddBannerTop />,
+        },
+
+        {
+          path: "/promotion",
+          element: <Promotion />,
+        },
+        {
+          path: "/promotion/addPromotion",
+          element: <AddPromotion />,
         },
       ],
     },

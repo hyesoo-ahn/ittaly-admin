@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getDatas } from "../common/apis";
+import { deleteData, getDatas } from "../common/apis";
 import ButtonR from "../components/ButtonR";
+import up_g from "../images/up_g.png";
+import up_b from "../images/up_b.png";
+import down_g from "../images/down_g.png";
+import down_b from "../images/down_b.png";
+import { moveValue } from "../common/utils";
 
 const Category = () => {
   const navigate = useNavigate();
@@ -17,6 +22,26 @@ const Category = () => {
     });
 
     setCategories(getCategoryData.data);
+  };
+
+  const handleMoveOrder = (array: object[], fromIndex: number, toIndex: number) => {
+    const newArr: any = moveValue(array, fromIndex, toIndex);
+
+    setCategories([...newArr]);
+  };
+
+  const handleDelteCategory = async (id: string) => {
+    //카테고리 삭제시 등록된 상품도 같이 삭제..?
+
+    const deleteResult: any = await deleteData({
+      collection: "categories",
+      _id: id,
+    });
+
+    if (deleteResult.deletedCount) {
+      alert("해당 카테고리가 삭제되었습니다.");
+      init();
+    }
   };
 
   return (
@@ -64,7 +89,18 @@ const Category = () => {
             </div>
 
             <div className="w15p">
-              <p>순서</p>
+              <img
+                onClick={() => handleMoveOrder(categories, i, i - 1)}
+                src={i === 0 ? up_g : up_b}
+                style={{ width: 28, height: "auto" }}
+                className="mr-4 cursor"
+              />
+              <img
+                onClick={() => handleMoveOrder(categories, i, i + 1)}
+                src={i === categories.length - 1 ? down_g : down_b}
+                style={{ width: 28, height: "auto" }}
+                className="cursor"
+              />
             </div>
 
             <div className="w40p">
@@ -82,7 +118,12 @@ const Category = () => {
                 styles={{ marginRight: 4 }}
                 onClick={() => navigate(`/category/${aCategory._id}`)}
               />
-              <ButtonR name="삭제" color="white" styles={{ marginRight: 4 }} onClick={() => {}} />
+              <ButtonR
+                name="삭제"
+                color="white"
+                styles={{ marginRight: 4 }}
+                onClick={() => handleDelteCategory(aCategory._id)}
+              />
             </div>
           </div>
         </div>

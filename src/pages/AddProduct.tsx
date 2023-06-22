@@ -13,7 +13,7 @@ import Modal from "../components/Modal";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { currency, moveValue } from "../common/utils";
 import CheckboxS from "../components/CheckboxS";
-import { getDatas, postUploadImage } from "../common/apis";
+import { getDatas, postAddProduct, postUploadImage } from "../common/apis";
 
 const Cateogyoptions1 = [
   { value: "대분류 카테고리1", label: "대분류 카테고리1" },
@@ -36,7 +36,7 @@ const brandOptions = [
 interface IPoint {
   summary: string;
   desc: string;
-  img: IFile[];
+  imgUrls: IFile[];
 }
 
 interface IProductInfo {
@@ -66,8 +66,10 @@ export default function AddProduct(): JSX.Element {
       luckyDraw: false,
     },
     dutyFree: false,
-    options: [],
     freeShip: true,
+    deliveryFee: "",
+    deliveryFeeForException: "",
+    deliveryType: "international",
     originalPrice: "",
     discounted: "",
   });
@@ -82,15 +84,15 @@ export default function AddProduct(): JSX.Element {
     points: [],
     options: [],
   });
-  const [points, setPoints] = useState<IPoint[]>([]);
+  const [points, setPoints] = useState<any[]>([]);
   const [pointForm, setPointForm] = useState<IPoint>({
     summary: "",
     desc: "",
-    img: [],
+    imgUrls: [],
   });
   const [productItemForm, setProductItemForm] = useState<any>({
     optionName: "",
-    img: [],
+    imgUrls: [],
   });
   const [productInfoForm, setProductInfoForm] = useState<IProductInfo>({
     title: "",
@@ -114,32 +116,46 @@ export default function AddProduct(): JSX.Element {
   // 서브카테고리
   const [subCategories, setSubCategories] = useState<any>([]);
 
+  // 브랜드
+  const [brands, setBrands] = useState<any>([]);
+
+  const [body, setBody] = useState<any>("");
+
+  const [loading, setLoading] = useState<boolean>(false);
+
   useEffect(() => {
     init();
   }, []);
 
   useEffect(() => {
     if (form.category1 !== "") {
-      // console.log(form.category1);
-      // let tempCategories = [];
-      // for (let i = 0; i < form.category1?.subCategories?.length; i++) {
-      //   tempCategories.push({
-      //     value: form.category1?.subCategories[i].optionName,
-      //     label: form.category1?.subCategories[i].optionName,
-      //   });
-      // }
-      // setSubCategories(tempCategories);
+      const targetIdx = categories.findIndex((el: any, i: number) => el.value === form.category1);
+
+      let tempCategories = [];
+      for (let i = 0; i < categories[targetIdx].subCategories.length; i++) {
+        tempCategories.push({
+          value: categories[targetIdx].subCategories[i].optionName,
+          label: categories[targetIdx].subCategories[i].optionName,
+        });
+      }
+
+      setSubCategories(tempCategories);
     }
   }, [form.category1]);
 
   const init = async () => {
+    // 카테고리 불러오기
     const getCategories: any = await getDatas({
       collection: "categories",
     });
 
-    let categories = [];
+    const getBrands: any = await getDatas({
+      collection: "brands",
+    });
+
+    let tempcategories = [];
     for (let i = 0; i < getCategories?.data?.length; i++) {
-      categories.push({
+      tempcategories.push({
         value: getCategories?.data[i]?.name,
         label: getCategories?.data[i]?.name,
         subCategories: getCategories?.data[i]?.subCategories,
@@ -147,8 +163,17 @@ export default function AddProduct(): JSX.Element {
       });
     }
 
-    setCategories(categories);
-    console.log(getCategories);
+    let tempBrands = [];
+    for (let i = 0; i < getBrands?.data?.length; i++) {
+      tempBrands.push({
+        value: getBrands?.data[i]?.brandName,
+        label: getBrands?.data[i]?.brandName,
+        _id: getBrands?.data[i]?._id,
+      });
+    }
+
+    setCategories(tempcategories);
+    setBrands(tempBrands);
   };
   const onChangeForm = (type: string, value: string | object | boolean) => {
     setForm((prev: any) => {
@@ -159,10 +184,10 @@ export default function AddProduct(): JSX.Element {
     });
   };
 
-  useEffect(() => {
-    console.log(productOptions);
-    console.log(form);
-  }, [productOptions, form]);
+  // useEffect(() => {
+  //   console.log(productOptions);
+  //   console.log(form);
+  // }, [productOptions, form]);
 
   const handleUploadClick = async (idx: number) => {
     inputFileRef?.current[idx]?.click();
@@ -203,7 +228,7 @@ export default function AddProduct(): JSX.Element {
   const handleFileChange2 = (evt: any, type: string) => {
     const file = evt.target.files?.[0];
     const imgUrl: any = URL.createObjectURL(file);
-    let imgArr = type === "pointForm" ? [...pointForm.img] : [...productItemForm.img];
+    let imgArr = type === "pointForm" ? [...pointForm.imgUrls] : [...productItemForm.imgUrls];
     imgArr.push({
       file: file,
       imgUrl: imgUrl,
@@ -213,14 +238,14 @@ export default function AddProduct(): JSX.Element {
       setPointForm((prev: any) => {
         return {
           ...prev,
-          img: imgArr,
+          imgUrls: imgArr,
         };
       });
     } else {
       setProductItemForm((prev: any) => {
         return {
           ...prev,
-          img: imgArr,
+          imgUrls: imgArr,
         };
       });
     }
@@ -253,7 +278,7 @@ export default function AddProduct(): JSX.Element {
         setPointForm({
           summary: "",
           desc: "",
-          img: [],
+          imgUrls: [],
         });
         break;
 
@@ -274,7 +299,7 @@ export default function AddProduct(): JSX.Element {
         setProductItemOptions(tempArr);
         setProductItemForm({
           optionName: "",
-          img: [],
+          imgUrls: [],
         });
 
         break;
@@ -454,18 +479,100 @@ export default function AddProduct(): JSX.Element {
     // 판매/가격 정보까지 =>  form
     // 옵션 여부 => productOptions
     // 배송정책 form.freeship
-    // 대표 이미지 => files.thumbnail url: fileUrl
-    // 추가 이미지 => files.additionalImg url: fileUrl
+    // 대표 이미지 => files.thumbnail url: imgUrl
+    // 추가 이미지 => files.additionalImg url: imgUrl
     // 구매 포인트 => points 요약: summary 설명: desc 이미지URL: imgUrl
     // 상품 옵션 => productItemOptions 옵션명: optionName 이미지URL: imgUrl
     // 상품정보제공공시 => productInfos 제목: title 설명: content
     // 연관 추천상품 => relatedProducts 랜덤: random 직접입력: planned products: []...
     // 판매상태 saleStatus 판매중: onSale 판매중지: saleStopped 일시품절: soldOut
-    console.log(files.thumbnail);
+    // console.log(files.thumbnail);
+
+    if (loading) return alert("상품 등록중입니다.");
+    setLoading(true);
+
+    let tempForm = { ...form };
+    delete tempForm.productSetting;
+    delete tempForm.originalPrice;
+
+    let _body = {
+      ...tempForm,
+
+      price: Number(form.originalPrice.replace(/,/gi, "")),
+      discounted: Number(form.discounted.replace(/,/gi, "")),
+      deliveryFee: Number(form.deliveryFee.replace(/,/gi, "")),
+      deliveryFeeForException: Number(form.deliveryFeeForException.replace(/,/gi, "")),
+      noneCoupon: form.productSetting.noneCoupon,
+      bossPick: form.productSetting.bossPick,
+      best: form.productSetting.best,
+      luckyDraw: form.productSetting.luckyDraw,
+      productOptions,
+      productInfos,
+      saleStatus,
+    };
+
+    // 대표이미지(썸네일)
     const formData = new FormData();
-    formData.append("file", files.thumbnail[0].file);
-    const getUrl: string | boolean = await postUploadImage(formData);
-    console.log(getUrl);
+    formData.append("file", files.thumbnail[0]?.file);
+    const getUrl: any = await postUploadImage(formData);
+    _body.thumbnail = getUrl.url;
+
+    // // 추가이미지
+    let tempAdditionalImg: string[] = [];
+    for (let i = 0; i < files.additionalImg.length; i++) {
+      const formData = new FormData();
+      formData.append("file", files.additionalImg[i].file);
+      const getUrl: any = await postUploadImage(formData);
+      tempAdditionalImg.push(getUrl.url);
+    }
+
+    _body.additionalImg = tempAdditionalImg;
+
+    // 구매포인트
+    let tempPoints: any = [...points];
+
+    for (let i = 0; i < tempPoints?.length; i++) {
+      let tempImgArr: string[] = [];
+      for (let k = 0; k < tempPoints[i]?.imgUrls?.length; k++) {
+        const formData = new FormData();
+        formData.append("file", tempPoints[i]?.imgUrls[k]?.file);
+        const getUrl: any = await postUploadImage(formData);
+        if (getUrl.result) {
+          tempImgArr.push(getUrl.url);
+        }
+      }
+
+      tempPoints[i].imgUrls = tempImgArr;
+    }
+
+    _body.salesPoints = tempPoints;
+
+    // 상품옵션
+    let tempItemOptions: any = [...productItemOptions];
+    for (let i = 0; i < tempItemOptions?.length; i++) {
+      let tempImgArr: string[] = [];
+      for (let k = 0; k < tempItemOptions[i]?.imgUrls?.length; k++) {
+        const formData = new FormData();
+        formData.append("file", tempItemOptions[i]?.imgUrls[k]?.file);
+        const getUrl: any = await postUploadImage(formData);
+        if (getUrl.result) {
+          tempImgArr.push(getUrl.url);
+        }
+      }
+      tempItemOptions[i].imgUrls = tempImgArr;
+    }
+    _body.productItemOptions = tempItemOptions;
+
+    const productAddResult: any = await postAddProduct({
+      collection: "products",
+      ..._body,
+    });
+
+    if (productAddResult.result) {
+      alert("상품 등록이 완료되었습니다.");
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -677,6 +784,7 @@ export default function AddProduct(): JSX.Element {
               onChange={(e: any) => onChangeForm("category1", e.value)}
               options={categories}
               className="react-select-container"
+              noOptionsMessage={({ inputValue }) => "등록된 카테고리가 없습니다."}
             />
             <Select
               classNamePrefix="react-select"
@@ -685,6 +793,7 @@ export default function AddProduct(): JSX.Element {
               onChange={(e: any) => onChangeForm("category2", e.value)}
               options={subCategories}
               className="react-select-container"
+              noOptionsMessage={({ inputValue }) => "카테고리가 없습니다."}
             />
           </div>
 
@@ -700,8 +809,9 @@ export default function AddProduct(): JSX.Element {
               placeholder={"브랜드"}
               defaultValue={null}
               onChange={(e: any) => onChangeForm("brand", e.value)}
-              options={brandOptions}
+              options={brands}
               className="react-select-container"
+              noOptionsMessage={({ inputValue }) => "등록된 브랜드가 없습니다."}
             />
           </div>
 
@@ -1058,6 +1168,40 @@ export default function AddProduct(): JSX.Element {
 
           <div className="product-field-wrapper mt-13">
             <div className="product-field mr-20">
+              <p>배송유형</p>
+            </div>
+
+            <div
+              onClick={() => onChangeForm("deliveryType", "international")}
+              className="checkbox-c mr-4"
+            >
+              {form.deliveryType === "international" && <div className="checkbox-c-filled"></div>}
+            </div>
+
+            <p
+              onClick={() => onChangeForm("deliveryType", "international")}
+              className="font-desc mr-20 cursor"
+            >
+              해외배송
+            </p>
+
+            <div
+              onClick={() => onChangeForm("deliveryType", "domestic")}
+              className="checkbox-c mr-4"
+            >
+              {form.deliveryType === "domestic" && <div className="checkbox-c-filled"></div>}
+            </div>
+
+            <p
+              onClick={() => onChangeForm("deliveryType", "domestic")}
+              className="font-desc cursor"
+            >
+              국내배송
+            </p>
+          </div>
+
+          <div className="product-field-wrapper mt-2">
+            <div className="product-field mr-20">
               <p>배송정책</p>
             </div>
 
@@ -1077,13 +1221,17 @@ export default function AddProduct(): JSX.Element {
               유료배송
             </p>
 
-            <InputR
-              size={"small"}
-              styleClass="ml-10 mr-10"
-              value={form.productCode}
-              onChange={(e: any) => onChangeForm("productCode", e.target.value)}
-            />
-            <p className="font-desc">원</p>
+            {!form.freeShip && (
+              <>
+                <InputR
+                  size={"small"}
+                  styleClass="ml-10 mr-10"
+                  value={form.deliveryFee}
+                  onChange={(e: any) => onChangePrice("deliveryFee", e.target.value)}
+                />
+                <p className="font-desc">원</p>
+              </>
+            )}
           </div>
 
           <div className="product-field-wrapper mt-2">
@@ -1093,8 +1241,8 @@ export default function AddProduct(): JSX.Element {
 
             <InputR
               styleClass="mr-10"
-              value={form.productCode}
-              onChange={(e: any) => onChangeForm("productCode", e.target.value)}
+              value={form.deliveryFeeForException}
+              onChange={(e: any) => onChangePrice("deliveryFeeForException", e.target.value)}
             />
             <p className="font-desc">원</p>
           </div>
@@ -1192,13 +1340,13 @@ export default function AddProduct(): JSX.Element {
                         style={{ width: 136, height: "auto" }}
                       />
                       <div className="flex mb-16">
-                        <ButtonR
+                        {/* <ButtonR
                           name={`변경`}
                           color={"white"}
                           onClick={() => {}}
                           // onClick={() => handleUploadClick(1)}
                           styles={{ marginRight: 4 }}
-                        />
+                        /> */}
                         <ButtonR
                           name={`삭제`}
                           color={"white"}
@@ -1329,9 +1477,11 @@ export default function AddProduct(): JSX.Element {
                         <p className="font-desc">이미지 최소 1장 ~ 최대 5장, 가로 1080px</p>
                       </div>
 
-                      <div className={`text-left flex ${pointForm.img.length !== 0 && "mt-10"}`}>
-                        {pointForm.img?.length !== 0 &&
-                          pointForm.img?.map((el: any, i: number) => (
+                      <div
+                        className={`text-left flex ${pointForm.imgUrls.length !== 0 && "mt-10"}`}
+                      >
+                        {pointForm.imgUrls?.length !== 0 &&
+                          pointForm.imgUrls?.map((el: any, i: number) => (
                             <div key={i} className="mr-12">
                               <img src={el.imgUrl} style={{ width: 136, height: "auto" }} />
                               <div className="flex mb-16">
@@ -1345,12 +1495,11 @@ export default function AddProduct(): JSX.Element {
                                 <ButtonR
                                   name={`삭제`}
                                   color={"white"}
-                                  onClick={() =>
-                                    handleDeleteFile(
-                                      "additionalImg",
-                                      files?.additionalImg[i]?.fileUrl
-                                    )
-                                  }
+                                  onClick={() => {}}
+                                  // handleDeleteFile(
+                                  //   "additionalImg",
+                                  //   files?.additionalImg[i]?.fileUrl
+                                  // )
                                 />
                               </div>
                             </div>
@@ -1439,9 +1588,11 @@ export default function AddProduct(): JSX.Element {
                           flexDirection: "column",
                         }}
                       >
-                        <div className={`text-left flex ${pointForm.img.length !== 0 && "mt-10"}`}>
-                          {aPoint.img?.length !== 0 &&
-                            aPoint.img?.map((el: any, i: number) => (
+                        <div
+                          className={`text-left flex ${pointForm.imgUrls.length !== 0 && "mt-10"}`}
+                        >
+                          {aPoint.imgUrls?.length !== 0 &&
+                            aPoint.imgUrls?.map((el: any, i: number) => (
                               <div key={i} className="mr-12">
                                 <img src={el.imgUrl} style={{ width: 136, height: "auto" }} />
                               </div>
@@ -1505,12 +1656,12 @@ export default function AddProduct(): JSX.Element {
 
                     <div style={{ width: "80%" }}>
                       <input
-                        value={productItemForm.optionValue}
+                        value={productItemForm.optionName}
                         onChange={(e: any) => {
                           setProductItemForm((prev: any) => {
                             return {
                               ...prev,
-                              optionValue: e.target.value,
+                              optionName: e.target.value,
                             };
                           });
                         }}
@@ -1547,10 +1698,12 @@ export default function AddProduct(): JSX.Element {
                       </div>
 
                       <div
-                        className={`text-left flex ${productItemForm?.img.length !== 0 && "mt-10"}`}
+                        className={`text-left flex ${
+                          productItemForm?.imgUrls.length !== 0 && "mt-10"
+                        }`}
                       >
-                        {productItemForm.img?.length !== 0 &&
-                          productItemForm.img?.map((el: any, i: number) => (
+                        {productItemForm.imgUrls?.length !== 0 &&
+                          productItemForm.imgUrls?.map((el: any, i: number) => (
                             <div key={i} className="mr-12">
                               <img src={el.imgUrl} style={{ width: 136, height: "auto" }} />
                               <div className="flex mb-16">
@@ -1631,11 +1784,11 @@ export default function AddProduct(): JSX.Element {
                       >
                         <div
                           className={`text-left flex ${
-                            productItemForm.img?.length !== 0 && "mt-10"
+                            productItemForm.imgUrls?.length !== 0 && "mt-10"
                           }`}
                         >
-                          {aItem.img?.length !== 0 &&
-                            aItem.img?.map((el: any, i: number) => (
+                          {aItem.imgUrls?.length !== 0 &&
+                            aItem.imgUrls?.map((el: any, i: number) => (
                               <div key={i} className="mr-12">
                                 <img src={el.imgUrl} style={{ width: 136, height: "auto" }} />
                               </div>
@@ -1875,7 +2028,7 @@ export default function AddProduct(): JSX.Element {
           <div className="flex">
             <button className="btn-add mr-4 pl-30 pr-30">취소</button>
             <button onClick={handleAddProduct} className="btn-add-b pl-30 pr-30">
-              저장
+              {loading ? "상품 등록중" : "저장"}
             </button>
           </div>
         </div>

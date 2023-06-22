@@ -276,6 +276,10 @@ p {
   font-size: 12px;
 }
 
+.font-white {
+  color: #fff;
+}
+
 /* input component */
 /* input regular */
 .input-r-width {
@@ -394,6 +398,16 @@ p {
 
 .react-select-container {
   margin-right: 10px !important;
+}
+
+.react-select-container2 {
+  margin-top: 8px !important;
+  width: calc(100%) !important;
+  margin-right: 8px !important;
+}
+
+.react-select__control {
+  width: calc(100% - 7px) !important;
 }
 
 /* 공용 컴포넌트 버튼 레귤러 */

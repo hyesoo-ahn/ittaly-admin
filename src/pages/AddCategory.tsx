@@ -328,7 +328,7 @@ const AddCategory = () => {
       )}
 
       <div className="flex justify-fe mt-10">
-        <ButtonR name={"취소"} onClick={() => {}} styleClass={"mr-4"} color={"white"} />
+        <ButtonR name={"취소"} onClick={() => navigate(-1)} styleClass={"mr-4"} color={"white"} />
         <ButtonR name={"저장"} onClick={handleAddCategory} />
       </div>
     </div>
