@@ -71,9 +71,16 @@ const AddPromotion: React.FC = () => {
 
   return (
     <div>
-      <div className="flex align-c pb-30">
-        <img onClick={() => navigate(-1)} className="img-close cursor mr-4" src={forward} />
-        <p className="page-title mt-3">기획전 등록</p>
+      <div className="flex align-c justify-sb pb-30">
+        <div className="flex alicn-c">
+          <img onClick={() => navigate(-1)} className="img-close cursor mr-4" src={forward} />
+          <p className="page-title mt-3">기획전 등록</p>
+        </div>
+
+        <p className="font-desc">
+          <span className="font-red mr-4">*</span>
+          <span>필수입력</span>
+        </p>
       </div>
 
       <div className="product-field-wrapper mt-2 w100p">

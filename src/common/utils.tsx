@@ -21,15 +21,120 @@ export const currency = (num: number): string => {
 };
 
 export const deleteItem = async (collection: string, _id: string, type: string) => {
-  const deleteResult: any = await deleteData({
-    collection,
-    _id,
-  });
+  let typeSubject = "";
 
-  if (deleteResult.deletedCount === 1 && deleteResult.status === 200) {
-    alert(`해당 ${type}가(이) 삭제되었습니다.`);
+  switch (type) {
+    case "배너":
+      typeSubject = "배너를";
+      break;
+    case "브랜드":
+      typeSubject = "브랜드를";
+      break;
+    case "기획전":
+      typeSubject = "기획전을";
+      break;
+  }
+
+  const confirm = window.confirm(`해당 ${typeSubject} 삭제하시겠습니까?`);
+  if (confirm) {
+    const deleteResult: any = await deleteData({
+      collection,
+      _id,
+    });
+
+    if (deleteResult.deletedCount === 1 && deleteResult.status === 200) {
+      alert(`해당 ${type}가(이) 삭제되었습니다.`);
+    }
+  } else {
+    return;
   }
 };
 
 // 반대로 풀때
 // const n: string = text.replace(/,/gi, "");
+
+export const timeFormat1 = (timestamp: number): string => {
+  const time: Date = new Date(timestamp);
+  const year: string = time.getFullYear().toString();
+  let month: string = (time.getMonth() + 1).toString();
+  if (month.length === 1) {
+    month = "0" + month;
+  }
+  let hours: string = time.getHours() > 9 ? time.getHours().toString() : `0${time.getHours()}`;
+  let minutes: string =
+    time.getMinutes() > 9 ? time.getMinutes().toString() : `0${time.getMinutes()}`;
+  let date: string = time.getDate().toString();
+  if (date.length === 1) {
+    date = "0" + date;
+  }
+  const day = time.getDay();
+  let _dayKr = "";
+  switch (day) {
+    case 0:
+      _dayKr = "일";
+      break;
+    case 1:
+      _dayKr = "월";
+      break;
+    case 2:
+      _dayKr = "화";
+      break;
+    case 3:
+      _dayKr = "수";
+      break;
+    case 4:
+      _dayKr = "목";
+      break;
+    case 5:
+      _dayKr = "금";
+      break;
+    case 6:
+      _dayKr = "토";
+      break;
+  }
+
+  return `${year}. ${month}. ${date} (${_dayKr}) ${hours}:${minutes}`;
+};
+
+export const timeFormat2 = (timestamp: number): string => {
+  const time: Date = new Date(timestamp);
+  const year: string = time.getFullYear().toString();
+  let month: string = (time.getMonth() + 1).toString();
+  if (month.length === 1) {
+    month = "0" + month;
+  }
+  let hours: string = time.getHours() > 9 ? time.getHours().toString() : `0${time.getHours()}`;
+  let minutes: string =
+    time.getMinutes() > 9 ? time.getMinutes().toString() : `0${time.getMinutes()}`;
+  let date: string = time.getDate().toString();
+  if (date.length === 1) {
+    date = "0" + date;
+  }
+  const day = time.getDay();
+  let _dayKr = "";
+  switch (day) {
+    case 0:
+      _dayKr = "일";
+      break;
+    case 1:
+      _dayKr = "월";
+      break;
+    case 2:
+      _dayKr = "화";
+      break;
+    case 3:
+      _dayKr = "수";
+      break;
+    case 4:
+      _dayKr = "목";
+      break;
+    case 5:
+      _dayKr = "금";
+      break;
+    case 6:
+      _dayKr = "토";
+      break;
+  }
+
+  return `${year}-${month}-${date}`;
+};

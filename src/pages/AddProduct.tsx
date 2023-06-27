@@ -98,7 +98,20 @@ export default function AddProduct(): JSX.Element {
     title: "",
     content: "",
   });
-  const [productInfos, setProductInfos] = useState<IProductInfo[]>([]);
+  const [productInfos, setProductInfos] = useState<IProductInfo[]>([
+    {
+      title: "제조국",
+      content: "이탈리아",
+    },
+    {
+      title: "품질 보증 기준",
+      content: "공정거래위원회 고시(소비자분쟁해결기준)에 의거하여 보상해 드립니다.",
+    },
+    {
+      title: "A/S 책임자와 전화번호",
+      content: "ittaly, 010-4194-4399 (평일 09:00 - 18:00)",
+    },
+  ]);
   const [saleStatus, setSaleStatus] = useState<string>("onSale");
 
   // 연관상품
@@ -283,8 +296,8 @@ export default function AddProduct(): JSX.Element {
         break;
 
       case "productInfo":
-        tempArr = [...productInfos];
-        tempArr.push(productInfoForm);
+        tempArr = [productInfoForm, ...productInfos];
+        // tempArr.push(productInfoForm);
         setProductInfos(tempArr);
         setProductInfoForm({
           title: "",
@@ -419,13 +432,32 @@ export default function AddProduct(): JSX.Element {
           options: [{}],
         },
       });
-    } else {
+    }
+
+    if (value === "2개") {
       setProductOptions({
         option1: {
           optionName: "",
           options: [{}],
         },
         option2: {
+          optionName: "",
+          options: [{}],
+        },
+      });
+    }
+
+    if (value === "3개") {
+      setProductOptions({
+        option1: {
+          optionName: "",
+          options: [{}],
+        },
+        option2: {
+          optionName: "",
+          options: [{}],
+        },
+        option3: {
           optionName: "",
           options: [{}],
         },
@@ -495,9 +527,16 @@ export default function AddProduct(): JSX.Element {
     delete tempForm.productSetting;
     delete tempForm.originalPrice;
 
+    let categoryId: string = "";
+    for (let i in categories) {
+      if (categories[i].value === form.category1) {
+        categoryId = categories[i]._id;
+      }
+    }
+
     let _body = {
       ...tempForm,
-
+      categoryId,
       price: Number(form.originalPrice.replace(/,/gi, "")),
       discounted: Number(form.discounted.replace(/,/gi, "")),
       deliveryFee: Number(form.deliveryFee.replace(/,/gi, "")),
@@ -573,6 +612,28 @@ export default function AddProduct(): JSX.Element {
     }
 
     setLoading(false);
+  };
+
+  const handleCancelProductInfo = () => {
+    setProductInfos([
+      {
+        title: "제조국",
+        content: "이탈리아",
+      },
+      {
+        title: "품질 보증 기준",
+        content: "공정거래위원회 고시(소비자분쟁해결기준)에 의거하여 보상해 드립니다.",
+      },
+      {
+        title: "A/S 책임자와 전화번호",
+        content: "ittaly, 010-4194-4399 (평일 09:00 - 18:00)",
+      },
+    ]);
+    setProductInfoForm({
+      title: "",
+      content: "",
+    });
+    handleClose();
   };
 
   return (
@@ -742,12 +803,7 @@ export default function AddProduct(): JSX.Element {
               <ButtonR
                 color={"white"}
                 onClick={() => {
-                  setProductInfos([]);
-                  setProductInfoForm({
-                    title: "",
-                    content: "",
-                  });
-                  handleClose();
+                  handleCancelProductInfo();
                 }}
                 styles={{ marginRight: 10 }}
                 name={"취소"}
@@ -1065,6 +1121,10 @@ export default function AddProduct(): JSX.Element {
                   {
                     value: "2개",
                     label: "2개",
+                  },
+                  {
+                    value: "3개",
+                    label: "3개",
                   },
                 ]}
                 className="react-select-container"

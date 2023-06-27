@@ -4,3 +4,16 @@
   margin-top: 14px;
   padding: 14px 25px;
 }
+
+.font-lightgray {
+  color: #acacac !important;
+}
+
+.pagination {
+}
+
+.pagination > p {
+  margin-right: 10px;
+  font-size: 15px;
+  cursor: pointer;
+}

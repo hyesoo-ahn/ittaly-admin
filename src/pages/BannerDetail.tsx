@@ -1,12 +1,27 @@
-import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getDatas, postAddBrand, postCollection, postUploadImage } from "../common/apis";
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  getDatas,
+  postAddBrand,
+  postCollection,
+  postUploadImage,
+  putUpdateData,
+} from "../common/apis";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import forward from "../images/Forward.png";
 import sale from "../images/sale_s.png";
 import new_s from "../images/new_s.png";
 import Select from "react-select";
+import uuid from "react-uuid";
+import { timeFormat2 } from "../common/utils";
 
 interface IFile {
   file: File | null;
@@ -19,8 +34,10 @@ const Cateogyoptions1 = [
   { value: "대분류 카테고리3", label: "대분류 카테고리3" },
 ];
 
-const AddBannerTop: React.FC = () => {
+const BannerDetail: React.FC = () => {
   const navigate = useNavigate();
+  const params = useParams();
+  const { bannerId } = params;
   const [headline, setHeadline] = useState<string>("");
   const [subcopy, setSubcopy] = useState<string>("");
   const [path, setPath] = useState<string>("");
@@ -31,8 +48,8 @@ const AddBannerTop: React.FC = () => {
   const [label, setLabel] = useState<string>("");
   const fileRef = useRef<any>(null);
   const [openStatus, setOpenStatus] = useState<boolean>(true);
-  const [selectedOption, setSelectedOption] = useState<any>(null);
-  const [openingStamp, setOpeningStamp] = useState<number>(-1);
+  const [selectedOption, setSelectedOption] = useState<any>({});
+  const [openingStamp, setOpeningStamp] = useState<string>("");
   const [orderSelect, setOrderSelect] = useState<any>([]);
 
   useEffect(() => {
@@ -40,6 +57,11 @@ const AddBannerTop: React.FC = () => {
   }, []);
 
   const init = async () => {
+    const getBannerDetail: any = await getDatas({
+      collection: "banners",
+      find: { _id: bannerId },
+    });
+
     const ordersData: any = await getDatas({
       collection: "banners",
     });
@@ -60,7 +82,24 @@ const AddBannerTop: React.FC = () => {
     }
 
     setOrderSelect(tempSelect);
-    // setOrderSelect(brandData.data);
+
+    if (getBannerDetail.result && getBannerDetail.status === 200) {
+      const data = getBannerDetail.data[0];
+      console.log(data);
+
+      setHeadline(data.headline);
+      setSubcopy(data.subcopy);
+      setPath(data.path);
+      setLabel(data.label);
+      setSelectedOption({ value: data.order.toString(), label: data.order.toString() });
+      setOpeningStamp(timeFormat2(data.openingStamp));
+
+      setFile({
+        file: null,
+        url: data.imgUrl,
+      });
+      setOpenStatus(data.openStatus);
+    }
   };
 
   // 이미지 첨부 핸들러
@@ -73,33 +112,36 @@ const AddBannerTop: React.FC = () => {
     });
   };
 
-  // 배너 등록
+  // 배너 수정
   const handleAddBanner = async () => {
     const startingDate = new Date(openingStamp);
     const timeStamp = startingDate.getTime();
 
-    const formData = new FormData();
-    formData.append("file", file.file as File);
-    const getUrl: any = await postUploadImage(formData);
-
-    if (getUrl.result && getUrl.status === 200) {
-      const body = {
-        collection: "banners",
-        headline,
-        subcopy,
-        path,
-        imgUrl: getUrl.url,
-        label,
-        order: parseInt(selectedOption),
-        openingStamp: timeStamp,
-        openStatus,
-      };
-      const addResult: any = await postCollection(body);
-      if (addResult.result && addResult.status === 200) {
-        alert("배너 등록이 완료되었습니다.");
-      }
-      navigate(-1);
+    let imgUrl = "";
+    if (file.file) {
+      const formData = new FormData();
+      formData.append("file", file.file as File);
+      const getUrl: any = await postUploadImage(formData);
+      imgUrl = getUrl.url;
     }
+
+    const body = {
+      collection: "banners",
+      _id: bannerId,
+      headline,
+      subcopy,
+      path,
+      imgUrl: imgUrl,
+      label,
+      order: parseInt(selectedOption.value),
+      openingStamp: timeStamp,
+      openStatus,
+    };
+    const addResult: any = await putUpdateData(body);
+    if (addResult.result && addResult.status === 200) {
+      alert("배너 수정이 완료되었습니다.");
+    }
+    navigate(-1);
   };
 
   return (
@@ -172,7 +214,10 @@ const AddBannerTop: React.FC = () => {
                 onChange={(e) => handleFileChange(e)}
                 type="file"
               />
-              <ButtonR onClick={() => fileRef?.current?.click()} name={`이미지 추가 0/1`} />
+              <ButtonR
+                onClick={() => fileRef?.current?.click()}
+                name={`이미지 추가 ${file.url ? 1 : 0}/1`}
+              />
             </div>
 
             <p className="font-desc">이미지 1장, 1080px x 1080px</p>
@@ -273,7 +318,9 @@ const AddBannerTop: React.FC = () => {
             classNamePrefix="react-select"
             placeholder={"노출순서"}
             defaultValue={selectedOption}
-            onChange={(e: any) => setSelectedOption(e.value)}
+            key={uuid()}
+            value={selectedOption}
+            onChange={(option: any) => setSelectedOption(option)}
             options={orderSelect}
             className="react-select-container"
           />
@@ -330,4 +377,4 @@ const AddBannerTop: React.FC = () => {
   );
 };
 
-export default AddBannerTop;
+export default BannerDetail;

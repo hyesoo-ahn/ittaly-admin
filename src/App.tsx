@@ -22,6 +22,7 @@ import BannerTop from "./pages/BannerTop";
 import AddBannerTop from "./pages/AddBannerTop";
 import Promotion from "./pages/Promotion";
 import AddPromotion from "./pages/AddPromotion";
+import BannerDetail from "./pages/BannerDetail";
 
 function App() {
   useEffect(() => {
@@ -119,6 +120,10 @@ function App() {
         {
           path: "/banner/addbanner",
           element: <AddBannerTop />,
+        },
+        {
+          path: "/banner/:bannerId",
+          element: <BannerDetail />,
         },
 
         {

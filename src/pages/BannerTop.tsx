@@ -2,23 +2,32 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDatas } from "../common/apis";
 import { IBrandData } from "../common/interfacs";
-import { deleteItem } from "../common/utils";
+import { deleteItem, moveValue, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
+import down_g from "../images/down_g.png";
+import down_b from "../images/down_b.png";
+import up_g from "../images/up_g.png";
+import up_b from "../images/up_b.png";
 
 const BannerTop = () => {
   const navigate = useNavigate();
-  const [brandData, setBrandData] = useState<IBrandData[]>();
+  const [bannersData, setBannersData] = useState<any[]>([]);
 
   useEffect(() => {
     init();
   }, []);
 
   const init = async () => {
-    const brandData: any = await getDatas({
-      collection: "brands",
+    const banners: any = await getDatas({
+      collection: "banners",
     });
+    setBannersData(banners.data);
+  };
 
-    setBrandData(brandData.data);
+  const handleMoveOrder = (array: object[], fromIndex: number, toIndex: number) => {
+    const newArr: any = moveValue(array, fromIndex, toIndex);
+
+    setBannersData([...newArr]);
   };
 
   return (
@@ -28,7 +37,7 @@ const BannerTop = () => {
       </div>
 
       <div className="mt-34 flex justify-sb align-c">
-        <p>총 {brandData?.length}건</p>
+        <p>총 {bannersData?.length}건</p>
         <ButtonR
           onClick={() => {
             navigate("/banner/addbanner");
@@ -37,17 +46,25 @@ const BannerTop = () => {
         />
       </div>
 
-      <div className="list-header mt-10 pl-18 pr-18">
-        <div className="w10p">
+      <div className="list-header mt-10 pl-18 pr-18 text-center">
+        <div className="w5p">
           <input type="checkbox" />
         </div>
 
-        <div className="w60p">
-          <p>브랜드명</p>
+        <div className="w10p">
+          <p>순서</p>
         </div>
 
-        <div className="w10p">
+        <div className="w35p">
+          <p>헤드라인</p>
+        </div>
+
+        <div className="w15p">
           <p>공개여부</p>
+        </div>
+
+        <div className="w15p">
+          <p>공개시작일</p>
         </div>
 
         <div className="text-center w20p">
@@ -55,19 +72,38 @@ const BannerTop = () => {
         </div>
       </div>
 
-      {brandData?.map((aBrand, i) => (
+      {bannersData?.map((aBanner: any, i: number) => (
         <div key={i} className="list-content pl-18 pr-18">
-          <div className="flex align-c mt-8 mb-8">
-            <div className="w10p">
+          <div className="flex align-c mt-8 mb-8 text-center">
+            <div className="w5p">
               <input type="checkbox" />
             </div>
 
-            <div className="w60p">
-              <p>{aBrand.brandName}</p>
+            <div className="w10p">
+              <img
+                onClick={() => handleMoveOrder(bannersData, i, i - 1)}
+                src={i === 0 ? up_g : up_b}
+                style={{ width: 28, height: "auto" }}
+                className="mr-4 cursor"
+              />
+              <img
+                onClick={() => handleMoveOrder(bannersData, i, i + 1)}
+                src={i === bannersData.length - 1 ? down_g : down_b}
+                style={{ width: 28, height: "auto" }}
+                className="cursor"
+              />
             </div>
 
-            <div className="w10p">
-              <p>{aBrand.openStatus ? "공개" : "비공개"}</p>
+            <div className="w35p">
+              <p>{aBanner.headline}</p>
+            </div>
+
+            <div className="w15p">
+              <p>{aBanner.openStatus ? "공개" : "비공개"}</p>
+            </div>
+
+            <div className="w15p">
+              <p>{timeFormat1(aBanner.openingStamp)}</p>
             </div>
 
             <div className="text-center w20p flex justify-c">
@@ -75,14 +111,14 @@ const BannerTop = () => {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/brand/${aBrand._id}`)}
+                onClick={() => navigate(`/banner/${aBanner._id}`)}
               />
               <ButtonR
                 name="삭제"
                 color="white"
                 styles={{ marginRight: 4 }}
                 onClick={async () => {
-                  await deleteItem("brands", aBrand._id, "브랜드");
+                  await deleteItem("banners", aBanner._id, "배너");
                   await init();
                 }}
               />
