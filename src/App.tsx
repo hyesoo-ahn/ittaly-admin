@@ -23,6 +23,9 @@ import AddBannerTop from "./pages/AddBannerTop";
 import Promotion from "./pages/Promotion";
 import AddPromotion from "./pages/AddPromotion";
 import BannerDetail from "./pages/BannerDetail";
+import PromotionDetail from "./pages/PromotionDetail";
+import MainBrand from "./pages/MainBrand";
+import AddMainBrand from "./pages/AddMainBrand";
 
 function App() {
   useEffect(() => {
@@ -114,25 +117,38 @@ function App() {
         },
 
         {
-          path: "/banner",
+          path: "/main/banner",
           element: <BannerTop />,
         },
         {
-          path: "/banner/addbanner",
+          path: "/main/banner/addbanner",
           element: <AddBannerTop />,
         },
         {
-          path: "/banner/:bannerId",
+          path: "/main/banner/:bannerId",
           element: <BannerDetail />,
         },
 
         {
-          path: "/promotion",
+          path: "/main/promotion",
           element: <Promotion />,
         },
         {
-          path: "/promotion/addPromotion",
+          path: "/main/promotion/addPromotion",
           element: <AddPromotion />,
+        },
+
+        {
+          path: "main/promotion/:promotionId",
+          element: <PromotionDetail />,
+        },
+        {
+          path: "/main/brand",
+          element: <MainBrand />,
+        },
+        {
+          path: "/main/brand/addbrand",
+          element: <AddMainBrand />,
         },
       ],
     },

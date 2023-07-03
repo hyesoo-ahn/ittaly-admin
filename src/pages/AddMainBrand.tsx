@@ -20,7 +20,7 @@ const Cateogyoptions1 = [
   { value: "대분류 카테고리3", label: "대분류 카테고리3" },
 ];
 
-const AddPromotion: React.FC = () => {
+const AddMainBrand: React.FC = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState<string>("");
   const [desc, setDesc] = useState<string>("");
@@ -31,16 +31,14 @@ const AddPromotion: React.FC = () => {
   });
   const fileRef = useRef<any>(null);
   const [openStatus, setOpenStatus] = useState<boolean>(true);
-  const [selectedCategory, setSelectedCategory] = useState<any>(null);
-  const [selectedSubCategory, setSelectedSubCategory] = useState<any>(null);
+  const [selectedBrand, setSelectedBrand] = useState<any>(null);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [relatedProducts, setRelatedProducts] = useState<any>({
-    type: "category",
+    type: "brand",
     products: [],
   });
 
-  const [categories, setCategories] = useState<any[]>([]);
-  const [subCategories, setSubCategories] = useState<any[]>([]);
+  const [brands, setBrands] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [dates, setDates] = useState<{
     startingDate: string;
@@ -57,56 +55,37 @@ const AddPromotion: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedCategory && relatedProducts.type === "category") {
-      const targetIdx = categories.findIndex((el: any, i: number) => el === selectedCategory);
-
-      let tempCategories = [];
-      for (let i = 0; i < categories[targetIdx].subCategories?.length; i++) {
-        tempCategories.push({
-          value: categories[targetIdx].subCategories[i].optionName,
-          label: categories[targetIdx].subCategories[i].optionName,
-          categoryId: categories[targetIdx]._id,
-        });
-      }
-
-      setSubCategories(tempCategories);
-    }
-
-    if (selectedCategory && relatedProducts.type === "brand") {
+    if (selectedBrand && relatedProducts.type === "brand") {
       selectedProducts();
     }
-  }, [selectedCategory]);
+  }, [selectedBrand]);
 
   useEffect(() => {
-    if (selectedSubCategory) {
-      selectedProducts();
-    }
-  }, [selectedSubCategory]);
+    selectedProducts();
+  }, [selectedBrand]);
 
   const init = async () => {
-    // 카테고리 불러오기
-    const getCategories: any = await getDatas({
-      collection: "categories",
+    //브랜드 불러오기
+    const getBrands: any = await getDatas({
+      collection: "brands",
     });
 
-    let tempcategories = [];
-    for (let i = 0; i < getCategories?.data?.length; i++) {
-      tempcategories.push({
-        value: getCategories?.data[i]?.name,
-        label: getCategories?.data[i]?.name,
-        subCategories: getCategories?.data[i]?.subCategories,
-        _id: getCategories?.data[i]?._id,
+    const { data } = getBrands;
+
+    let tempBrands = [];
+    for (let i = 0; i < data?.length; i++) {
+      tempBrands.push({
+        value: data[i]?.brandName,
+        label: data[i]?.brandName,
+        _id: data[i]?._id,
       });
     }
 
-    setCategories(tempcategories);
+    setBrands(tempBrands);
   };
 
   const selectedProducts = async () => {
-    const find =
-      relatedProducts.type === "category"
-        ? { categoryId: selectedSubCategory.categoryId, category2: selectedSubCategory.value }
-        : { brandId: selectedCategory._id };
+    const find = { brandId: selectedBrand._id };
 
     const selectProducts: any = await getDatas({
       collection: "products",
@@ -204,9 +183,7 @@ const AddPromotion: React.FC = () => {
     }
 
     setSelectedProduct(null);
-    setSelectedCategory(null);
-    setSelectedSubCategory(null);
-    setSubCategories([]);
+    // selectedBrand(null);
     setProducts([]);
   };
 
@@ -258,7 +235,7 @@ const AddPromotion: React.FC = () => {
       }
     }
 
-    setCategories(tempcategories);
+    setBrands(tempcategories);
     setRelatedProducts((prev: any) => {
       return {
         ...prev,
@@ -272,7 +249,7 @@ const AddPromotion: React.FC = () => {
       <div className="flex align-c justify-sb pb-30">
         <div className="flex alicn-c">
           <img onClick={() => navigate(-1)} className="img-close cursor mr-4" src={forward} />
-          <p className="page-title mt-3">기획전 등록</p>
+          <p className="page-title">첫 화면 관리 {">"} 브랜드 등록</p>
         </div>
 
         <p className="font-desc">
@@ -284,38 +261,61 @@ const AddPromotion: React.FC = () => {
       <div className="product-field-wrapper mt-2 w100p">
         <div className="product-field mr-20">
           <p>
-            제목<span className="font-red">*</span>
+            브랜드<span className="font-red">*</span>
           </p>
         </div>
 
-        <div className="flex1">
-          <InputR
-            size="full"
-            value={title}
-            onChange={(e: any) => setTitle(e.target.value)}
-            placeholer={"공백 포함 30글자 이내로 입력해 주세요"}
+        <div className="flex">
+          <Select
+            classNamePrefix="react-select"
+            placeholder={"브랜드 선택"}
+            defaultValue={null}
+            onChange={(e: any) => {
+              setSelectedBrand(e);
+              setRelatedProducts((prev: any) => {
+                return {
+                  ...prev,
+                  type: prev.type,
+                  products: [],
+                };
+              });
+            }}
+            options={brands}
+            className="react-select-container"
           />
         </div>
       </div>
 
-      <div className="product-field-wrapper mt-2 w100p">
+      <div className="field-list-wrapper mt-2">
         <div className="product-field mr-20">
           <p>
-            기획전 소개<span className="font-red">*</span>
+            브랜드 소개<span className="font-red">*</span>
           </p>
         </div>
 
-        <div className="flex1">
-          <InputR
-            size="full"
+        <div className="mt-16 mb-16 flex1" style={{ position: "relative" }}>
+          <textarea
             value={desc}
-            onChange={(e: any) => setDesc(e.target.value)}
-            placeholer={"공백 포함 40글자 이내로 입력해 주세요"}
+            onChange={(e) => onChangeHandler(e)}
+            className="input-textarea"
+            placeholder="공백포함 40자 이내"
           />
+          <div
+            className="font-12"
+            style={{
+              position: "absolute",
+              bottom: 10,
+              right: 10,
+              fontWeight: 400,
+              color: "rgba(0,0,0,0.4)",
+            }}
+          >
+            {txtLength}/100
+          </div>
         </div>
       </div>
 
-      <div className="mt-2 field-list-wrapper">
+      {/* <div className="mt-2 field-list-wrapper">
         <div className="product-field mr-20">
           <p>
             대표이미지
@@ -354,7 +354,7 @@ const AddPromotion: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
 
       <div className="product-field-wrapper mt-2 w100p">
         <div className="product-field mr-20">
@@ -393,12 +393,13 @@ const AddPromotion: React.FC = () => {
       </div>
 
       <div className="field-list-wrapper mt-2">
-        <div className="product-field mr-20">
-          <p>연관 추천상품</p>
+        <div className="product-field mr-20 flex">
+          <p>대표상품 2개</p>
+          <span className="font-red">*</span>
         </div>
 
-        <div style={{ flex: 1 }} className="mt-16 mb-16">
-          <div className="flex align-c">
+        <div style={{ flex: 1 }} className="mb-16 mt-10">
+          {/* <div className="flex align-c">
             <div className="checkbox-c mr-4">
               {relatedProducts.type === "category" && <div className="checkbox-c-filled" />}
             </div>
@@ -413,83 +414,51 @@ const AddPromotion: React.FC = () => {
             <p className="cursor font-desc mr-20" onClick={() => handleRelatedProdType("brand")}>
               브랜드
             </p>
-          </div>
-
-          {relatedProducts.type === "category" && (
-            <>
-              <div className="mt-20">
-                <p className="font-14 font-bold">상품선택</p>
-              </div>
-
-              <div className="flex mt-10">
-                <Select
-                  classNamePrefix="react-select"
-                  placeholder={"카테고리 대분류"}
-                  defaultValue={null}
-                  onChange={(e: any) => setSelectedCategory(e)}
-                  options={categories}
-                  className="react-select-container"
-                />
-                <Select
-                  classNamePrefix="react-select"
-                  placeholder={"카테고리 하위분류"}
-                  defaultValue={null}
-                  onChange={(e: any) => setSelectedSubCategory(e)}
-                  options={subCategories}
-                  className="react-select-container"
-                />
-              </div>
-
-              <div className="flex align-c mt-4">
-                <Select
-                  classNamePrefix="react-select"
-                  placeholder={"상품선택"}
-                  defaultValue={null}
-                  onChange={(e: any) => onSelectProduct(e)}
-                  // onChange={(e: any) => setSelectedProduct(e)}
-                  options={products}
-                  className="react-select-container"
-                />
-                {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
-              </div>
-            </>
-          )}
+          </div> */}
 
           {relatedProducts.type === "brand" && (
-            <>
-              <div className="mt-20">
-                <p className="font-14 font-bold">상품선택</p>
-              </div>
-
-              <div className="flex mt-10">
-                <Select
+            <div className="flex align-c">
+              <div className="flex">
+                {/* <Select
                   classNamePrefix="react-select"
                   placeholder={"브랜드 선택"}
-                  defaultValue={null}
-                  onChange={(e: any) => setSelectedCategory(e)}
-                  options={categories}
+                  defaultValue={selectedBrand}
+                  onChange={(e: any) => setSelectedBrand(e)}
+                  options={brands}
                   className="react-select-container"
-                />
+                /> */}
+                <div
+                  style={{
+                    width: 273,
+                    height: 32,
+                    display: "flex",
+                    alignItems: "center",
+                    marginRight: 20,
+                    border: "1px solid hsl(0, 0%, 80%)",
+                    paddingLeft: 10,
+                    color: "#333333",
+                    fontWeight: 400,
+                  }}
+                >
+                  <p>{selectedBrand ? selectedBrand.value : "브랜드 선택"}</p>
+                </div>
               </div>
 
-              <div className="flex align-c mt-4">
+              <div className="flex align-c">
                 <Select
                   classNamePrefix="react-select"
                   placeholder={"상품선택"}
-                  defaultValue={null}
+                  // defaultValue={null}
+                  value={products?.filter(function (option) {
+                    return option.value === selectedProduct;
+                  })}
                   onChange={(e: any) => onSelectProduct(e)}
-                  // onChange={(e: any) => setSelectedProduct(e)}
                   options={products}
                   className="react-select-container"
                 />
-                {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
               </div>
-            </>
+            </div>
           )}
-
-          <p className="font-12 mt-10">
-            *최대 10개까지 선택 가능하며, 상위 2개 상품은 메인에 노출됩니다.
-          </p>
 
           {relatedProducts?.products?.length !== 0 && (
             <div className="mt-4">
@@ -569,4 +538,4 @@ const AddPromotion: React.FC = () => {
   );
 };
 
-export default AddPromotion;
+export default AddMainBrand;

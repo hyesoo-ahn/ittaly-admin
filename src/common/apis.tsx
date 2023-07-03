@@ -158,3 +158,19 @@ export const postCollection = async (body: any): Promise<any> => {
     return false;
   }
 };
+
+// 데이터 수정 bulk
+export const putUpdateDataBulk = async (_body: any): Promise<boolean> => {
+  try {
+    // const token: any = localStorage.getItem("token");
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${ADMIN_TOKEN}`,
+    };
+    const { data } = await axios.put(`${URI}/admin/bulk`, _body, { headers });
+    // console.log(data);
+    return data;
+  } catch (error) {
+    return false;
+  }
+};

@@ -98,7 +98,7 @@ function Layout(): JSX.Element {
                 <div className="sub-category2">
                   <div className="mb-20">
                     <NavLink
-                      to="banner"
+                      to="/main/banner"
                       className={({ isActive }) => {
                         return isActive ? "nav-active" : "nav-deactive";
                       }}
@@ -109,7 +109,7 @@ function Layout(): JSX.Element {
 
                   <div className="mb-20">
                     <NavLink
-                      to="promotion"
+                      to="main/promotion"
                       className={({ isActive }) => {
                         return isActive ? "nav-active" : "nav-deactive";
                       }}
@@ -120,7 +120,7 @@ function Layout(): JSX.Element {
 
                   <div className="mb-20">
                     <NavLink
-                      to="addproduct"
+                      to="main/brand"
                       className={({ isActive }) => {
                         return isActive ? "nav-active" : "nav-deactive";
                       }}

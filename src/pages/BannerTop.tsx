@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getDatas } from "../common/apis";
+import { getDatas, putUpdateDataBulk } from "../common/apis";
 import { IBrandData } from "../common/interfacs";
 import { deleteItem, moveValue, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
@@ -20,12 +20,28 @@ const BannerTop = () => {
   const init = async () => {
     const banners: any = await getDatas({
       collection: "banners",
+      sort: { sort: 1 },
     });
     setBannersData(banners.data);
   };
 
-  const handleMoveOrder = (array: object[], fromIndex: number, toIndex: number) => {
+  const handleMoveOrder = async (array: object[], fromIndex: number, toIndex: number) => {
     const newArr: any = moveValue(array, fromIndex, toIndex);
+
+    let updateTemp = [];
+    for (let i in [...newArr]) {
+      updateTemp.push({
+        _id: newArr[i]._id,
+        setData: {
+          sort: i,
+        },
+      });
+    }
+
+    await putUpdateDataBulk({
+      collection: "banners",
+      updateData: [...updateTemp],
+    });
 
     setBannersData([...newArr]);
   };
@@ -40,7 +56,7 @@ const BannerTop = () => {
         <p>총 {bannersData?.length}건</p>
         <ButtonR
           onClick={() => {
-            navigate("/banner/addbanner");
+            navigate("/main/banner/addbanner");
           }}
           name="배너 등록"
         />
@@ -111,7 +127,7 @@ const BannerTop = () => {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/banner/${aBanner._id}`)}
+                onClick={() => navigate(`/main/banner/${aBanner._id}`)}
               />
               <ButtonR
                 name="삭제"

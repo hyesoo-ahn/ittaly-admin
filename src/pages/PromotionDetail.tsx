@@ -1,6 +1,12 @@
 import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getDatas, postAddBrand, postCollection, postUploadImage } from "../common/apis";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  getDatas,
+  postAddBrand,
+  postCollection,
+  postUploadImage,
+  putUpdateData,
+} from "../common/apis";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import forward from "../images/Forward.png";
@@ -8,6 +14,7 @@ import sale from "../images/sale_s.png";
 import new_s from "../images/new_s.png";
 import Select from "react-select";
 import sample from "../images/sample_img.png";
+import { timeFormat1, timeFormat2 } from "../common/utils";
 
 interface IFile {
   file: File | null;
@@ -20,8 +27,9 @@ const Cateogyoptions1 = [
   { value: "대분류 카테고리3", label: "대분류 카테고리3" },
 ];
 
-const AddPromotion: React.FC = () => {
+const PromotionDetail: React.FC = () => {
   const navigate = useNavigate();
+  const { promotionId } = useParams();
   const [title, setTitle] = useState<string>("");
   const [desc, setDesc] = useState<string>("");
   const [txtLength, setTxtLength] = useState(0);
@@ -29,6 +37,7 @@ const AddPromotion: React.FC = () => {
     file: null,
     url: "",
   });
+  const [openingStamp, setOpeningStamp] = useState<number>(-1);
   const fileRef = useRef<any>(null);
   const [openStatus, setOpenStatus] = useState<boolean>(true);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
@@ -99,6 +108,35 @@ const AddPromotion: React.FC = () => {
       });
     }
 
+    // 해당 기획전 조회
+    const promotionResult: any = await getDatas({
+      collection: "promotions",
+      _id: promotionId,
+    });
+    const data = promotionResult?.data[0];
+
+    if (data) {
+      setTitle(data.title);
+      setDesc(data.intro);
+      setFile({
+        file: null,
+        url: data.imgUrl,
+      });
+      setDates((prev) => {
+        return {
+          ...prev,
+          startingDate: timeFormat2(data.term[0]),
+          endingDate: timeFormat2(data.term[1]),
+          openingDate: timeFormat2(data.openingStamp),
+        };
+      });
+
+      setRelatedProducts({
+        type: "category",
+        products: data.relatedProd,
+      });
+    }
+
     setCategories(tempcategories);
   };
 
@@ -142,7 +180,7 @@ const AddPromotion: React.FC = () => {
     });
   };
 
-  // 기획전 등록
+  // 기획전 수정
   const handleAddPromotion = async () => {
     const startingDate = new Date(dates.startingDate);
     const endingDate = new Date(dates.endingDate);
@@ -160,26 +198,34 @@ const AddPromotion: React.FC = () => {
       });
     }
 
-    const formData = new FormData();
-    formData.append("file", file.file as File);
-    const getUrl: any = await postUploadImage(formData);
-    if (getUrl.result && getUrl.status === 200) {
-      const body = {
-        collection: "promotions",
-        title,
-        intro: desc,
-        imgUrl: getUrl.url,
-        openStatus,
-        term: [startingDateStamp, endingDateStamp],
-        relatedProd,
-        openingStamp: openingDateStamp,
-      };
-      const addResult: any = await postCollection(body);
-      if (addResult.result && addResult.status === 200) {
-        alert("기획전 등록이 완료되었습니다.");
+    let imgUrl = "";
+    if (file.file) {
+      const formData = new FormData();
+      formData.append("file", file.file as File);
+      const getUrl: any = await postUploadImage(formData);
+      if (getUrl.result && getUrl.status === 200) {
+        imgUrl = getUrl.url;
       }
-      navigate(-1);
+    } else {
+      imgUrl = file.url;
     }
+
+    const body = {
+      collection: "promotions",
+      _id: promotionId,
+      title,
+      intro: desc,
+      imgUrl: imgUrl,
+      openStatus,
+      term: [startingDateStamp, endingDateStamp],
+      relatedProd,
+      openingStamp: openingDateStamp,
+    };
+    const addResult: any = await putUpdateData(body);
+    if (addResult.result && addResult.status === 200) {
+      alert("기획전 수정이 완료되었습니다.");
+    }
+    navigate(-1);
   };
 
   const onSelectProduct = (e: any) => {
@@ -569,4 +615,4 @@ const AddPromotion: React.FC = () => {
   );
 };
 
-export default AddPromotion;
+export default PromotionDetail;

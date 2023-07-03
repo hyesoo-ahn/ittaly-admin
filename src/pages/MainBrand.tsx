@@ -5,7 +5,7 @@ import { IBrandData } from "../common/interfacs";
 import { deleteItem, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 
-const Promotion = () => {
+const MainBrand = () => {
   const navigate = useNavigate();
   const [promotions, setPromotions] = useState<any[]>();
 
@@ -24,16 +24,16 @@ const Promotion = () => {
   return (
     <div>
       <div className="flex justify-sb align-c">
-        <p className="page-title">첫 화면 관리 {">"} 기획전</p>
+        <p className="page-title">첫 화면 관리 {">"} 브랜드</p>
       </div>
 
       <div className="mt-34 flex justify-sb align-c">
         <p>총 {promotions?.length}건</p>
         <ButtonR
           onClick={() => {
-            navigate("/main/promotion/addpromotion");
+            navigate("/main/brand/addbrand");
           }}
-          name="기획전 등록"
+          name="브랜드 등록"
         />
       </div>
 
@@ -101,4 +101,4 @@ const Promotion = () => {
   );
 };
 
-export default Promotion;
+export default MainBrand;

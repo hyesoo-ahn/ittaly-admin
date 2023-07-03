@@ -537,6 +537,8 @@ export default function AddProduct(): JSX.Element {
     let _body = {
       ...tempForm,
       categoryId,
+      brand: tempForm.brand.value,
+      brandId: tempForm.brand._id,
       price: Number(form.originalPrice.replace(/,/gi, "")),
       discounted: Number(form.discounted.replace(/,/gi, "")),
       deliveryFee: Number(form.deliveryFee.replace(/,/gi, "")),
@@ -864,7 +866,7 @@ export default function AddProduct(): JSX.Element {
               classNamePrefix="react-select"
               placeholder={"브랜드"}
               defaultValue={null}
-              onChange={(e: any) => onChangeForm("brand", e.value)}
+              onChange={(e: any) => onChangeForm("brand", e)}
               options={brands}
               className="react-select-container"
               noOptionsMessage={({ inputValue }) => "등록된 브랜드가 없습니다."}
