@@ -85,7 +85,6 @@ const BannerDetail: React.FC = () => {
 
     if (getBannerDetail.result && getBannerDetail.status === 200) {
       const data = getBannerDetail.data[0];
-      console.log(data);
 
       setHeadline(data.headline);
       setSubcopy(data.subcopy);

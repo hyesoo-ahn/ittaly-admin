@@ -113,6 +113,10 @@ p {
   margin-bottom: 8px;
 }
 
+.mb-10 {
+  margin-bottom: 10px;
+}
+
 .mb-12 {
   margin-bottom: 12px;
 }
@@ -267,7 +271,7 @@ p {
 }
 
 .font-gray {
-  color: #101828;
+  color: #101828 !important;
 }
 
 .font-catetory {

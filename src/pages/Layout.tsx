@@ -131,7 +131,7 @@ function Layout(): JSX.Element {
 
                   <div className="mb-20">
                     <NavLink
-                      to="addproduct"
+                      to="main/magazine"
                       className={({ isActive }) => {
                         return isActive ? "nav-active" : "nav-deactive";
                       }}
@@ -140,7 +140,7 @@ function Layout(): JSX.Element {
                     </NavLink>
                   </div>
 
-                  <div className="mb-20">
+                  <div>
                     <NavLink
                       to="addproduct"
                       className={({ isActive }) => {

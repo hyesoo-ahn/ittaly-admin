@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getDatas } from "../common/apis";
 import { IBrandData } from "../common/interfacs";
 import { deleteItem, timeFormat1 } from "../common/utils";
@@ -7,18 +7,18 @@ import ButtonR from "../components/ButtonR";
 
 const MainBrand = () => {
   const navigate = useNavigate();
-  const [promotions, setPromotions] = useState<any[]>();
+  const [mainBrands, setMainBrands] = useState<any[]>();
 
   useEffect(() => {
     init();
   }, []);
 
   const init = async () => {
-    const promotionData: any = await getDatas({
-      collection: "promotions",
+    const { data }: any = await getDatas({
+      collection: "mainBrands",
     });
 
-    setPromotions(promotionData.data);
+    setMainBrands(data);
   };
 
   return (
@@ -28,7 +28,7 @@ const MainBrand = () => {
       </div>
 
       <div className="mt-34 flex justify-sb align-c">
-        <p>총 {promotions?.length}건</p>
+        <p>총 {mainBrands?.length}건</p>
         <ButtonR
           onClick={() => {
             navigate("/main/brand/addbrand");
@@ -43,7 +43,7 @@ const MainBrand = () => {
         </div>
 
         <div className="w50p">
-          <p>제목</p>
+          <p>브랜드</p>
         </div>
 
         <div className="w10p text-center">
@@ -59,7 +59,7 @@ const MainBrand = () => {
         </div>
       </div>
 
-      {promotions?.map((promotionItem, i) => (
+      {mainBrands?.map((item, i) => (
         <div key={i} className="list-content pl-18 pr-18">
           <div className="flex align-c mt-8 mb-8">
             <div className="w10p">
@@ -67,14 +67,14 @@ const MainBrand = () => {
             </div>
 
             <div className="w50p">
-              <p>{promotionItem.title}</p>
+              <p>{item.brandName}</p>
             </div>
 
             <div className="w10p text-center">
-              <p>{promotionItem.openStatus ? "공개" : "비공개"}</p>
+              <p>{item.openStatus ? "공개" : "비공개"}</p>
             </div>
             <div className="w15p text-center">
-              <p>{timeFormat1(promotionItem.openingStamp)}</p>
+              <p>{timeFormat1(item.openingStamp)}</p>
             </div>
 
             <div className="text-center w15p flex justify-c">
@@ -82,14 +82,14 @@ const MainBrand = () => {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/main/promotion/${promotionItem._id}`)}
+                onClick={() => navigate(`/main/brand/${item._id}`)}
               />
               <ButtonR
                 name="삭제"
                 color="white"
                 styles={{ marginRight: 4 }}
                 onClick={async () => {
-                  await deleteItem("promotions", promotionItem._id, "기획전");
+                  await deleteItem("mainBrands", item._id, "메인스크린 브랜드");
                   await init();
                 }}
               />

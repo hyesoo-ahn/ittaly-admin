@@ -33,6 +33,9 @@ export const deleteItem = async (collection: string, _id: string, type: string) 
     case "기획전":
       typeSubject = "기획전을";
       break;
+    case "메인스크린 브랜드":
+      typeSubject = "메인스크린 브랜드를";
+      break;
   }
 
   const confirm = window.confirm(`해당 ${typeSubject} 삭제하시겠습니까?`);

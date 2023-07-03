@@ -1,6 +1,12 @@
 import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getDatas, postAddBrand, postCollection, postUploadImage } from "../common/apis";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  getDatas,
+  postAddBrand,
+  postCollection,
+  postUploadImage,
+  putUpdateData,
+} from "../common/apis";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import forward from "../images/Forward.png";
@@ -8,6 +14,7 @@ import sale from "../images/sale_s.png";
 import new_s from "../images/new_s.png";
 import Select from "react-select";
 import sample from "../images/sample_img.png";
+import { timeFormat2 } from "../common/utils";
 
 interface IFile {
   file: File | null;
@@ -22,6 +29,8 @@ const Cateogyoptions1 = [
 
 const AddMainBrand: React.FC = () => {
   const navigate = useNavigate();
+  const params = useParams();
+  const { mainBrandId } = params;
   const [brand, setBrand] = useState<string>("");
   const [desc, setDesc] = useState<string>("");
   const [txtLength, setTxtLength] = useState(0);
@@ -55,12 +64,6 @@ const AddMainBrand: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedBrand && relatedProducts.type === "brand") {
-      selectedProducts();
-    }
-  }, [selectedBrand]);
-
-  useEffect(() => {
     selectedProducts();
   }, [selectedBrand]);
 
@@ -70,7 +73,13 @@ const AddMainBrand: React.FC = () => {
       collection: "brands",
     });
 
+    const selectedBrandDatas: any = await getDatas({
+      collection: "mainBrands",
+      find: { _id: mainBrandId },
+    });
+
     const { data } = getBrands;
+    const selectedData = selectedBrandDatas.data;
 
     let tempBrands = [];
     for (let i = 0; i < data?.length; i++) {
@@ -81,6 +90,28 @@ const AddMainBrand: React.FC = () => {
         imgUrl: data[i]?.imgUrl,
       });
     }
+
+    setBrand(selectedData[0]?.brandName);
+    setDesc(selectedData[0]?.desc);
+    setOpenStatus(selectedData[0]?.openStatus);
+    setDates((prev) => {
+      return {
+        ...prev,
+        openingDate: timeFormat2(selectedData[0]?.openingStamp),
+      };
+    });
+
+    setSelectedBrand({
+      value: selectedData[0].brandName,
+      label: selectedData[0].brandName,
+      _id: selectedData[0].brandId,
+      imgUrl: selectedData[0].imgUrl,
+    });
+
+    setRelatedProducts({
+      type: "brand",
+      products: selectedData[0].relatedProd,
+    });
 
     setBrands(tempBrands);
   };
@@ -114,8 +145,8 @@ const AddMainBrand: React.FC = () => {
 
   // 이미지 첨부 핸들러
 
-  // 메인페이지 브랜드 등록
-  const handleAddBrand = async () => {
+  // 메인페이지 브랜드 수정
+  const handleUpdateMainBrand = async () => {
     const openingDate = new Date(dates.openingDate);
     const openingDateStamp = openingDate.getTime();
 
@@ -132,17 +163,17 @@ const AddMainBrand: React.FC = () => {
 
     const body = {
       collection: "mainBrands",
+      _id: mainBrandId,
       brandName: selectedBrand.value,
       brandId: selectedBrand._id,
-      imgUrl: selectedBrand.imgUrl,
       desc,
       openStatus,
       relatedProd,
       openingStamp: openingDateStamp,
     };
-    const addResult: any = await postCollection(body);
+    const addResult: any = await putUpdateData(body);
     if (addResult.result && addResult.status === 200) {
-      alert("메인스크린 브랜드 등록이 완료되었습니다.");
+      alert("메인스크린 브랜드 수정이 완료되었습니다.");
     }
     navigate(-1);
   };
@@ -169,6 +200,7 @@ const AddMainBrand: React.FC = () => {
     }
 
     setSelectedProduct(null);
+    // selectedBrand(null);
     setProducts([]);
   };
 
@@ -190,7 +222,7 @@ const AddMainBrand: React.FC = () => {
       <div className="flex align-c justify-sb pb-30">
         <div className="flex alicn-c">
           {/* <img onClick={() => navigate(-1)} className="img-close cursor mr-4" src={forward} /> */}
-          <p className="page-title">첫 화면 관리 {">"} 브랜드 등록</p>
+          <p className="page-title">첫 화면 관리 {">"} 브랜드 수정</p>
         </div>
 
         <p className="font-desc">
@@ -210,7 +242,8 @@ const AddMainBrand: React.FC = () => {
           <Select
             classNamePrefix="react-select"
             placeholder={"브랜드 선택"}
-            defaultValue={null}
+            // defaultValue={null}
+            value={selectedBrand}
             onChange={(e: any) => {
               setSelectedBrand(e);
               setRelatedProducts((prev: any) => {
@@ -385,7 +418,7 @@ const AddMainBrand: React.FC = () => {
       <div className="flex justify-fe mt-10">
         <div className="flex">
           <ButtonR name={"취소"} onClick={() => navigate(-1)} styleClass={"mr-4"} color={"white"} />
-          <ButtonR name={"저장"} onClick={handleAddBrand} />
+          <ButtonR name={"저장"} onClick={handleUpdateMainBrand} />
         </div>
       </div>
     </div>

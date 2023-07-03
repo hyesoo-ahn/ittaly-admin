@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { deleteData, getDatas } from "../common/apis";
+import { deleteData, getDatas, putUpdateDataBulk } from "../common/apis";
 import ButtonR from "../components/ButtonR";
 import up_g from "../images/up_g.png";
 import up_b from "../images/up_b.png";
@@ -19,13 +19,29 @@ const Category = () => {
   const init = async () => {
     const getCategoryData: any = await getDatas({
       collection: "categories",
+      sort: { sort: 1 },
     });
 
     setCategories(getCategoryData.data);
   };
 
-  const handleMoveOrder = (array: object[], fromIndex: number, toIndex: number) => {
+  const handleMoveOrder = async (array: object[], fromIndex: number, toIndex: number) => {
     const newArr: any = moveValue(array, fromIndex, toIndex);
+
+    let updateTemp = [];
+    for (let i in [...newArr]) {
+      updateTemp.push({
+        _id: newArr[i]._id,
+        setData: {
+          sort: i,
+        },
+      });
+    }
+
+    const result: any = await putUpdateDataBulk({
+      collection: "categories",
+      updateData: [...updateTemp],
+    });
 
     setCategories([...newArr]);
   };

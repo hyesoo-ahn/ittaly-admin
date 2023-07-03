@@ -674,6 +674,12 @@ export default function AddProduct(): JSX.Element {
                 <img src={down_g} style={{ width: 28, height: "auto" }} className="cursor" />
               </div>
               <div className="text-center w80p">
+                <div className="flex align-c mb-10">
+                  <div className="w10p" style={{ width: "10%" }}></div>
+                  <p className="text-left font-12 font-gray">
+                    추가 버튼을 클릭해서 정보를 추가해주세요.
+                  </p>
+                </div>
                 <div className="flex align-c">
                   <div
                     className="font-14 text-center font-bold flex align-c justify-c"
@@ -1468,6 +1474,12 @@ export default function AddProduct(): JSX.Element {
                   <img src={down_g} style={{ width: 28, height: "auto" }} className="cursor" />
                 </div>
                 <div className="text-center w80p">
+                  <div className="flex align-c mb-10">
+                    <div className="w10p" style={{ width: "10%" }}></div>
+                    <p className="text-left font-12 font-gray">
+                      추가 버튼을 클릭해서 정보를 추가해주세요.
+                    </p>
+                  </div>
                   <div className="flex align-c">
                     <div
                       className="font-14 text-center font-bold flex align-c justify-c"
@@ -1708,6 +1720,13 @@ export default function AddProduct(): JSX.Element {
                   <img src={down_g} style={{ width: 28, height: "auto" }} className="cursor" />
                 </div>
                 <div className="text-center w80p">
+                  <div className="flex align-c mb-10">
+                    <div className="w10p" style={{ width: "10%" }}></div>
+                    <p className="text-left font-12 font-gray">
+                      추가 버튼을 클릭해서 정보를 추가해주세요.
+                    </p>
+                  </div>
+
                   <div className="flex align">
                     <div
                       className="font-14 justify-c font-bold flex align-c"

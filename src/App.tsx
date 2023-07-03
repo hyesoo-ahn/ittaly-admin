@@ -26,6 +26,9 @@ import BannerDetail from "./pages/BannerDetail";
 import PromotionDetail from "./pages/PromotionDetail";
 import MainBrand from "./pages/MainBrand";
 import AddMainBrand from "./pages/AddMainBrand";
+import MainBrandDetail from "./pages/MainBrandDetail";
+import Magazine from "./pages/AddMagazine";
+import AddMagazine from "./pages/AddMagazine";
 
 function App() {
   useEffect(() => {
@@ -149,6 +152,14 @@ function App() {
         {
           path: "/main/brand/addbrand",
           element: <AddMainBrand />,
+        },
+        {
+          path: "/main/brand/:mainBrandId",
+          element: <MainBrandDetail />,
+        },
+        {
+          path: "/main/magazine",
+          element: <AddMagazine />,
         },
       ],
     },
