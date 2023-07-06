@@ -12,7 +12,7 @@ const Cateogyoptions1 = [
   { value: "대분류 카테고리3", label: "대분류 카테고리3" },
 ];
 
-export default function ProductManagement(): JSX.Element {
+export default function MainEvent(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
 
@@ -32,7 +32,7 @@ export default function ProductManagement(): JSX.Element {
   return (
     <div>
       <div className="flex justify-sb align-c">
-        <p className="page-title">상품관리</p>
+        <p className="page-title">이벤트 관리</p>
       </div>
 
       <div className="w100p filter-container" style={{ flex: 1 }}>

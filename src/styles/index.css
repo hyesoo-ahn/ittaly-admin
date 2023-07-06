@@ -26,6 +26,10 @@ p {
   font-size: 14px;
 }
 
+h1 {
+  margin: 0;
+}
+
 .flex {
   display: flex;
 }
@@ -133,6 +137,10 @@ p {
   margin-bottom: 20px;
 }
 
+.mb-40 {
+  margin-bottom: 40px;
+}
+
 .mr-2 {
   margin-right: 2px;
 }
@@ -229,6 +237,10 @@ p {
 
 .pl-30 {
   padding-left: 30px !important;
+}
+
+.pr-14 {
+  padding-right: 14px;
 }
 
 .pr-18 {
@@ -413,7 +425,7 @@ p {
 }
 
 .react-select-container2 {
-  margin-top: 8px !important;
+  /* margin-top: 8px !important; */
   width: calc(100%) !important;
   margin-right: 8px !important;
 }

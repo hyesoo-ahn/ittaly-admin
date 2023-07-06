@@ -8,9 +8,9 @@ import up_b from "../images/up_b.png";
 import down_b from "../images/down_b.png";
 import sample from "../images/sample_img.png";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
-import { currency, moveValue } from "../common/utils";
-import { getDatas, postAddProduct, postUploadImage } from "../common/apis";
-import { useNavigate } from "react-router-dom";
+import { currency, deleteItem, moveValue, timeFormat1, timeFormat2 } from "../common/utils";
+import { getDatas, postAddProduct, postUploadImage, putUpdateData } from "../common/apis";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface IPoint {
   summary: string;
@@ -28,8 +28,9 @@ interface IFile {
   imgUrl: string;
 }
 
-export default function AddMagazine(): JSX.Element {
+export default function MagazineDetail(): JSX.Element {
   const navigate = useNavigate();
+  const { magazineId } = useParams();
   const [title, setTitle] = useState<string>("");
   const [desc, setDesc] = useState<string>("");
   const [txtLength, setTxtLength] = useState(0);
@@ -104,6 +105,13 @@ export default function AddMagazine(): JSX.Element {
       collection: "categories",
     });
 
+    // 매거진 디테일 불러오기
+    const getDetail: any = await getDatas({
+      collection: "magazines",
+      find: { _id: magazineId },
+    });
+    const { data } = getDetail;
+
     let tempcategories = [];
     for (let i = 0; i < getCategories?.data?.length; i++) {
       tempcategories.push({
@@ -114,7 +122,46 @@ export default function AddMagazine(): JSX.Element {
       });
     }
 
+    let tempContents = [...data[0]?.contents];
+    for (let i = 0; i < tempContents?.length; i++) {
+      for (let k = 0; k < tempContents[i].images.length; k++) {
+        tempContents[i].images[k] = {
+          file: null,
+          imgUrl: tempContents[i].images[k],
+        };
+      }
+    }
+
+    setTitle(data[0]?.title);
+    setFiles((prev: any) => {
+      return {
+        ...prev,
+        thumbnail: [
+          {
+            file: null,
+            fileUrl: data[0]?.thumbnail,
+          },
+        ],
+        detailImg: [
+          {
+            file: null,
+            fileUrl: data[0]?.detailImg,
+          },
+        ],
+      };
+    });
+
+    setRelatedProducts({
+      type: "category",
+      products: data[0]?.relatedProd,
+    });
+    setDates({
+      openingDate: timeFormat2(data[0]?.openingStamp),
+    });
+    setDesc(data[0]?.desc);
+    setContents(tempContents);
     setCategories(tempcategories);
+    setOpenStatus(data[0]?.openStatus);
   };
 
   const selectedProducts = async () => {
@@ -284,6 +331,7 @@ export default function AddMagazine(): JSX.Element {
 
     let _body: any = {
       title,
+      desc,
       contents,
       openingStamp: timeStamp,
       relatedProd: tempRelatedProds,
@@ -291,16 +339,24 @@ export default function AddMagazine(): JSX.Element {
     };
 
     // 대표이미지(썸네일)
-    const formData = new FormData();
-    formData.append("file", files.thumbnail[0]?.file);
-    const getUrl: any = await postUploadImage(formData);
-    _body.thumbnail = getUrl.url;
+    if (files.thumbnail.file) {
+      const formData = new FormData();
+      formData.append("file", files.thumbnail[0]?.file);
+      const getUrl: any = await postUploadImage(formData);
+      _body.thumbnail = getUrl.url;
+    } else {
+      _body.thumbnail = files.thumbnail.fileUrl;
+    }
 
-    // // 추가이미지
-    const formData2 = new FormData();
-    formData2.append("file", files.detailImg[0]?.file);
-    const getUrl2: any = await postUploadImage(formData2);
-    _body.detailImg = getUrl2.url;
+    if (files.detailImg.file) {
+      // 상세이미지
+      const formData2 = new FormData();
+      formData2.append("file", files.detailImg[0]?.file);
+      const getUrl2: any = await postUploadImage(formData2);
+      _body.detailImg = getUrl2.url;
+    } else {
+      _body.detailImg = files.detailImg.fileUrl;
+    }
 
     // 구매포인트
     let tempContents: any = [...contents];
@@ -308,25 +364,29 @@ export default function AddMagazine(): JSX.Element {
     for (let i = 0; i < tempContents?.length; i++) {
       let tempImgArr: string[] = [];
       for (let k = 0; k < tempContents[i]?.images?.length; k++) {
-        const formData = new FormData();
-        formData.append("file", tempContents[i]?.images[k]?.file);
-        const getUrl: any = await postUploadImage(formData);
-        if (getUrl.result) {
-          tempImgArr.push(getUrl.url);
+        if (tempContents[i]?.images[k].file) {
+          const formData = new FormData();
+          formData.append("file", tempContents[i]?.images[k]?.file);
+          const getUrl: any = await postUploadImage(formData);
+          if (getUrl.result) {
+            tempImgArr.push(getUrl.url);
+          }
+        } else {
+          tempImgArr.push(tempContents[i]?.images[k].imgUrl);
         }
       }
 
       tempContents[i].images = tempImgArr;
     }
     _body.contents = tempContents;
-
-    const productAddResult: any = await postAddProduct({
+    const productAddResult: any = await putUpdateData({
       collection: "magazines",
+      _id: magazineId,
       ..._body,
     });
 
     if (productAddResult.result) {
-      alert("매거진 등록이 완료되었습니다.");
+      alert("매거진 수정이 완료되었습니다.");
       navigate(-1);
     }
     setLoading(false);
@@ -381,7 +441,7 @@ export default function AddMagazine(): JSX.Element {
     <>
       <div>
         <div className="flex justify-sb align-c pb-30">
-          <p className="page-title">매거진 등록</p>
+          <p className="page-title">매거진 수정</p>
           <p className="font-desc">
             <span className="font-red mr-4">*</span>
             <span>필수입력</span>
@@ -671,7 +731,7 @@ export default function AddMagazine(): JSX.Element {
                 </div>
               </div>
 
-              {contents.map((contentItem: any, i: number) => (
+              {contents?.map((contentItem: any, i: number) => (
                 <div key={i} className="list-header-content">
                   <div className="text-center w10p">
                     <img
@@ -878,13 +938,24 @@ export default function AddMagazine(): JSX.Element {
           </div>
         </div>
 
-        <div className="flex justify-fe align-c mt-34">
-          <button onClick={() => navigate(-1)} className="btn-add mr-4 pl-30 pr-30">
-            취소
+        <div className="flex justify-sb align-c mt-34">
+          <button
+            onClick={async () => {
+              await deleteItem("magazines", magazineId!, "매거진");
+              navigate(-1);
+            }}
+            className="btn-add pl-30 pr-30"
+          >
+            삭제
           </button>
-          <button onClick={handleAddProduct} className="btn-add-b pl-30 pr-30">
-            {loading ? "상품 등록중" : "저장"}
-          </button>
+          <div className="flex">
+            <button onClick={() => navigate(-1)} className="btn-add mr-4 pl-30 pr-30">
+              취소
+            </button>
+            <button onClick={handleAddProduct} className="btn-add-b pl-30 pr-30">
+              {loading ? "상품 등록중" : "저장"}
+            </button>
+          </div>
         </div>
       </div>
     </>

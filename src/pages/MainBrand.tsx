@@ -31,7 +31,7 @@ const MainBrand = () => {
         <p>총 {mainBrands?.length}건</p>
         <ButtonR
           onClick={() => {
-            navigate("/main/brand/addbrand");
+            navigate("/site/main/brand/addbrand");
           }}
           name="브랜드 등록"
         />
@@ -82,7 +82,7 @@ const MainBrand = () => {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/main/brand/${item._id}`)}
+                onClick={() => navigate(`/site/main/brand/${item._id}`)}
               />
               <ButtonR
                 name="삭제"

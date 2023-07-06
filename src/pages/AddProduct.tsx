@@ -14,24 +14,7 @@ import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { currency, moveValue } from "../common/utils";
 import CheckboxS from "../components/CheckboxS";
 import { getDatas, postAddProduct, postUploadImage } from "../common/apis";
-
-const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
-];
-
-const Cateogyoptions2 = [
-  { value: "하위분류 카테고리1", label: "하위분류 카테고리1" },
-  { value: "하위분류 카테고리2", label: "하위분류 카테고리2" },
-  { value: "하위분류 카테고리3", label: "하위분류 카테고리3" },
-];
-
-const brandOptions = [
-  { value: "브랜드 옵션1", label: "브랜드 옵션1" },
-  { value: "브랜드 옵션2", label: "브랜드 옵션2" },
-  { value: "브랜드 옵션3", label: "브랜드 옵션3" },
-];
+import { useNavigate } from "react-router-dom";
 
 interface IPoint {
   summary: string;
@@ -50,6 +33,7 @@ interface IFile {
 }
 
 export default function AddProduct(): JSX.Element {
+  const navigate = useNavigate();
   const [form, setForm] = useState<any>({
     category1: "",
     category2: "",
@@ -75,6 +59,11 @@ export default function AddProduct(): JSX.Element {
   });
   const [productOptions, setProductOptions] = useState<any>({});
   const [productItemOptions, setProductItemOptions] = useState<any>([]);
+
+  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState<any>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [products, setProducts] = useState<any[]>([]);
 
   const [selectedOption, setSelectedOption] = useState(null);
   const inputFileRef = useRef<any[]>([]);
@@ -154,7 +143,57 @@ export default function AddProduct(): JSX.Element {
 
       setSubCategories(tempCategories);
     }
-  }, [form.category1]);
+
+    if (selectedCategory && relatedProducts.type === "planned") {
+      const targetIdx = categories.findIndex((el: any, i: number) => el === selectedCategory);
+
+      let tempCategories = [];
+      for (let i = 0; i < categories[targetIdx].subCategories?.length; i++) {
+        tempCategories.push({
+          value: categories[targetIdx].subCategories[i].optionName,
+          label: categories[targetIdx].subCategories[i].optionName,
+          categoryId: categories[targetIdx]._id,
+        });
+      }
+
+      setSubCategories(tempCategories);
+    }
+
+    if (selectedCategory && relatedProducts.type === "planned") {
+      selectedProducts();
+    }
+  }, [form.category1, selectedCategory]);
+
+  useEffect(() => {
+    if (selectedSubCategory) {
+      selectedProducts();
+    }
+  }, [selectedSubCategory]);
+
+  const selectedProducts = async () => {
+    const find = {
+      categoryId: selectedSubCategory.categoryId,
+      category2: selectedSubCategory.value,
+    };
+
+    const selectProducts: any = await getDatas({
+      collection: "products",
+      find: find,
+    });
+
+    const { data } = selectProducts;
+
+    let tempProductSelect: any = [];
+    for (let i = 0; i < data?.length; i++) {
+      tempProductSelect.push({
+        value: data[i].productNameK,
+        label: data[i].productNameK,
+        ...data[i],
+      });
+    }
+
+    setProducts(tempProductSelect);
+  };
 
   const init = async () => {
     // 카테고리 불러오기
@@ -534,6 +573,17 @@ export default function AddProduct(): JSX.Element {
       }
     }
 
+    const relatedProd = [];
+    for (let i in relatedProducts.products) {
+      relatedProd.push({
+        _id: relatedProducts.products[i]._id,
+        productNameK: relatedProducts.products[i].productNameK,
+        thumbnail: relatedProducts.products[i].thumbnail,
+        originalPrice: relatedProducts.products[i].price,
+        discounted: relatedProducts.products[i].discounted,
+      });
+    }
+
     let _body = {
       ...tempForm,
       categoryId,
@@ -550,6 +600,7 @@ export default function AddProduct(): JSX.Element {
       productOptions,
       productInfos,
       saleStatus,
+      relatedProd,
     };
 
     // 대표이미지(썸네일)
@@ -636,6 +687,34 @@ export default function AddProduct(): JSX.Element {
       content: "",
     });
     handleClose();
+  };
+
+  const onSelectProduct = (e: any) => {
+    let tempProds = [...relatedProducts.products];
+
+    let isValid = true;
+    for (let i in tempProds) {
+      if (e._id === tempProds[i]._id) {
+        isValid = false;
+      }
+    }
+
+    if (isValid) {
+      tempProds.push(e);
+      setRelatedProducts((prev: any) => {
+        return {
+          ...prev,
+          type: prev.type,
+          products: tempProds,
+        };
+      });
+    }
+
+    setSelectedProduct(null);
+    setSelectedCategory(null);
+    setSelectedSubCategory(null);
+    setSubCategories([]);
+    setProducts([]);
   };
 
   return (
@@ -1359,8 +1438,7 @@ export default function AddProduct(): JSX.Element {
                   <ButtonR
                     name={`변경`}
                     color={"white"}
-                    onClick={() => {}}
-                    // onClick={() => handleUploadClick(0)}
+                    onClick={() => handleUploadClick(0)}
                     styles={{ marginRight: 4 }}
                   />
                   <ButtonR
@@ -2000,7 +2078,7 @@ export default function AddProduct(): JSX.Element {
                     <p className="font-14 font-bold">상품선택</p>
                   </div>
 
-                  <div className="flex mt-10">
+                  {/* <div className="flex mt-10">
                     <Select
                       classNamePrefix="react-select"
                       placeholder={"카테고리 대분류"}
@@ -2029,47 +2107,54 @@ export default function AddProduct(): JSX.Element {
                       className="react-select-container"
                     />
                     <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p>
+                  </div> */}
+
+                  <div className="flex mt-10">
+                    <Select
+                      classNamePrefix="react-select"
+                      placeholder={"카테고리 대분류"}
+                      defaultValue={null}
+                      onChange={(e: any) => setSelectedCategory(e)}
+                      options={categories}
+                      className="react-select-container"
+                    />
+                    <Select
+                      classNamePrefix="react-select"
+                      placeholder={"카테고리 하위분류"}
+                      defaultValue={null}
+                      onChange={(e: any) => setSelectedSubCategory(e)}
+                      options={subCategories}
+                      className="react-select-container"
+                    />
+                  </div>
+
+                  <div className="flex align-c mt-4">
+                    <Select
+                      classNamePrefix="react-select"
+                      placeholder={"상품선택"}
+                      defaultValue={null}
+                      onChange={(e: any) => onSelectProduct(e)}
+                      // onChange={(e: any) => setSelectedProduct(e)}
+                      options={products}
+                      className="react-select-container"
+                    />
+                    {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
                   </div>
                 </>
               )}
 
-              {relatedProducts?.products?.length !== 0 && (
+              {relatedProducts.type === "planned" && relatedProducts?.products?.length !== 0 && (
                 <div className="mt-4">
-                  <div className="flex justify-sb align-c border-bottom-gray pt-10 pb-10">
-                    <div className="flex align-c">
-                      <img src={sample} className="list-img mr-10" />
-                      <p>Arcadia 엘다 미니 호보백</p>
+                  {relatedProducts?.products?.map((productItem: any, i: number) => (
+                    <div key={i} className="flex justify-sb align-c border-bottom-gray pt-10 pb-10">
+                      <div className="flex align-c">
+                        <img src={productItem.thumbnail} className="list-img mr-10" />
+                        <p>{productItem.productNameK}</p>
+                      </div>
+
+                      <ButtonR onClick={() => {}} color={"white"} name="삭제" />
                     </div>
-
-                    <ButtonR onClick={() => {}} color={"white"} name="삭제" />
-                  </div>
-
-                  <div className="flex justify-sb align-c border-bottom-gray pt-10 pb-10">
-                    <div className="flex align-c">
-                      <img src={sample} className="list-img mr-10" />
-                      <p>Arcadia 엘다 미니 호보백</p>
-                    </div>
-
-                    <ButtonR onClick={() => {}} color={"white"} name="삭제" />
-                  </div>
-
-                  <div className="flex justify-sb align-c border-bottom-gray pt-10 pb-10">
-                    <div className="flex align-c">
-                      <img src={sample} className="list-img mr-10" />
-                      <p>Arcadia 엘다 미니 호보백</p>
-                    </div>
-
-                    <ButtonR onClick={() => {}} color={"white"} name="삭제" />
-                  </div>
-
-                  <div className="flex justify-sb align-c border-bottom-gray pt-10 pb-10">
-                    <div className="flex align-c">
-                      <img src={sample} className="list-img mr-10" />
-                      <p>Arcadia 엘다 미니 호보백</p>
-                    </div>
-
-                    <ButtonR onClick={() => {}} color={"white"} name="삭제" />
-                  </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -2104,10 +2189,12 @@ export default function AddProduct(): JSX.Element {
           </div>
         </div>
 
-        <div className="flex justify-sb align-c mt-34">
-          <button className="btn-add pl-30 pr-30">삭제</button>
+        <div className="flex justify-fe align-c mt-34">
+          {/* <button className="btn-add pl-30 pr-30">삭제</button> */}
           <div className="flex">
-            <button className="btn-add mr-4 pl-30 pr-30">취소</button>
+            <button onClick={() => navigate(-1)} className="btn-add mr-4 pl-30 pr-30">
+              취소
+            </button>
             <button onClick={handleAddProduct} className="btn-add-b pl-30 pr-30">
               {loading ? "상품 등록중" : "저장"}
             </button>

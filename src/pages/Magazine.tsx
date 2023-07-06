@@ -1,39 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getDatas } from "../common/apis";
 import { IBrandData } from "../common/interfacs";
 import { deleteItem, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 
-const Promotion = () => {
+const Magazine = () => {
   const navigate = useNavigate();
-  const [promotions, setPromotions] = useState<any[]>();
+  const [magazines, setMagazines] = useState<any[]>();
 
   useEffect(() => {
     init();
   }, []);
 
   const init = async () => {
-    const promotionData: any = await getDatas({
-      collection: "promotions",
+    const { data }: any = await getDatas({
+      collection: "magazines",
     });
 
-    setPromotions(promotionData.data);
+    setMagazines(data);
   };
 
   return (
     <div>
       <div className="flex justify-sb align-c">
-        <p className="page-title">첫 화면 관리 {">"} 기획전</p>
+        <p className="page-title">첫 화면 관리 {">"} 매거진</p>
       </div>
 
       <div className="mt-34 flex justify-sb align-c">
-        <p>총 {promotions?.length}건</p>
+        <p>총 {magazines?.length}건</p>
         <ButtonR
           onClick={() => {
-            navigate("/site/main/promotion/addpromotion");
+            navigate("/site/main/magazine/addmagazine");
           }}
-          name="기획전 등록"
+          name="매거진 등록"
         />
       </div>
 
@@ -59,7 +59,7 @@ const Promotion = () => {
         </div>
       </div>
 
-      {promotions?.map((promotionItem, i) => (
+      {magazines?.map((item, i) => (
         <div key={i} className="list-content pl-18 pr-18">
           <div className="flex align-c mt-8 mb-8">
             <div className="w10p">
@@ -67,14 +67,14 @@ const Promotion = () => {
             </div>
 
             <div className="w50p">
-              <p>{promotionItem.title}</p>
+              <p>{item.title}</p>
             </div>
 
             <div className="w10p text-center">
-              <p>{promotionItem.openStatus ? "공개" : "비공개"}</p>
+              <p>{item.openStatus ? "공개" : "비공개"}</p>
             </div>
             <div className="w15p text-center">
-              <p>{timeFormat1(promotionItem.openingStamp)}</p>
+              <p>{timeFormat1(item.openingStamp)}</p>
             </div>
 
             <div className="text-center w15p flex justify-c">
@@ -82,14 +82,14 @@ const Promotion = () => {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/site/main/promotion/${promotionItem._id}`)}
+                onClick={() => navigate(`/site/main/magazine/${item._id}`)}
               />
               <ButtonR
                 name="삭제"
                 color="white"
                 styles={{ marginRight: 4 }}
                 onClick={async () => {
-                  await deleteItem("promotions", promotionItem._id, "기획전");
+                  await deleteItem("magazines", item._id, "매거진");
                   await init();
                 }}
               />
@@ -101,4 +101,4 @@ const Promotion = () => {
   );
 };
 
-export default Promotion;
+export default Magazine;

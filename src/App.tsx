@@ -27,8 +27,16 @@ import PromotionDetail from "./pages/PromotionDetail";
 import MainBrand from "./pages/MainBrand";
 import AddMainBrand from "./pages/AddMainBrand";
 import MainBrandDetail from "./pages/MainBrandDetail";
-import Magazine from "./pages/AddMagazine";
 import AddMagazine from "./pages/AddMagazine";
+import Magazine from "./pages/Magazine";
+import MagazineDetail from "./pages/MagazineDetail";
+import LiveLikeIttaly from "./pages/LiveLikeIttaly";
+import AddLiveLikeIttaly from "./pages/AddLiveLikeIttaly";
+import Popup from "./pages/Popup";
+import MainHBanner from "./pages/MainBanner";
+import LiveLikeIttalyDetail from "./pages/LiveLikeIttayDetail";
+import ErrorPage from "./pages/ErrorPage";
+import MainEvent from "./pages/MainEvent";
 
 function App() {
   useEffect(() => {
@@ -66,47 +74,46 @@ function App() {
     {
       path: "/",
       element: data.isUser ? <Layout /> : <Login />,
-
       children: [
         {
           path: "/",
           element: <Main />,
         },
         {
-          path: "/productmanage",
+          path: "/product/productmanage",
           element: <ProductManagement />,
         },
         {
-          path: "/addproduct",
+          path: "/product/addproduct",
           element: <AddProduct />,
         },
         {
-          path: "/brand",
+          path: "/product/brand",
           element: <Brand />,
         },
 
         {
-          path: "/brand/:brandId",
+          path: "/product/brand/:brandId",
           element: <BrandDetail />,
         },
 
         {
-          path: "/brand/addbrand",
+          path: "/product/brand/addbrand",
           element: <AddBrand />,
         },
 
         {
-          path: "/category",
+          path: "/product/category",
           element: <Category />,
         },
 
         {
-          path: "/category/:categoryId",
+          path: "/product/category/:categoryId",
           element: <CategoryDetail />,
         },
 
         {
-          path: "/category/addcategory",
+          path: "/product/category/addcategory",
           element: <AddCategory />,
         },
 
@@ -120,46 +127,83 @@ function App() {
         },
 
         {
-          path: "/main/banner",
+          path: "/site/main/bannertop",
           element: <BannerTop />,
         },
         {
-          path: "/main/banner/addbanner",
+          path: "/site/main/bannertop/addbanner",
           element: <AddBannerTop />,
         },
         {
-          path: "/main/banner/:bannerId",
+          path: "/site/main/bannertop/:bannerId",
           element: <BannerDetail />,
         },
 
         {
-          path: "/main/promotion",
+          path: "/site/main/promotion",
           element: <Promotion />,
         },
         {
-          path: "/main/promotion/addPromotion",
+          path: "/site/main/promotion/addPromotion",
           element: <AddPromotion />,
         },
 
         {
-          path: "main/promotion/:promotionId",
+          path: "/site/main/promotion/:promotionId",
           element: <PromotionDetail />,
         },
         {
-          path: "/main/brand",
+          path: "/site/main/brand",
           element: <MainBrand />,
         },
         {
-          path: "/main/brand/addbrand",
+          path: "/site/main/brand/addbrand",
           element: <AddMainBrand />,
         },
         {
-          path: "/main/brand/:mainBrandId",
+          path: "/site/main/brand/:mainBrandId",
           element: <MainBrandDetail />,
         },
         {
-          path: "/main/magazine",
+          path: "/site/main/magazine",
+          element: <Magazine />,
+        },
+        {
+          path: "/site/main/magazine/addmagazine",
           element: <AddMagazine />,
+        },
+        {
+          path: "/site/main/magazine/:magazineId",
+          element: <MagazineDetail />,
+        },
+
+        {
+          path: "/site/main/livelikeittaly",
+          element: <LiveLikeIttaly />,
+        },
+        {
+          path: "/site/main/livelikeittaly/addlivelikeittaly",
+          element: <AddLiveLikeIttaly />,
+        },
+        {
+          path: "/site/main/livelikeittaly/:liveittalyId",
+          element: <LiveLikeIttalyDetail />,
+        },
+        {
+          path: "/site/popup",
+          element: <Popup />,
+        },
+        {
+          path: "/site/banner/:bannerType",
+          element: <MainHBanner />,
+        },
+        {
+          path: "/site/event",
+          element: <MainEvent />,
+        },
+        {
+          path: "*",
+          element: <ErrorPage />,
         },
       ],
     },

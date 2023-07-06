@@ -71,7 +71,6 @@ const AddMainBrand: React.FC = () => {
     });
 
     const { data } = getBrands;
-
     let tempBrands = [];
     for (let i = 0; i < data?.length; i++) {
       tempBrands.push({

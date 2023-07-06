@@ -56,7 +56,7 @@ const BannerTop = () => {
         <p>총 {bannersData?.length}건</p>
         <ButtonR
           onClick={() => {
-            navigate("/main/banner/addbanner");
+            navigate("/site/main/bannertop/addbanner");
           }}
           name="배너 등록"
         />
@@ -127,7 +127,7 @@ const BannerTop = () => {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/main/banner/${aBanner._id}`)}
+                onClick={() => navigate(`/site/main/bannertop/${aBanner._id}`)}
               />
               <ButtonR
                 name="삭제"

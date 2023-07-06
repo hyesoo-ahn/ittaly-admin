@@ -20,7 +20,7 @@ const Cateogyoptions1 = [
   { value: "대분류 카테고리3", label: "대분류 카테고리3" },
 ];
 
-const AddPromotion: React.FC = () => {
+const AddLiveLikeIttaly: React.FC = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState<string>("");
   const [desc, setDesc] = useState<string>("");
@@ -142,13 +142,9 @@ const AddPromotion: React.FC = () => {
     });
   };
 
-  // 기획전 등록
-  const handleAddPromotion = async () => {
-    const startingDate = new Date(dates.startingDate);
-    const endingDate = new Date(dates.endingDate);
+  // live like ittaly 등록
+  const handleAddForm = async () => {
     const openingDate = new Date(dates.openingDate);
-    const startingDateStamp = startingDate.getTime();
-    const endingDateStamp = endingDate.getTime();
     const openingDateStamp = openingDate.getTime();
 
     const relatedProd = [];
@@ -167,18 +163,17 @@ const AddPromotion: React.FC = () => {
     const getUrl: any = await postUploadImage(formData);
     if (getUrl.result && getUrl.status === 200) {
       const body = {
-        collection: "promotions",
+        collection: "liveLikeIttaly",
         title,
         intro: desc,
         imgUrl: getUrl.url,
         openStatus,
-        term: [startingDateStamp, endingDateStamp],
         relatedProd,
         openingStamp: openingDateStamp,
       };
       const addResult: any = await postCollection(body);
       if (addResult.result && addResult.status === 200) {
-        alert("기획전 등록이 완료되었습니다.");
+        alert("live like ittaly 등록이 완료되었습니다.");
       }
       navigate(-1);
     }
@@ -274,7 +269,7 @@ const AddPromotion: React.FC = () => {
       <div className="flex align-c justify-sb pb-30">
         <div className="flex alicn-c">
           <img onClick={() => navigate(-1)} className="img-close cursor mr-4" src={forward} />
-          <p className="page-title mt-3">기획전 등록</p>
+          <p className="page-title mt-3">#Live like ittaly 등록</p>
         </div>
 
         <p className="font-desc">
@@ -283,37 +278,21 @@ const AddPromotion: React.FC = () => {
         </p>
       </div>
 
-      <div className="product-field-wrapper mt-2 w100p">
+      <div className="mt-2 w100p flex">
         <div className="product-field mr-20">
           <p>
             제목<span className="font-red">*</span>
           </p>
         </div>
 
-        <div className="flex1">
+        <div className="flex1 f-direction-column mt-10 mb-10">
           <InputR
             size="full"
             value={title}
             onChange={(e: any) => setTitle(e.target.value)}
             placeholer={"공백 포함 30글자 이내로 입력해 주세요"}
           />
-        </div>
-      </div>
-
-      <div className="product-field-wrapper mt-2 w100p">
-        <div className="product-field mr-20">
-          <p>
-            기획전 소개<span className="font-red">*</span>
-          </p>
-        </div>
-
-        <div className="flex1">
-          <InputR
-            size="full"
-            value={desc}
-            onChange={(e: any) => setDesc(e.target.value)}
-            placeholer={"공백 포함 40글자 이내로 입력해 주세요"}
-          />
+          <p className="font-12 mt-10">※ 제목은 관리자 소통용으로 프론트에 노출되지 않습니다.</p>
         </div>
       </div>
 
@@ -358,45 +337,9 @@ const AddPromotion: React.FC = () => {
         </div>
       </div>
 
-      <div className="product-field-wrapper mt-2 w100p">
-        <div className="product-field mr-20">
-          <p>기획전 기간</p>
-        </div>
-
-        <div className="flex1 flex align-c">
-          <input
-            style={{ border: "1px solid #cccccc", padding: "4px 10px", color: "#979797" }}
-            type="date"
-            value={dates.startingDate}
-            onChange={(e: any) => {
-              setDates((prev) => {
-                return {
-                  ...prev,
-                  startingDate: e.target.value,
-                };
-              });
-            }}
-          />
-          <p className="mr-8 ml-8">-</p>
-          <input
-            style={{ border: "1px solid #cccccc", padding: "4px 10px", color: "#979797" }}
-            type="date"
-            value={dates.endingDate}
-            onChange={(e: any) => {
-              setDates((prev) => {
-                return {
-                  ...prev,
-                  endingDate: e.target.value,
-                };
-              });
-            }}
-          />
-        </div>
-      </div>
-
       <div className="field-list-wrapper mt-2">
         <div className="product-field mr-20">
-          <p>연관 추천상품</p>
+          <p>관련상품</p>
         </div>
 
         <div style={{ flex: 1 }} className="mt-16 mb-16">
@@ -415,14 +358,12 @@ const AddPromotion: React.FC = () => {
             <p className="cursor font-desc mr-20" onClick={() => handleRelatedProdType("brand")}>
               브랜드
             </p>
+
+            <p className="mr-20 font-12">※ 관련상품은 1개만 선택 가능합니다.</p>
           </div>
 
           {relatedProducts.type === "category" && (
             <>
-              <div className="mt-20">
-                <p className="font-14 font-bold">상품선택</p>
-              </div>
-
               <div className="flex mt-10">
                 <Select
                   classNamePrefix="react-select"
@@ -488,10 +429,6 @@ const AddPromotion: React.FC = () => {
               </div>
             </>
           )}
-
-          <p className="font-12 mt-10">
-            *최대 10개까지 선택 가능하며, 상위 2개 상품은 메인에 노출됩니다.
-          </p>
 
           {relatedProducts?.products?.length !== 0 && (
             <div className="mt-4">
@@ -564,11 +501,11 @@ const AddPromotion: React.FC = () => {
         </div> */}
         <div className="flex">
           <ButtonR name={"취소"} onClick={() => navigate(-1)} styleClass={"mr-4"} color={"white"} />
-          <ButtonR name={"저장"} onClick={handleAddPromotion} />
+          <ButtonR name={"저장"} onClick={handleAddForm} />
         </div>
       </div>
     </div>
   );
 };
 
-export default AddPromotion;
+export default AddLiveLikeIttaly;

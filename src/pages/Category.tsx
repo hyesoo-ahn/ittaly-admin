@@ -70,7 +70,7 @@ const Category = () => {
         <p>총 {categories?.length}건</p>
         <ButtonR
           onClick={() => {
-            navigate("/category/addcategory");
+            navigate("/product/category/addcategory");
           }}
           name="카테고리 등록"
         />
@@ -132,7 +132,7 @@ const Category = () => {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/category/${aCategory._id}`)}
+                onClick={() => navigate(`/product/category/${aCategory._id}`)}
               />
               <ButtonR
                 name="삭제"

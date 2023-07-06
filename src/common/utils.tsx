@@ -36,6 +36,12 @@ export const deleteItem = async (collection: string, _id: string, type: string) 
     case "메인스크린 브랜드":
       typeSubject = "메인스크린 브랜드를";
       break;
+    case "매거진":
+      typeSubject = "매거진을";
+      break;
+    case "live like ittaly":
+      typeSubject = "live like ittaly를";
+      break;
   }
 
   const confirm = window.confirm(`해당 ${typeSubject} 삭제하시겠습니까?`);
@@ -51,6 +57,30 @@ export const deleteItem = async (collection: string, _id: string, type: string) 
   } else {
     return;
   }
+};
+
+export const getLocation = (path: string) => {
+  let selected = "";
+  let subSelected = "";
+
+  const pathParams = path;
+  const split = pathParams.split("/");
+
+  if (split[1]?.includes("product")) {
+    selected = "상품";
+  }
+  if (split[1]?.includes("site")) {
+    selected = "사이트관리";
+  }
+
+  if (split[2]?.includes("main")) {
+    subSelected = "첫 화면 관리";
+  }
+  if (split[2]?.includes("banner")) {
+    subSelected = "배너 관리";
+  }
+
+  return { selected, subSelected };
 };
 
 // 반대로 풀때

@@ -31,7 +31,7 @@ const Brand = () => {
         <p>총 {brandData?.length}건</p>
         <ButtonR
           onClick={() => {
-            navigate("/brand/addbrand");
+            navigate("/product/brand/addbrand");
           }}
           name="브랜드 등록"
         />
@@ -75,7 +75,7 @@ const Brand = () => {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/brand/${aBrand._id}`)}
+                onClick={() => navigate(`/product/brand/${aBrand._id}`)}
               />
               <ButtonR
                 name="삭제"
