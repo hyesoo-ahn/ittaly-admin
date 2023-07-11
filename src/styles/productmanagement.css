@@ -17,3 +17,18 @@
   font-size: 15px;
   cursor: pointer;
 }
+
+.search-btn {
+  width: 100%;
+  /* margin-right: 2px; */
+  height: 100%;
+  border: none;
+}
+
+.search-btn-reset {
+  width: 100%;
+  background-color: #fff;
+  height: 100%;
+  /* margin-left: 2px; */
+  border: 1px solid black;
+}

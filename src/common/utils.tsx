@@ -1,6 +1,6 @@
 import { deleteData } from "./apis";
 
-export const moveValue = (array: object[], fromIndex: number, toIndex: number) => {
+export const moveValue = (array: any[], fromIndex: number, toIndex: number) => {
   let temp = array;
 
   if (

@@ -70,6 +70,7 @@ const NAV_DATA = [
         ],
       },
       { title: "이벤트 관리", path: "/site/event" },
+      { title: "적립금 관리", path: "/site/deposit" },
       { title: "쿠폰 관리", path: "coupon" },
       { title: "공지사항", path: "notice" },
       { title: "FAQ", path: "faq" },
@@ -88,7 +89,7 @@ function Layout(): JSX.Element {
 
   useEffect(() => {
     const getSelected: any = getLocation(location.pathname);
-    console.log(getSelected);
+
     setSelect(getSelected?.selected);
     setSubSelect(getSelected?.subSelected);
   }, []);

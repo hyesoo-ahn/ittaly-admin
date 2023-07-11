@@ -37,6 +37,10 @@ import MainHBanner from "./pages/MainBanner";
 import LiveLikeIttalyDetail from "./pages/LiveLikeIttayDetail";
 import ErrorPage from "./pages/ErrorPage";
 import MainEvent from "./pages/MainEvent";
+import AddMainEvent from "./pages/AddMainEvent";
+import Deposit from "./pages/Deposit";
+import MainEventDetail from "./pages/MainEventDetail";
+import ProductDetail from "./pages/ProductDetail";
 
 function App() {
   useEffect(() => {
@@ -83,6 +87,11 @@ function App() {
           path: "/product/productmanage",
           element: <ProductManagement />,
         },
+        {
+          path: "/product/detail/:productId",
+          element: <ProductDetail />,
+        },
+
         {
           path: "/product/addproduct",
           element: <AddProduct />,
@@ -200,6 +209,18 @@ function App() {
         {
           path: "/site/event",
           element: <MainEvent />,
+        },
+        {
+          path: "/site/event/add",
+          element: <AddMainEvent />,
+        },
+        {
+          path: "/site/event/:eventId",
+          element: <MainEventDetail />,
+        },
+        {
+          path: "/site/deposit",
+          element: <Deposit />,
         },
         {
           path: "*",

@@ -15,7 +15,6 @@ import { currency, moveValue } from "../common/utils";
 import CheckboxS from "../components/CheckboxS";
 import { getDatas, postAddProduct, postUploadImage } from "../common/apis";
 import { useNavigate } from "react-router-dom";
-import SelectBox from "../components/SelectBox";
 
 interface IPoint {
   summary: string;
@@ -33,7 +32,7 @@ interface IFile {
   imgUrl: string;
 }
 
-export default function AddProduct(): JSX.Element {
+export default function ProductDetail(): JSX.Element {
   const navigate = useNavigate();
   const [form, setForm] = useState<any>({
     category1: "",
@@ -936,21 +935,23 @@ export default function AddProduct(): JSX.Element {
               </p>
             </div>
 
-            <SelectBox
-              containerStyles={{ marginRight: 8 }}
+            <Select
+              classNamePrefix="react-select"
               placeholder={"대분류"}
               defaultValue={null}
               onChange={(e: any) => onChangeForm("category1", e.value)}
               options={categories}
-              noOptionsMessage="등록된 카테고리가 없습니다."
+              className="react-select-container"
+              noOptionsMessage={({ inputValue }) => "등록된 카테고리가 없습니다."}
             />
-
-            <SelectBox
+            <Select
+              classNamePrefix="react-select"
               placeholder={"하위분류"}
               defaultValue={null}
               onChange={(e: any) => onChangeForm("category2", e.value)}
               options={subCategories}
-              noOptionsMessage={"카테고리가 없습니다."}
+              className="react-select-container"
+              noOptionsMessage={({ inputValue }) => "카테고리가 없습니다."}
             />
           </div>
 
@@ -961,12 +962,14 @@ export default function AddProduct(): JSX.Element {
               </p>
             </div>
 
-            <SelectBox
+            <Select
+              classNamePrefix="react-select"
               placeholder={"브랜드"}
               defaultValue={null}
               onChange={(e: any) => onChangeForm("brand", e)}
               options={brands}
-              noOptionsMessage={"등록된 브랜드가 없습니다."}
+              className="react-select-container"
+              noOptionsMessage={({ inputValue }) => "등록된 브랜드가 없습니다."}
             />
           </div>
 
@@ -2102,30 +2105,33 @@ export default function AddProduct(): JSX.Element {
                   </div>
 
                   <div className="flex mt-10">
-                    <SelectBox
-                      containerStyles={{ marginRight: 8 }}
+                    <Select
+                      classNamePrefix="react-select"
                       placeholder={"카테고리 대분류"}
                       defaultValue={null}
                       onChange={(e: any) => setSelectedCategory(e)}
                       options={categories}
-                      noOptionsMessage={"카테고리가 없습니다."}
+                      className="react-select-container"
                     />
-                    <SelectBox
+                    <Select
+                      classNamePrefix="react-select"
                       placeholder={"카테고리 하위분류"}
                       defaultValue={null}
                       onChange={(e: any) => setSelectedSubCategory(e)}
                       options={subCategories}
-                      noOptionsMessage={"카테고리가 없습니다."}
+                      className="react-select-container"
                     />
                   </div>
 
                   <div className="flex align-c mt-4">
-                    <SelectBox
+                    <Select
+                      classNamePrefix="react-select"
                       placeholder={"상품선택"}
                       defaultValue={null}
                       onChange={(e: any) => onSelectProduct(e)}
+                      // onChange={(e: any) => setSelectedProduct(e)}
                       options={products}
-                      noOptionsMessage={"상품이 없습니다."}
+                      className="react-select-container"
                     />
                     {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
                   </div>

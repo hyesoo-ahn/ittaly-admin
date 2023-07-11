@@ -5,6 +5,7 @@ import { getDatas } from "../common/apis";
 import { currency, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
+import SelectBox from "../components/SelectBox";
 
 const Cateogyoptions1 = [
   { value: "대분류 카테고리1", label: "대분류 카테고리1" },
@@ -16,7 +17,7 @@ export default function MainEvent(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
 
-  const [products, setProducts] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
 
   useEffect(() => {
     init();
@@ -24,9 +25,10 @@ export default function MainEvent(): JSX.Element {
 
   const init = async () => {
     const productData: any = await getDatas({
-      collection: "products",
+      collection: "events",
+      sort: { sort: -1 },
     });
-    setProducts(productData.data);
+    setEvents(productData.data);
   };
 
   return (
@@ -36,45 +38,72 @@ export default function MainEvent(): JSX.Element {
       </div>
 
       <div className="w100p filter-container" style={{ flex: 1 }}>
-        <div className="flex" style={{ flex: 1, width: "100%" }}>
-          <div style={{ width: "33.333%" }} className="mr-10">
-            <InputR size="full" placeholer="상품명 입력" />
+        <SelectBox
+          value={selected}
+          onChange={(e: any) => setSelected(e)}
+          options={Cateogyoptions1}
+          noOptionsMessage={"상태가 없습니다."}
+          placeholder="진행상태"
+        />
+        {/* <div className="flex" style={{ flex: 1, width: "100%" }}>
+          <div style={{ width: "33.333%" }} className="mr-10 flex flex-wrap">
+            <div className="mr-10 flex1">
+              <input
+                type="date"
+                className="main-event-date-input"
+                data-placeholder="시작일(~부터)"
+                required
+                aria-required="true"
+              />
+            </div>
+            <div className="flex1">
+              <input
+                type="date"
+                className="main-event-date-input"
+                data-placeholder="종료일(~까지)"
+                required
+                aria-required="true"
+              />
+            </div>
           </div>
           <div style={{ width: "33.333%" }} className="mr-10">
-            <InputR size="full" placeholer="브랜드명 입력" />
+            <InputR size="full" placeholer="쿠폰명 입력" />
           </div>
-          <div style={{ width: "33.333%" }}>
-            <InputR size="full" placeholer="상품코드 입력" />
-          </div>
-        </div>
 
-        <div className="flex">
+          <div style={{ width: "33.33333%" }}>
+            <SelectBox
+              value={selected}
+              onChange={(e: any) => setSelected(e)}
+              options={Cateogyoptions1}
+              noOptionsMessage={"상태가 없습니다."}
+              placeholder="진행상태"
+            />
+          </div>
+        </div> */}
+
+        {/* <div className="flex">
           <div
             style={{
               width: "33.333%",
-
-              marginRight: 4,
             }}
           >
-            <Select
-              classNamePrefix="react-select"
-              placeholder={"대분류"}
-              defaultValue={null}
-              onChange={(e: any) => setSelected(e.value)}
+            <SelectBox
+              containerStyles={{ paddingRight: 8, marginTop: 8 }}
+              placeholder={"이벤트 유형"}
               options={Cateogyoptions1}
-              className="react-select-container react-select-container2 mt-8"
-              noOptionsMessage={({ inputValue }) => "등록된 카테고리가 없습니다."}
+              noOptionsMessage={"등록된 유형이 없습니다."}
+              value={selected}
+              onChange={(e: any) => setSelected(e)}
             />
           </div>
-          <div style={{ width: "33.333%", marginRight: 4 }}>
-            <Select
-              classNamePrefix="react-select"
-              placeholder={"대분류"}
-              defaultValue={null}
-              onChange={(e: any) => setSelected(e.value)}
+          <div style={{ width: "33.333%" }}>
+            <SelectBox
+              containerStyles={{ paddingRight: 7, marginTop: 8 }}
+              placeholder={"공개 여부"}
               options={Cateogyoptions1}
-              className="react-select-container react-select-container2 mt-8"
-              noOptionsMessage={({ inputValue }) => "등록된 카테고리가 없습니다."}
+              noOptionsMessage={"등록된 유형이 없습니다."}
+              value={selected}
+              onChange={(e: any) => setSelected(e)}
             />
           </div>
           <div
@@ -106,16 +135,16 @@ export default function MainEvent(): JSX.Element {
               초기화
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
 
       <div className="mt-34 flex justify-sb align-c">
         <p>총 0건</p>
         <ButtonR
           onClick={() => {
-            navigate("/product/addproduct");
+            navigate("/site/event/add");
           }}
-          name="상품 등록"
+          name="이벤트 등록"
         />
       </div>
 
@@ -125,23 +154,27 @@ export default function MainEvent(): JSX.Element {
         </div>
 
         <div className="w10p">
-          <p>상품코드</p>
+          <p>이벤트 유형</p>
         </div>
 
-        <div className="w35p">
-          <p>상품명</p>
+        <div className="w25p">
+          <p>이벤트명</p>
         </div>
 
-        <div className="w15p">
-          <p>브랜드</p>
+        <div className="w30p">
+          <p>이벤트 기간</p>
         </div>
 
-        <div className="w10p">
-          <p>판매상태</p>
+        <div className="w10p text-center">
+          <p>진행상태</p>
         </div>
 
-        <div className="w10p">
-          <p>판매가</p>
+        <div className="w10p text-center">
+          <p>조회수</p>
+        </div>
+
+        <div className="w5p text-center">
+          <p>공개여부</p>
         </div>
 
         <div className="text-center w15p">
@@ -149,33 +182,36 @@ export default function MainEvent(): JSX.Element {
         </div>
       </div>
 
-      {products?.map((productItem: any, i: number) => (
-        <div key={i} className="list-content pl-18 pr-18">
-          <div className="flex align-c mt-8 mb-8">
+      {events?.map((eventItem: any, i: number) => (
+        <div key={i} className={`list-content pl-18 pr-18 ${i === 0 && "bg-blue border-radius-8"}`}>
+          <div className={`flex align-c mt-8 mb-8`}>
             <div className="w5p">
               <input type="checkbox" />
             </div>
 
             <div className="w10p">
-              <p>{productItem.productCode}</p>
+              {eventItem.eventType === "normal" && <p>일반</p>}
+              {eventItem.eventType === "luckydraw" && <p>럭키드로우</p>}
             </div>
 
-            <div className="w35p">
-              <p>{productItem.productNameK}</p>
+            <div className="w25p">
+              <p>{eventItem.title}</p>
             </div>
 
-            <div className="w15p">
-              <p>{productItem.brand}</p>
+            <div className="w30p">
+              <p>
+                {timeFormat1(eventItem.term[0])} ~ {timeFormat1(eventItem.term[1])}
+              </p>
             </div>
 
-            <div className="w10p">
-              {productItem.saleStatus === "onSale" && <p>판매중</p>}
-              {productItem.saleStatus === "saleStopped" && <p>판매중지</p>}
-              {productItem.saleStatus === "soldOut" && <p>일시품절</p>}
+            <div className="w10p text-center">
+              <p> {eventItem.term[1] > Date.now() ? "진행중" : "종료"}</p>
             </div>
 
-            <div className="w10p">
-              <p>{currency(productItem.price)}원</p>
+            <div className="w10p">{/* <p>{currency(productItem.price)}원</p> */}</div>
+
+            <div className="w5p text-center">
+              <p>Y</p>
             </div>
 
             <div className="text-center w15p flex justify-c">
@@ -183,8 +219,7 @@ export default function MainEvent(): JSX.Element {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => {}}
-                // onClick={() => navigate(`/banner/${productItem._id}`)}
+                onClick={() => navigate(`/site/event/${eventItem._id}`)}
               />
               <ButtonR
                 name="삭제"
@@ -202,10 +237,22 @@ export default function MainEvent(): JSX.Element {
 
       <div className="mt-20 flex justify-sb align-c flex-wrap">
         <div className="flex">
-          <ButtonR name="선택삭제" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
-          <ButtonR name="판매중" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
-          <ButtonR name="판매중지" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
-          <ButtonR name="일시품절" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
+          <ButtonR name="공개" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
+          <ButtonR name="비공개" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
+          <ButtonR
+            name="우선노출지정"
+            color="white"
+            onClick={() => {}}
+            styles={{ marginRight: 4 }}
+            styleClass={"bg-blue"}
+          />
+          <ButtonR
+            name="우선노출해제"
+            color="white"
+            onClick={() => {}}
+            styles={{ marginRight: 4 }}
+            styleClass={"bg-blue"}
+          />
         </div>
 
         <div className="flex pagination">

@@ -5,19 +5,46 @@ import { getDatas } from "../common/apis";
 import { currency, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
+import SelectBox from "../components/SelectBox";
 
 const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
+  { value: "onSale", label: "판매중" },
+  { value: "saleStopped", label: "판매중지" },
+  { value: "soldOut", label: "일시품절" },
 ];
+
+interface ISearchForm {
+  productNameK: string;
+  brandName: string;
+  productCode: string;
+  salesStatus: {
+    value: string;
+    label: string;
+  };
+  category: {
+    value: string;
+    label: string;
+  };
+}
 
 export default function ProductManagement(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
-
   const [products, setProducts] = useState<any[]>([]);
-
+  const [searchForm, setSearchForm] = useState<ISearchForm>({
+    productNameK: "",
+    brandName: "",
+    productCode: "",
+    category: {
+      value: "",
+      label: "",
+    },
+    salesStatus: {
+      value: "",
+      label: "",
+    },
+  });
+  const [categories, setCategories] = useState<any>([]);
   useEffect(() => {
     init();
   }, []);
@@ -26,7 +53,56 @@ export default function ProductManagement(): JSX.Element {
     const productData: any = await getDatas({
       collection: "products",
     });
+    const getCategories: any = await getDatas({
+      collection: "categories",
+    });
+
+    let tempcategories = [];
+    for (let i = 0; i < getCategories?.data?.length; i++) {
+      tempcategories.push({
+        value: getCategories?.data[i]?.name,
+        label: getCategories?.data[i]?.name,
+        subCategories: getCategories?.data[i]?.subCategories,
+        _id: getCategories?.data[i]?._id,
+      });
+    }
+
+    setCategories(tempcategories);
     setProducts(productData.data);
+  };
+
+  const handleSearchResult = async () => {
+    let find: any = {};
+    if (searchForm.productNameK !== "") find.productNameK = searchForm.productNameK;
+    if (searchForm.brandName !== "") find.brand = searchForm.brandName;
+    if (searchForm.productCode !== "") find.productCode = searchForm.productCode;
+    if (searchForm.category.value !== "") find.category = searchForm.category.value;
+    if (searchForm.salesStatus.value !== "") find.saleStatus = searchForm.salesStatus.value;
+
+    const { data }: any = await getDatas({
+      collection: "products",
+      find: find,
+    });
+
+    setProducts(data);
+  };
+
+  const handleSearchInit = () => {
+    setSearchForm({
+      productNameK: "",
+      brandName: "",
+      productCode: "",
+      category: {
+        value: "",
+        label: "",
+      },
+      salesStatus: {
+        value: "",
+        label: "",
+      },
+    });
+
+    init();
   };
 
   return (
@@ -36,73 +112,96 @@ export default function ProductManagement(): JSX.Element {
       </div>
 
       <div className="w100p filter-container" style={{ flex: 1 }}>
-        <div className="flex" style={{ flex: 1, width: "100%" }}>
-          <div style={{ width: "33.333%" }} className="mr-10">
-            <InputR size="full" placeholer="상품명 입력" />
+        <div className="flex justify-sb" style={{ flex: 1, width: "100%" }}>
+          <div style={{ width: "33%" }}>
+            <InputR
+              onChange={(e: any) => {
+                setSearchForm((prev: ISearchForm) => {
+                  return {
+                    ...prev,
+                    productNameK: e.target.value,
+                  };
+                });
+              }}
+              value={searchForm.productNameK}
+              size="full"
+              placeholer="상품명 입력"
+            />
           </div>
-          <div style={{ width: "33.333%" }} className="mr-10">
-            <InputR size="full" placeholer="브랜드명 입력" />
+          <div style={{ width: "33%" }}>
+            <InputR
+              onChange={(e: any) => {
+                setSearchForm((prev: ISearchForm) => {
+                  return {
+                    ...prev,
+                    brandName: e.target.value,
+                  };
+                });
+              }}
+              value={searchForm.brandName}
+              size="full"
+              placeholer="브랜드명 입력"
+            />
           </div>
-          <div style={{ width: "33.333%" }}>
-            <InputR size="full" placeholer="상품코드 입력" />
+          <div style={{ width: "33%" }}>
+            <InputR
+              size="full"
+              onChange={(e: any) => {
+                setSearchForm((prev: ISearchForm) => {
+                  return {
+                    ...prev,
+                    productCode: e.target.value,
+                  };
+                });
+              }}
+              value={searchForm.productCode}
+              placeholer="상품코드 입력"
+            />
           </div>
         </div>
 
-        <div className="flex">
-          <div
-            style={{
-              width: "33.333%",
-
-              marginRight: 4,
+        <div className="flex justify-sb">
+          <SelectBox
+            containerStyles={{ width: "33%", marginTop: 8 }}
+            placeholder={"카테고리"}
+            defaultValue={null}
+            onChange={(e: any) => {
+              setSearchForm((prev: ISearchForm) => {
+                return {
+                  ...prev,
+                  category: e,
+                };
+              });
             }}
-          >
-            <Select
-              classNamePrefix="react-select"
-              placeholder={"대분류"}
-              defaultValue={null}
-              onChange={(e: any) => setSelected(e.value)}
-              options={Cateogyoptions1}
-              className="react-select-container react-select-container2 mt-8"
-              noOptionsMessage={({ inputValue }) => "등록된 카테고리가 없습니다."}
-            />
-          </div>
-          <div style={{ width: "33.333%", marginRight: 4 }}>
-            <Select
-              classNamePrefix="react-select"
-              placeholder={"대분류"}
-              defaultValue={null}
-              onChange={(e: any) => setSelected(e.value)}
-              options={Cateogyoptions1}
-              className="react-select-container react-select-container2 mt-8"
-              noOptionsMessage={({ inputValue }) => "등록된 카테고리가 없습니다."}
-            />
-          </div>
+            options={categories}
+            noOptionsMessage={"등록된 카테고리가 없습니다."}
+          />
+
+          <SelectBox
+            containerStyles={{ width: "33%", marginTop: 8 }}
+            placeholder={"판매상태"}
+            defaultValue={null}
+            onChange={(e: any) => {
+              setSearchForm((prev: ISearchForm) => {
+                return {
+                  ...prev,
+                  salesStatus: e,
+                };
+              });
+            }}
+            options={Cateogyoptions1}
+            noOptionsMessage={"등록된 카테고리가 없습니다."}
+          />
+
           <div
-            style={{ width: "33.333%", flex: 1, marginTop: 8, height: 32 }}
+            style={{ width: "33%", marginTop: 8, height: 32 }}
             className="flex align-c justify-c"
           >
-            <button
-              className="btn-add-b"
-              style={{
-                width: "50%",
-                marginRight: 2,
-                // backgroundColor: "blue",
-                // marginRight: 10,
-                height: "100%",
-                border: "none",
-              }}
-            >
+            <button onClick={handleSearchResult} className="btn-add-b search-btn">
               검색
             </button>
-            <button
-              style={{
-                width: "50%",
-                backgroundColor: "#fff",
-                height: "100%",
-                marginLeft: 2,
-                border: "1px solid black",
-              }}
-            >
+
+            <button onClick={handleSearchInit} className="search-btn-reset">
               초기화
             </button>
           </div>
@@ -183,8 +282,7 @@ export default function ProductManagement(): JSX.Element {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => {}}
-                // onClick={() => navigate(`/banner/${productItem._id}`)}
+                onClick={() => navigate(`/product/detail/${productItem._id}`)}
               />
               <ButtonR
                 name="삭제"

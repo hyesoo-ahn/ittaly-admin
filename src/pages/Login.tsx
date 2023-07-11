@@ -33,6 +33,7 @@ export default function Main(): JSX.Element {
         <img src={logo} style={{ width: 158, height: "auto" }} />
         <div className="mt-20"></div>
         <InputR
+          type={"password"}
           innerStyle={{ margin: 0 }}
           placeholer={"관리자 비밀번호"}
           value={password}

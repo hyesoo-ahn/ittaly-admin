@@ -109,6 +109,10 @@ h1 {
   margin-top: 34px;
 }
 
+.mb-5 {
+  margin-bottom: 5px;
+}
+
 .mb-6 {
   margin-bottom: 6px;
 }
@@ -278,6 +282,10 @@ h1 {
   font-size: 14px;
 }
 
+.font-16 {
+  font-size: 16px;
+}
+
 .font-red {
   color: #ff0000;
 }
@@ -345,7 +353,52 @@ h1 {
 }
 
 /* select box */
-.css-13cymwt-control {
+.react-select-container {
+}
+
+.react-select__control {
+  border-radius: 0 !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding: 0px;
+  font-size: 14px !important;
+  color: #cccccc;
+}
+
+.react-select__indicator-separator {
+  display: none;
+}
+
+.react-select__dropdown-indicator {
+  padding: 0 !important;
+  margin-right: 8px;
+}
+
+.react-select__menu {
+  border-radius: 0px !important;
+  font-size: 14px !important;
+}
+
+.react-select__option {
+  font-size: 14px !important;
+}
+
+.react-select__control {
+}
+
+.react-select__control--is-focused {
+  border: none !important;
+}
+
+.react-select__control--menu-is-open {
+}
+
+.border-reset {
+  box-shadow: 0 0 0 1px #979797 !important;
+}
+
+/* .css-13cymwt-control {
   width: 280px;
   min-height: 32px !important;
   max-height: 32px !important;
@@ -382,7 +435,6 @@ h1 {
 
 .css-b62m3t-container {
   width: 280px;
-  /* height: 32px !important; */
   border-radius: 0 !important;
 }
 
@@ -399,7 +451,7 @@ h1 {
 }
 
 .css-1hb7zxy-IndicatorsContainer {
-  /* padding-right: 5px; */
+
   padding: 0 !important;
 }
 
@@ -425,14 +477,12 @@ h1 {
 }
 
 .react-select-container2 {
-  /* margin-top: 8px !important; */
   width: calc(100%) !important;
-  margin-right: 8px !important;
 }
 
 .react-select__control {
   width: calc(100% - 7px) !important;
-}
+} */
 
 /* 공용 컴포넌트 버튼 레귤러 */
 .button-r {
@@ -501,4 +551,28 @@ input {
 
 .text-right {
   text-align: right;
+}
+
+/* 첫 화면 이벤트페이지 날짜 input */
+.main-event-date-input {
+  flex: 1;
+  min-width: 100% !important;
+  height: 32px;
+  border: 1px solid #cccccc;
+  color: #979797;
+  padding: 0 10px;
+}
+
+.main-event-date-input::before {
+  content: attr(data-placeholder);
+  width: calc(100%);
+}
+
+.main-event-date-input:focus::before,
+.main-event-date-input:valid::before {
+  display: none;
+}
+
+.border-radius-8 {
+  border-radius: 8px;
 }

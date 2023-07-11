@@ -7,12 +7,14 @@ interface IProps {
   size?: string;
   placeholer?: string;
   innerStyle?: any;
+  type?: string;
 }
 
 const InputR = (props: IProps) => {
   return (
     <div>
       <input
+        type={props.type === "password" ? "password" : ""}
         style={{ ...props.innerStyle }}
         value={props.value}
         onChange={props.onChange}
