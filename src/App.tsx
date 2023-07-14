@@ -41,6 +41,8 @@ import AddMainEvent from "./pages/AddMainEvent";
 import Deposit from "./pages/Deposit";
 import MainEventDetail from "./pages/MainEventDetail";
 import ProductDetail from "./pages/ProductDetail";
+import Coupon from "./pages/Coupon";
+import AddCoupon from "./pages/AddCoupon";
 
 function App() {
   useEffect(() => {
@@ -88,7 +90,7 @@ function App() {
           element: <ProductManagement />,
         },
         {
-          path: "/product/detail/:productId",
+          path: "/product/productmanage/:productId",
           element: <ProductDetail />,
         },
 
@@ -221,6 +223,14 @@ function App() {
         {
           path: "/site/deposit",
           element: <Deposit />,
+        },
+        {
+          path: "/site/coupon",
+          element: <Coupon />,
+        },
+        {
+          path: "/site/coupon/add",
+          element: <AddCoupon />,
         },
         {
           path: "*",

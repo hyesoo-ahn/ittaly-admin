@@ -13,7 +13,7 @@ const Cateogyoptions1 = [
   { value: "대분류 카테고리3", label: "대분류 카테고리3" },
 ];
 
-export default function MainEvent(): JSX.Element {
+export default function Coupon(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
 
@@ -34,7 +34,7 @@ export default function MainEvent(): JSX.Element {
   return (
     <div>
       <div className="flex justify-sb align-c">
-        <p className="page-title">이벤트 관리</p>
+        <p className="page-title">쿠폰 조회</p>
       </div>
 
       <div className="w100p filter-container" style={{ flex: 1 }}>
@@ -233,9 +233,9 @@ export default function MainEvent(): JSX.Element {
         <p>총 0건</p>
         <ButtonR
           onClick={() => {
-            navigate("/site/event/add");
+            navigate("/site/coupon/add");
           }}
-          name="이벤트 등록"
+          name="쿠폰 등록"
         />
       </div>
 

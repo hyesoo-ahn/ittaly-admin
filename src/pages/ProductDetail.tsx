@@ -14,7 +14,8 @@ import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { currency, moveValue } from "../common/utils";
 import CheckboxS from "../components/CheckboxS";
 import { getDatas, postAddProduct, postUploadImage } from "../common/apis";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import SelectBox from "../components/SelectBox";
 
 interface IPoint {
   summary: string;
@@ -34,6 +35,8 @@ interface IFile {
 
 export default function ProductDetail(): JSX.Element {
   const navigate = useNavigate();
+  const params = useParams();
+  const { productId } = params;
   const [form, setForm] = useState<any>({
     category1: "",
     category2: "",
@@ -70,8 +73,6 @@ export default function ProductDetail(): JSX.Element {
   const [files, setFiles] = useState<any>({
     thumbnail: [],
     additionalImg: [],
-    points: [],
-    options: [],
   });
   const [points, setPoints] = useState<any[]>([]);
   const [pointForm, setPointForm] = useState<IPoint>({
@@ -200,9 +201,13 @@ export default function ProductDetail(): JSX.Element {
     const getCategories: any = await getDatas({
       collection: "categories",
     });
-
     const getBrands: any = await getDatas({
       collection: "brands",
+    });
+
+    const getProduct: any = await getDatas({
+      collection: "products",
+      find: { _id: productId },
     });
 
     let tempcategories = [];
@@ -225,6 +230,67 @@ export default function ProductDetail(): JSX.Element {
       });
     }
 
+    const detailData = getProduct.data[0];
+    console.log(detailData);
+
+    setForm({
+      category1: detailData.category1,
+      category2: "",
+      brand: {
+        value: detailData.brand,
+        label: detailData.brand,
+      },
+      productNameE: detailData.productNameE,
+      productNameK: detailData.productNameK,
+      productCode: detailData.productCode,
+      productDesc: detailData.productDesc,
+      keywords: detailData.keywords,
+      productSetting: {
+        noneCoupon: detailData.noneCoupon,
+        bossPick: detailData.bossPick,
+        best: detailData.best,
+        luckyDraw: detailData.luckyDraw,
+      },
+      dutyFree: detailData.dutyFree,
+      freeShip: detailData.freeShip,
+      deliveryFee: currency(detailData.deliveryFee),
+      deliveryFeeForException: currency(detailData.deliveryFeeForException),
+      deliveryType: detailData.deliveryType,
+      originalPrice: currency(detailData.price),
+      discounted: currency(detailData.discounted),
+    });
+    setProductOptions(detailData.productOptions);
+    setSelectedCategory({
+      value: detailData.category1,
+      label: detailData.category1,
+      // ...detailData,
+    });
+
+    setSelectedSubCategory({
+      value: detailData.category2,
+      label: detailData.category2,
+      // ...detailData,
+    });
+
+    let tempPoints = [];
+    for (let i = 0; i < detailData.salesPoints?.length; i++) {
+      let tempPointsImgUrls: any = [];
+      for (let k = 0; k < detailData.salesPoints[i]?.imgUrls?.length; k++) {
+        tempPointsImgUrls.push({
+          file: null,
+          imgUrl: detailData.salesPoints[i]?.imgUrls[k],
+        });
+      }
+
+      tempPoints.push({
+        summary: detailData.salesPoints[i].summary,
+        desc: detailData.salesPoints[i].desc,
+        imgUrls: tempPointsImgUrls,
+      });
+    }
+
+    setPoints(tempPoints);
+    // setPoints(detailData.salesPoints);
     setCategories(tempcategories);
     setBrands(tempBrands);
   };
@@ -926,7 +992,7 @@ export default function ProductDetail(): JSX.Element {
 
         {/* 카테고리/기본정보 */}
         <div>
-          <p className="font-catetory">카테고리/기본정보</p>
+          <p className="font-category">카테고리/기본정보</p>
 
           <div className="product-field-wrapper mt-13">
             <div className="product-field mr-20">
@@ -935,23 +1001,20 @@ export default function ProductDetail(): JSX.Element {
               </p>
             </div>
 
-            <Select
-              classNamePrefix="react-select"
+            <SelectBox
+              containerStyles={{ marginRight: 8 }}
               placeholder={"대분류"}
-              defaultValue={null}
+              value={selectedCategory}
               onChange={(e: any) => onChangeForm("category1", e.value)}
               options={categories}
-              className="react-select-container"
-              noOptionsMessage={({ inputValue }) => "등록된 카테고리가 없습니다."}
+              noOptionsMessage={"등록된 카테고리가 없습니다."}
             />
-            <Select
-              classNamePrefix="react-select"
+            <SelectBox
               placeholder={"하위분류"}
-              defaultValue={null}
+              value={selectedSubCategory}
               onChange={(e: any) => onChangeForm("category2", e.value)}
               options={subCategories}
-              className="react-select-container"
-              noOptionsMessage={({ inputValue }) => "카테고리가 없습니다."}
+              noOptionsMessage={"카테고리가 없습니다."}
             />
           </div>
 
@@ -962,14 +1025,12 @@ export default function ProductDetail(): JSX.Element {
               </p>
             </div>
 
-            <Select
-              classNamePrefix="react-select"
+            <SelectBox
               placeholder={"브랜드"}
-              defaultValue={null}
+              value={form.brand}
               onChange={(e: any) => onChangeForm("brand", e)}
               options={brands}
-              className="react-select-container"
-              noOptionsMessage={({ inputValue }) => "등록된 브랜드가 없습니다."}
+              noOptionsMessage={"등록된 브랜드가 없습니다."}
             />
           </div>
 
@@ -1088,7 +1149,7 @@ export default function ProductDetail(): JSX.Element {
         {/* 판매/가격정보 */}
         <div className="mt-30">
           <div>
-            <p className="font-catetory">판매/가격 정보</p>
+            <p className="font-category">판매/가격 정보</p>
           </div>
 
           <div className="product-field-wrapper mt-13">
@@ -1155,7 +1216,7 @@ export default function ProductDetail(): JSX.Element {
         {/* 옵션 */}
         <div className="mt-30">
           <div>
-            <p className="font-catetory">옵션 여부</p>
+            <p className="font-category">옵션 여부</p>
           </div>
 
           <div className="product-field-wrapper mt-13">
@@ -1326,7 +1387,7 @@ export default function ProductDetail(): JSX.Element {
         {/* 배송 정보 */}
         <div className="mt-30">
           <div>
-            <p className="font-catetory">배송정보</p>
+            <p className="font-category">배송정보</p>
           </div>
 
           <div className="product-field-wrapper mt-13">
@@ -1414,7 +1475,7 @@ export default function ProductDetail(): JSX.Element {
         {/* 이미지 등록 */}
         <div className="mt-30">
           <div>
-            <p className="font-catetory">이미지 등록</p>
+            <p className="font-category">이미지 등록</p>
           </div>
 
           <div className="mt-13 field-list-wrapper">
@@ -1544,7 +1605,7 @@ export default function ProductDetail(): JSX.Element {
         {/* 상품 설명 */}
         <div className="mt-30">
           <div>
-            <p className="font-catetory">상품설명</p>
+            <p className="font-category">상품설명</p>
           </div>
 
           <div className="mt-13 field-list-wrapper">
@@ -2001,7 +2062,7 @@ export default function ProductDetail(): JSX.Element {
         {/* 상품 설명 */}
         <div className="mt-30">
           <div>
-            <p className="font-catetory">기타</p>
+            <p className="font-category">기타</p>
           </div>
 
           <div className="mt-13 field-list-wrapper">
@@ -2108,7 +2169,7 @@ export default function ProductDetail(): JSX.Element {
                     <Select
                       classNamePrefix="react-select"
                       placeholder={"카테고리 대분류"}
-                      defaultValue={null}
+                      value={selectedCategory}
                       onChange={(e: any) => setSelectedCategory(e)}
                       options={categories}
                       className="react-select-container"
@@ -2116,7 +2177,7 @@ export default function ProductDetail(): JSX.Element {
                     <Select
                       classNamePrefix="react-select"
                       placeholder={"카테고리 하위분류"}
-                      defaultValue={null}
+                      value={selectedSubCategory}
                       onChange={(e: any) => setSelectedSubCategory(e)}
                       options={subCategories}
                       className="react-select-container"

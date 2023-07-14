@@ -9,6 +9,14 @@
   color: #acacac !important;
 }
 
+.border-lightgray {
+  border: 1px solid #acacac !important;
+}
+
+.check-unable {
+  background-color: #ececec !important;
+}
+
 .pagination {
 }
 

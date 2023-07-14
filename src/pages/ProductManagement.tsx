@@ -282,7 +282,7 @@ export default function ProductManagement(): JSX.Element {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/product/detail/${productItem._id}`)}
+                onClick={() => navigate(`/product/productmanage/${productItem._id}`)}
               />
               <ButtonR
                 name="삭제"

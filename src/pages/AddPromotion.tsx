@@ -8,6 +8,7 @@ import sale from "../images/sale_s.png";
 import new_s from "../images/new_s.png";
 import Select from "react-select";
 import sample from "../images/sample_img.png";
+import SelectBox from "../components/SelectBox";
 
 interface IFile {
   file: File | null;
@@ -424,33 +425,30 @@ const AddPromotion: React.FC = () => {
               </div>
 
               <div className="flex mt-10">
-                <Select
-                  classNamePrefix="react-select"
+                <SelectBox
+                  containerStyles={{ marginRight: 10 }}
                   placeholder={"카테고리 대분류"}
                   defaultValue={null}
                   onChange={(e: any) => setSelectedCategory(e)}
                   options={categories}
-                  className="react-select-container"
+                  noOptionsMessage="카테고리가 없습니다."
                 />
-                <Select
-                  classNamePrefix="react-select"
+                <SelectBox
                   placeholder={"카테고리 하위분류"}
                   defaultValue={null}
                   onChange={(e: any) => setSelectedSubCategory(e)}
                   options={subCategories}
-                  className="react-select-container"
+                  noOptionsMessage="카테고리가 없습니다."
                 />
               </div>
 
               <div className="flex align-c mt-4">
-                <Select
-                  classNamePrefix="react-select"
+                <SelectBox
                   placeholder={"상품선택"}
                   defaultValue={null}
                   onChange={(e: any) => onSelectProduct(e)}
-                  // onChange={(e: any) => setSelectedProduct(e)}
                   options={products}
-                  className="react-select-container"
+                  noOptionsMessage="상품이 없습니다."
                 />
                 {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
               </div>

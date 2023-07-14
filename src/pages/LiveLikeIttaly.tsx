@@ -5,6 +5,7 @@ import { getDatas } from "../common/apis";
 import { currency, deleteItem, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
+import SelectBox from "../components/SelectBox";
 
 const Cateogyoptions1 = [
   { value: "연관상품 있음", label: "연관상품 있음" },
@@ -72,14 +73,13 @@ export default function LiveLikeIttaly(): JSX.Element {
               marginRight: 4,
             }}
           >
-            <Select
-              classNamePrefix="react-select"
+            <SelectBox
+              containerStyles={{ width: "100%" }}
               placeholder={"게시물 유형"}
               value={selected}
               onChange={(e: any) => setSelected(e)}
               options={Cateogyoptions1}
-              className="react-select-container react-select-container2"
-              noOptionsMessage={({ inputValue }) => "등록된 카테고리가 없습니다."}
+              noOptionsMessage={""}
             />
           </div>
           <div style={{ width: "33.333%", marginRight: 4 }}></div>

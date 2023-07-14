@@ -15,6 +15,7 @@ import new_s from "../images/new_s.png";
 import Select from "react-select";
 import sample from "../images/sample_img.png";
 import { timeFormat2 } from "../common/utils";
+import SelectBox from "../components/SelectBox";
 
 interface IFile {
   file: File | null;
@@ -200,8 +201,6 @@ const AddMainBrand: React.FC = () => {
     }
 
     setSelectedProduct(null);
-    // selectedBrand(null);
-    setProducts([]);
   };
 
   const handleDeleteRelatedProd = (_id: string) => {
@@ -239,10 +238,8 @@ const AddMainBrand: React.FC = () => {
         </div>
 
         <div className="flex">
-          <Select
-            classNamePrefix="react-select"
+          <SelectBox
             placeholder={"브랜드 선택"}
-            // defaultValue={null}
             value={selectedBrand}
             onChange={(e: any) => {
               setSelectedBrand(e);
@@ -255,7 +252,7 @@ const AddMainBrand: React.FC = () => {
               });
             }}
             options={brands}
-            className="react-select-container"
+            noOptionsMessage={"브랜드가 없습니다."}
           />
         </div>
       </div>
@@ -335,16 +332,14 @@ const AddMainBrand: React.FC = () => {
               </div>
 
               <div className="flex align-c">
-                <Select
-                  classNamePrefix="react-select"
+                <SelectBox
                   placeholder={"상품선택"}
-                  // defaultValue={null}
                   value={products?.filter(function (option) {
                     return option.value === selectedProduct;
                   })}
                   onChange={(e: any) => onSelectProduct(e)}
                   options={products}
-                  className="react-select-container"
+                  noOptionsMessage={"상품이 없습니다."}
                 />
               </div>
             </div>

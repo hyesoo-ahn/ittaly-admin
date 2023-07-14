@@ -10,6 +10,7 @@ import up_b from "../images/up_b.png";
 import down_b from "../images/down_b.png";
 import Select from "react-select";
 import { moveValue } from "../common/utils";
+import SelectBox from "../components/SelectBox";
 
 interface IFile {
   file: File | null;
@@ -395,8 +396,16 @@ const AddMainEvent: React.FC = () => {
           {eventType === "luckydraw" && <div className="checkbox-c-filled" />}
         </div>
 
-        <p onClick={() => setEventType("luckydraw")} className="mr-35 cursor">
+        <p onClick={() => setEventType("luckydraw")} className="mr-30 cursor">
           럭키드로우
+        </p>
+
+        <div onClick={() => setEventType("recommend")} className="checkbox-c mr-4 cursor">
+          {eventType === "recommend" && <div className="checkbox-c-filled" />}
+        </div>
+
+        <p onClick={() => setEventType("recommend")} className="mr-30 cursor">
+          추천인
         </p>
       </div>
       <div className="product-field-wrapper mt-2 w100p">
@@ -604,13 +613,12 @@ const AddMainEvent: React.FC = () => {
 
             {eventFeature === "coupon" && (
               <div className="mt-10">
-                <Select
-                  classNamePrefix="react-select"
+                <SelectBox
                   placeholder={"쿠폰 선택"}
                   defaultValue={null}
                   onChange={(e: any) => setSelectedCategory(e)}
                   options={categories}
-                  className="react-select-container"
+                  noOptionsMessage={"쿠폰이 없습니다."}
                 />
               </div>
             )}
@@ -730,177 +738,175 @@ const AddMainEvent: React.FC = () => {
         </div>
       </div>
 
-      <div className="field-list-wrapper mt-2">
-        <div className="product-field mr-20">
-          <p>
-            관련상품 추가<span className="font-red">*</span>
-          </p>
-        </div>
+      {eventType !== "recommend" && (
+        <div className="field-list-wrapper mt-2">
+          <div className="product-field mr-20">
+            <p>
+              관련상품 추가<span className="font-red">*</span>
+            </p>
+          </div>
 
-        {eventType === "normal" && (
-          <div style={{ flex: 1 }} className="mt-16 mb-16">
-            <div className="flex align-c">
-              <div className="checkbox-c mr-4">
-                {relatedProducts.type === "category" && <div className="checkbox-c-filled" />}
+          {eventType === "normal" && (
+            <div style={{ flex: 1 }} className="mt-16 mb-16">
+              <div className="flex align-c">
+                <div className="checkbox-c mr-4">
+                  {relatedProducts.type === "category" && <div className="checkbox-c-filled" />}
+                </div>
+
+                <p
+                  onClick={() => handleRelatedProdType("category")}
+                  className="cursor font-desc mr-20"
+                >
+                  카테고리
+                </p>
+
+                <div className="checkbox-c mr-4">
+                  {relatedProducts.type === "brand" && <div className="checkbox-c-filled" />}
+                </div>
+                <p
+                  className="cursor font-desc mr-20"
+                  onClick={() => handleRelatedProdType("brand")}
+                >
+                  브랜드
+                </p>
               </div>
 
-              <p
-                onClick={() => handleRelatedProdType("category")}
-                className="cursor font-desc mr-20"
-              >
-                카테고리
-              </p>
+              {relatedProducts.type === "category" && (
+                <>
+                  <div className="mt-20">
+                    <p className="font-14 font-bold">상품선택</p>
+                  </div>
 
-              <div className="checkbox-c mr-4">
-                {relatedProducts.type === "brand" && <div className="checkbox-c-filled" />}
-              </div>
-              <p className="cursor font-desc mr-20" onClick={() => handleRelatedProdType("brand")}>
-                브랜드
-              </p>
+                  <div className="flex mt-10">
+                    <SelectBox
+                      containerStyles={{ marginRight: 8 }}
+                      placeholder={"카테고리 대분류"}
+                      value={selectedCategory}
+                      onChange={(e: any) => setSelectedCategory(e)}
+                      options={categories}
+                      noOptionsMessage={"카테고리가 없습니다."}
+                    />
+                    <SelectBox
+                      placeholder={"카테고리 하위분류"}
+                      // defaultValue={null}
+                      value={selectedSubCategory}
+                      onChange={(e: any) => setSelectedSubCategory(e)}
+                      options={subCategories}
+                      noOptionsMessage={"카테고리가 없습니다."}
+                    />
+                  </div>
+
+                  <div className="flex align-c mt-4">
+                    <SelectBox
+                      placeholder={"상품선택"}
+                      // defaultValue={null}
+                      value={selectedProduct}
+                      onChange={(e: any) => onSelectProduct(e)}
+                      // onChange={(e: any) => setSelectedProduct(e)}
+                      options={products}
+                      noOptionsMessage={"상품이 없습니다."}
+                    />
+                    {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
+                  </div>
+                </>
+              )}
+
+              {relatedProducts.type === "brand" && (
+                <>
+                  <div className="mt-20">
+                    <p className="font-14 font-bold">상품선택</p>
+                  </div>
+
+                  <div className="flex mt-10">
+                    <SelectBox
+                      placeholder={"브랜드 선택"}
+                      value={selectedCategory}
+                      onChange={(e: any) => setSelectedCategory(e)}
+                      options={categories}
+                      noOptionsMessage={"브랜드가 없습니다."}
+                    />
+                  </div>
+
+                  <div className="flex align-c mt-4">
+                    <SelectBox
+                      placeholder={"상품선택"}
+                      value={selectedProduct}
+                      onChange={(e: any) => onSelectProduct(e)}
+                      options={products}
+                      noOptionsMessage={"상품이 없습니다."}
+                    />
+                    {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
+                  </div>
+                </>
+              )}
+
+              {/* <p className="font-12 mt-10">
+              *최대 10개까지 선택 가능하며, 상위 2개 상품은 메인에 노출됩니다.
+            </p> */}
+
+              {relatedProducts?.products?.length !== 0 && (
+                <div className="mt-4">
+                  {relatedProducts?.products.map((item: any, i: number) => (
+                    <div key={i} className="flex justify-sb align-c border-bottom-gray pt-10 pb-10">
+                      <div className="flex align-c">
+                        <img src={item.thumbnail} className="list-img mr-10" />
+                        <p>{item.productNameK}</p>
+                      </div>
+
+                      <ButtonR
+                        onClick={() => handleDeleteRelatedProd(item._id)}
+                        color={"white"}
+                        name="삭제"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+          )}
 
-            {relatedProducts.type === "category" && (
+          {eventType === "luckydraw" && (
+            <div style={{ flex: 1 }} className="mt-16 mb-16">
               <>
-                <div className="mt-20">
-                  <p className="font-14 font-bold">상품선택</p>
-                </div>
-
-                <div className="flex mt-10">
-                  <Select
-                    classNamePrefix="react-select"
-                    placeholder={"카테고리 대분류"}
-                    value={selectedCategory}
-                    onChange={(e: any) => setSelectedCategory(e)}
-                    options={categories}
-                    className="react-select-container"
-                  />
-                  <Select
-                    classNamePrefix="react-select"
-                    placeholder={"카테고리 하위분류"}
-                    // defaultValue={null}
-                    value={selectedSubCategory}
-                    onChange={(e: any) => setSelectedSubCategory(e)}
-                    options={subCategories}
-                    className="react-select-container"
-                  />
-                </div>
-
                 <div className="flex align-c mt-4">
-                  <Select
-                    classNamePrefix="react-select"
+                  <SelectBox
                     placeholder={"상품선택"}
-                    // defaultValue={null}
                     value={selectedProduct}
+                    //   defaultValue={null}
                     onChange={(e: any) => onSelectProduct(e)}
-                    // onChange={(e: any) => setSelectedProduct(e)}
                     options={products}
-                    className="react-select-container"
+                    noOptionsMessage={"상품이 없습니다."}
                   />
                   {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
                 </div>
               </>
-            )}
 
-            {relatedProducts.type === "brand" && (
-              <>
-                <div className="mt-20">
-                  <p className="font-14 font-bold">상품선택</p>
-                </div>
-
-                <div className="flex mt-10">
-                  <Select
-                    classNamePrefix="react-select"
-                    placeholder={"브랜드 선택"}
-                    defaultValue={null}
-                    onChange={(e: any) => setSelectedCategory(e)}
-                    options={categories}
-                    className="react-select-container"
-                  />
-                </div>
-
-                <div className="flex align-c mt-4">
-                  <Select
-                    classNamePrefix="react-select"
-                    placeholder={"상품선택"}
-                    defaultValue={null}
-                    onChange={(e: any) => onSelectProduct(e)}
-                    // onChange={(e: any) => setSelectedProduct(e)}
-                    options={products}
-                    className="react-select-container"
-                  />
-                  {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
-                </div>
-              </>
-            )}
-
-            {/* <p className="font-12 mt-10">
+              {/* <p className="font-12 mt-10">
               *최대 10개까지 선택 가능하며, 상위 2개 상품은 메인에 노출됩니다.
             </p> */}
 
-            {relatedProducts?.products?.length !== 0 && (
-              <div className="mt-4">
-                {relatedProducts?.products.map((item: any, i: number) => (
-                  <div key={i} className="flex justify-sb align-c border-bottom-gray pt-10 pb-10">
-                    <div className="flex align-c">
-                      <img src={item.thumbnail} className="list-img mr-10" />
-                      <p>{item.productNameK}</p>
+              {relatedProducts?.products?.length !== 0 && (
+                <div className="mt-4">
+                  {relatedProducts?.products.map((item: any, i: number) => (
+                    <div key={i} className="flex justify-sb align-c border-bottom-gray pt-10 pb-10">
+                      <div className="flex align-c">
+                        <img src={item.thumbnail} className="list-img mr-10" />
+                        <p>{item.productNameK}</p>
+                      </div>
+
+                      <ButtonR
+                        onClick={() => handleDeleteRelatedProd(item._id)}
+                        color={"white"}
+                        name="삭제"
+                      />
                     </div>
-
-                    <ButtonR
-                      onClick={() => handleDeleteRelatedProd(item._id)}
-                      color={"white"}
-                      name="삭제"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {eventType === "luckydraw" && (
-          <div style={{ flex: 1 }} className="mt-16 mb-16">
-            <>
-              <div className="flex align-c mt-4">
-                <Select
-                  classNamePrefix="react-select"
-                  placeholder={"상품선택"}
-                  value={selectedProduct}
-                  //   defaultValue={null}
-                  onChange={(e: any) => onSelectProduct(e)}
-                  // onChange={(e: any) => setSelectedProduct(e)}
-                  options={products}
-                  className="react-select-container"
-                />
-                {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
-              </div>
-            </>
-
-            {/* <p className="font-12 mt-10">
-              *최대 10개까지 선택 가능하며, 상위 2개 상품은 메인에 노출됩니다.
-            </p> */}
-
-            {relatedProducts?.products?.length !== 0 && (
-              <div className="mt-4">
-                {relatedProducts?.products.map((item: any, i: number) => (
-                  <div key={i} className="flex justify-sb align-c border-bottom-gray pt-10 pb-10">
-                    <div className="flex align-c">
-                      <img src={item.thumbnail} className="list-img mr-10" />
-                      <p>{item.productNameK}</p>
-                    </div>
-
-                    <ButtonR
-                      onClick={() => handleDeleteRelatedProd(item._id)}
-                      color={"white"}
-                      name="삭제"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="product-field-wrapper mt-2 w100p">
         <div className="product-field mr-20">

@@ -733,6 +733,25 @@ export default function AddProduct(): JSX.Element {
     setProducts([]);
   };
 
+  const handleDeleteFormImage = (type: string, i: number) => {
+    let tempOb: any = {};
+
+    switch (type) {
+      case "pointForm":
+        tempOb = { ...pointForm };
+        tempOb.imgUrls.splice(i, 1);
+        setPointForm(tempOb);
+        break;
+
+      case "productItemForm":
+        tempOb = { ...productItemForm };
+        tempOb.imgUrls.splice(i, 1);
+        setProductItemForm(tempOb);
+        break;
+      default:
+        break;
+    }
+  };
   return (
     <>
       {isOpen && (
@@ -927,7 +946,7 @@ export default function AddProduct(): JSX.Element {
 
         {/* 카테고리/기본정보 */}
         <div>
-          <p className="font-catetory">카테고리/기본정보</p>
+          <p className="font-category">카테고리/기본정보</p>
 
           <div className="product-field-wrapper mt-13">
             <div className="product-field mr-20">
@@ -1085,7 +1104,7 @@ export default function AddProduct(): JSX.Element {
         {/* 판매/가격정보 */}
         <div className="mt-30">
           <div>
-            <p className="font-catetory">판매/가격 정보</p>
+            <p className="font-category">판매/가격 정보</p>
           </div>
 
           <div className="product-field-wrapper mt-13">
@@ -1152,7 +1171,7 @@ export default function AddProduct(): JSX.Element {
         {/* 옵션 */}
         <div className="mt-30">
           <div>
-            <p className="font-catetory">옵션 여부</p>
+            <p className="font-category">옵션 여부</p>
           </div>
 
           <div className="product-field-wrapper mt-13">
@@ -1323,7 +1342,7 @@ export default function AddProduct(): JSX.Element {
         {/* 배송 정보 */}
         <div className="mt-30">
           <div>
-            <p className="font-catetory">배송정보</p>
+            <p className="font-category">배송정보</p>
           </div>
 
           <div className="product-field-wrapper mt-13">
@@ -1411,7 +1430,7 @@ export default function AddProduct(): JSX.Element {
         {/* 이미지 등록 */}
         <div className="mt-30">
           <div>
-            <p className="font-catetory">이미지 등록</p>
+            <p className="font-category">이미지 등록</p>
           </div>
 
           <div className="mt-13 field-list-wrapper">
@@ -1541,7 +1560,7 @@ export default function AddProduct(): JSX.Element {
         {/* 상품 설명 */}
         <div className="mt-30">
           <div>
-            <p className="font-catetory">상품설명</p>
+            <p className="font-category">상품설명</p>
           </div>
 
           <div className="mt-13 field-list-wrapper">
@@ -1650,21 +1669,17 @@ export default function AddProduct(): JSX.Element {
                             <div key={i} className="mr-12">
                               <img src={el.imgUrl} style={{ width: 136, height: "auto" }} />
                               <div className="flex mb-16">
-                                <ButtonR
+                                {/* <ButtonR
                                   name={`변경`}
                                   color={"white"}
                                   onClick={() => {}}
                                   // onClick={() => handleUploadClick(1)}
                                   styles={{ marginRight: 4 }}
-                                />
+                                /> */}
                                 <ButtonR
                                   name={`삭제`}
                                   color={"white"}
-                                  onClick={() => {}}
-                                  // handleDeleteFile(
-                                  //   "additionalImg",
-                                  //   files?.additionalImg[i]?.fileUrl
-                                  // )
+                                  onClick={() => handleDeleteFormImage("pointForm", i)}
                                 />
                               </div>
                             </div>
@@ -1889,22 +1904,17 @@ export default function AddProduct(): JSX.Element {
                             <div key={i} className="mr-12">
                               <img src={el.imgUrl} style={{ width: 136, height: "auto" }} />
                               <div className="flex mb-16">
-                                <ButtonR
+                                {/* <ButtonR
                                   name={`변경`}
                                   color={"white"}
                                   onClick={() => {}}
                                   // onClick={() => handleUploadClick(1)}
                                   styles={{ marginRight: 4 }}
-                                />
+                                /> */}
                                 <ButtonR
                                   name={`삭제`}
                                   color={"white"}
-                                  onClick={() =>
-                                    handleDeleteFile(
-                                      "additionalImg",
-                                      files?.additionalImg[i]?.fileUrl
-                                    )
-                                  }
+                                  onClick={() => handleDeleteFormImage("productItemForm", i)}
                                 />
                               </div>
                             </div>
@@ -1998,7 +2008,7 @@ export default function AddProduct(): JSX.Element {
         {/* 상품 설명 */}
         <div className="mt-30">
           <div>
-            <p className="font-catetory">기타</p>
+            <p className="font-category">기타</p>
           </div>
 
           <div className="mt-13 field-list-wrapper">
@@ -2105,14 +2115,14 @@ export default function AddProduct(): JSX.Element {
                     <SelectBox
                       containerStyles={{ marginRight: 8 }}
                       placeholder={"카테고리 대분류"}
-                      defaultValue={null}
+                      value={selectedCategory}
                       onChange={(e: any) => setSelectedCategory(e)}
                       options={categories}
                       noOptionsMessage={"카테고리가 없습니다."}
                     />
                     <SelectBox
                       placeholder={"카테고리 하위분류"}
-                      defaultValue={null}
+                      value={selectedSubCategory}
                       onChange={(e: any) => setSelectedSubCategory(e)}
                       options={subCategories}
                       noOptionsMessage={"카테고리가 없습니다."}
@@ -2122,7 +2132,7 @@ export default function AddProduct(): JSX.Element {
                   <div className="flex align-c mt-4">
                     <SelectBox
                       placeholder={"상품선택"}
-                      defaultValue={null}
+                      value={selectedProduct}
                       onChange={(e: any) => onSelectProduct(e)}
                       options={products}
                       noOptionsMessage={"상품이 없습니다."}

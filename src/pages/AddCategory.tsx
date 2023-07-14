@@ -75,7 +75,7 @@ const AddCategory = () => {
         <p className="page-title mt-3">카테고리 등록</p>
       </div>
 
-      <p className="font-catetory">카테고리 정보</p>
+      <p className="font-category">카테고리 정보</p>
 
       <div className="product-field-wrapper mt-13 w100p">
         <div className="product-field mr-20">
@@ -134,7 +134,7 @@ const AddCategory = () => {
       </div>
 
       <div className="mt-30">
-        <p className="font-catetory">하위분류</p>
+        <p className="font-category">하위분류</p>
 
         <div className="product-field-wrapper w100p">
           <div className="product-field mr-20 mt-13">
