@@ -36,8 +36,8 @@ interface IFile {
 export default function AddProduct(): JSX.Element {
   const navigate = useNavigate();
   const [form, setForm] = useState<any>({
-    category1: "",
-    category2: "",
+    category1: null,
+    category2: null,
     brand: "",
     productNameE: "",
     productNameK: "",
@@ -131,8 +131,10 @@ export default function AddProduct(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (form.category1 !== "") {
-      const targetIdx = categories.findIndex((el: any, i: number) => el.value === form.category1);
+    if (form.category1) {
+      const targetIdx = categories.findIndex(
+        (el: any, i: number) => el.value === form.category1.value
+      );
 
       let tempCategories = [];
       for (let i = 0; i < categories[targetIdx].subCategories.length; i++) {
@@ -142,6 +144,12 @@ export default function AddProduct(): JSX.Element {
         });
       }
 
+      setForm((prev: any) => {
+        return {
+          ...prev,
+          category2: null,
+        };
+      });
       setSubCategories(tempCategories);
     }
 
@@ -157,6 +165,7 @@ export default function AddProduct(): JSX.Element {
         });
       }
 
+      setSelectedSubCategory(null);
       setSubCategories(tempCategories);
     }
 
@@ -318,8 +327,10 @@ export default function AddProduct(): JSX.Element {
 
   const validationCheck = async () => {
     let isValid = true;
-    if (!selectedCategory) isValid = false;
-    if (!selectedSubCategory) isValid = false;
+    // if (!selectedCategory) isValid = false;
+    // if (!selectedSubCategory) isValid = false;
+    if (!form.category1) isValid = false;
+    if (!form.category2) isValid = false;
     if (!form.brand) isValid = false;
     if (form.productNameK === "" || form.productNameE === "") isValid = false;
     if (form.productCode === "") isValid = false;
@@ -602,6 +613,8 @@ export default function AddProduct(): JSX.Element {
 
     let _body = {
       ...tempForm,
+      category1: form.category1.value,
+      category2: form.category2.value,
       categoryId,
       brand: tempForm.brand.value,
       brandId: tempForm.brand._id,
@@ -958,16 +971,16 @@ export default function AddProduct(): JSX.Element {
             <SelectBox
               containerStyles={{ marginRight: 8 }}
               placeholder={"대분류"}
-              defaultValue={null}
-              onChange={(e: any) => onChangeForm("category1", e.value)}
+              value={form.category1}
+              onChange={(e: any) => onChangeForm("category1", e)}
               options={categories}
               noOptionsMessage="등록된 카테고리가 없습니다."
             />
 
             <SelectBox
               placeholder={"하위분류"}
-              defaultValue={null}
-              onChange={(e: any) => onChangeForm("category2", e.value)}
+              value={form.category2}
+              onChange={(e: any) => onChangeForm("category2", e)}
               options={subCategories}
               noOptionsMessage={"카테고리가 없습니다."}
             />

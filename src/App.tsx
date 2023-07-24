@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import { IMainContext } from "./interface/interface";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, redirect, Route, RouterProvider, Routes } from "react-router-dom";
 import Main from "./pages/Main";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
@@ -43,6 +43,7 @@ import MainEventDetail from "./pages/MainEventDetail";
 import ProductDetail from "./pages/ProductDetail";
 import Coupon from "./pages/Coupon";
 import AddCoupon from "./pages/AddCoupon";
+import ScrollTop from "./components/ScrollTop";
 
 function App() {
   useEffect(() => {
@@ -58,9 +59,9 @@ function App() {
     });
   };
 
-  const detectIsUser = (): void => {
+  const detectIsUser = async () => {
     const adminToken = localStorage.getItem("admin");
-    if (adminToken === ADMIN_TOKEN) {
+    if (adminToken && adminToken === ADMIN_TOKEN) {
       _handleStateChange("isUser", true);
     } else {
       _handleStateChange("isUser", false);
@@ -74,178 +75,225 @@ function App() {
     isUser: false,
   });
 
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: data.isUser ? <Layout /> : <Login />,
-      children: [
-        {
-          path: "/",
-          element: <Main />,
-        },
-        {
-          path: "/product/productmanage",
-          element: <ProductManagement />,
-        },
-        {
-          path: "/product/productmanage/:productId",
-          element: <ProductDetail />,
-        },
+  // const router = createBrowserRouter([
+  //   {
+  //     path: "/",
+  //     element: data.isUser ? <Layout /> : <Login />,
+  //     children: [
+  //       {
+  //         path: "/",
+  //         element: <Main />,
+  //       },
+  //       {
+  //         path: "/product/productmanage",
+  //         element: <ProductManagement />,
+  //       },
+  //       {
+  //         path: "/product/productmanage/:productId",
+  //         element: <ProductDetail />,
+  //       },
 
-        {
-          path: "/product/addproduct",
-          element: <AddProduct />,
-        },
-        {
-          path: "/product/brand",
-          element: <Brand />,
-        },
+  //       {
+  //         path: "/product/addproduct",
+  //         element: <AddProduct />,
+  //       },
+  //       {
+  //         path: "/product/brand",
+  //         element: <Brand />,
+  //       },
 
-        {
-          path: "/product/brand/:brandId",
-          element: <BrandDetail />,
-        },
+  //       {
+  //         path: "/product/brand/:brandId",
+  //         element: <BrandDetail />,
+  //       },
 
-        {
-          path: "/product/brand/addbrand",
-          element: <AddBrand />,
-        },
+  //       {
+  //         path: "/product/brand/addbrand",
+  //         element: <AddBrand />,
+  //       },
 
-        {
-          path: "/product/category",
-          element: <Category />,
-        },
+  //       {
+  //         path: "/product/category",
+  //         element: <Category />,
+  //       },
 
-        {
-          path: "/product/category/:categoryId",
-          element: <CategoryDetail />,
-        },
+  //       {
+  //         path: "/product/category/:categoryId",
+  //         element: <CategoryDetail />,
+  //       },
 
-        {
-          path: "/product/category/addcategory",
-          element: <AddCategory />,
-        },
+  //       {
+  //         path: "/product/category/addcategory",
+  //         element: <AddCategory />,
+  //       },
 
-        {
-          path: "/login",
-          element: <Login />,
-        },
-        {
-          path: "/signup",
-          element: <Signup />,
-        },
+  //       {
+  //         path: "/login",
+  //         element: <Login />,
+  //       },
+  //       {
+  //         path: "/signup",
+  //         element: <Signup />,
+  //       },
 
-        {
-          path: "/site/main/bannertop",
-          element: <BannerTop />,
-        },
-        {
-          path: "/site/main/bannertop/addbanner",
-          element: <AddBannerTop />,
-        },
-        {
-          path: "/site/main/bannertop/:bannerId",
-          element: <BannerDetail />,
-        },
+  //       {
+  //         path: "/site/main/bannertop",
+  //         element: <BannerTop />,
+  //       },
+  //       {
+  //         path: "/site/main/bannertop/addbanner",
+  //         element: <AddBannerTop />,
+  //       },
+  //       {
+  //         path: "/site/main/bannertop/:bannerId",
+  //         element: <BannerDetail />,
+  //       },
 
-        {
-          path: "/site/main/promotion",
-          element: <Promotion />,
-        },
-        {
-          path: "/site/main/promotion/addPromotion",
-          element: <AddPromotion />,
-        },
+  //       {
+  //         path: "/site/main/promotion",
+  //         element: <Promotion />,
+  //       },
+  //       {
+  //         path: "/site/main/promotion/addPromotion",
+  //         element: <AddPromotion />,
+  //       },
 
-        {
-          path: "/site/main/promotion/:promotionId",
-          element: <PromotionDetail />,
-        },
-        {
-          path: "/site/main/brand",
-          element: <MainBrand />,
-        },
-        {
-          path: "/site/main/brand/addbrand",
-          element: <AddMainBrand />,
-        },
-        {
-          path: "/site/main/brand/:mainBrandId",
-          element: <MainBrandDetail />,
-        },
-        {
-          path: "/site/main/magazine",
-          element: <Magazine />,
-        },
-        {
-          path: "/site/main/magazine/addmagazine",
-          element: <AddMagazine />,
-        },
-        {
-          path: "/site/main/magazine/:magazineId",
-          element: <MagazineDetail />,
-        },
+  //       {
+  //         path: "/site/main/promotion/:promotionId",
+  //         element: <PromotionDetail />,
+  //       },
+  //       {
+  //         path: "/site/main/brand",
+  //         element: <MainBrand />,
+  //       },
+  //       {
+  //         path: "/site/main/brand/addbrand",
+  //         element: <AddMainBrand />,
+  //       },
+  //       {
+  //         path: "/site/main/brand/:mainBrandId",
+  //         element: <MainBrandDetail />,
+  //       },
+  //       {
+  //         path: "/site/main/magazine",
+  //         element: <Magazine />,
+  //       },
+  //       {
+  //         path: "/site/main/magazine/addmagazine",
+  //         element: <AddMagazine />,
+  //       },
+  //       {
+  //         path: "/site/main/magazine/:magazineId",
+  //         element: <MagazineDetail />,
+  //       },
 
-        {
-          path: "/site/main/livelikeittaly",
-          element: <LiveLikeIttaly />,
-        },
-        {
-          path: "/site/main/livelikeittaly/addlivelikeittaly",
-          element: <AddLiveLikeIttaly />,
-        },
-        {
-          path: "/site/main/livelikeittaly/:liveittalyId",
-          element: <LiveLikeIttalyDetail />,
-        },
-        {
-          path: "/site/popup",
-          element: <Popup />,
-        },
-        {
-          path: "/site/banner/:bannerType",
-          element: <MainHBanner />,
-        },
-        {
-          path: "/site/event",
-          element: <MainEvent />,
-        },
-        {
-          path: "/site/event/add",
-          element: <AddMainEvent />,
-        },
-        {
-          path: "/site/event/:eventId",
-          element: <MainEventDetail />,
-        },
-        {
-          path: "/site/deposit",
-          element: <Deposit />,
-        },
-        {
-          path: "/site/coupon",
-          element: <Coupon />,
-        },
-        {
-          path: "/site/coupon/add",
-          element: <AddCoupon />,
-        },
-        {
-          path: "*",
-          element: <ErrorPage />,
-        },
-      ],
-    },
-  ]);
+  //       {
+  //         path: "/site/main/livelikeittaly",
+  //         element: <LiveLikeIttaly />,
+  //       },
+  //       {
+  //         path: "/site/main/livelikeittaly/addlivelikeittaly",
+  //         element: <AddLiveLikeIttaly />,
+  //       },
+  //       {
+  //         path: "/site/main/livelikeittaly/:liveittalyId",
+  //         element: <LiveLikeIttalyDetail />,
+  //       },
+  //       {
+  //         path: "/site/popup",
+  //         element: <Popup />,
+  //       },
+  //       {
+  //         path: "/site/banner/:bannerType",
+  //         element: <MainHBanner />,
+  //       },
+  //       {
+  //         path: "/site/event",
+  //         element: <MainEvent />,
+  //       },
+  //       {
+  //         path: "/site/event/add",
+  //         element: <AddMainEvent />,
+  //       },
+  //       {
+  //         path: "/site/event/:eventId",
+  //         element: <MainEventDetail />,
+  //       },
+  //       {
+  //         path: "/site/deposit",
+  //         element: <Deposit />,
+  //       },
+  //       {
+  //         path: "/site/coupon",
+  //         element: <Coupon />,
+  //       },
+  //       {
+  //         path: "/site/coupon/add",
+  //         element: <AddCoupon />,
+  //       },
+  //       {
+  //         path: "*",
+  //         element: <ErrorPage />,
+  //       },
+  //     ],
+  //   },
+  // ]);
 
   if (loading) return <Loading />;
 
   return (
     <>
       <MainContext.Provider value={data}>
-        <RouterProvider router={router} />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+
+          <Route element={data.isUser ? <Layout /> : <Login />}>
+            <Route path="/" index element={<Main />} />
+            <Route path="/product/productmanage" element={<ProductManagement />} />
+            <Route path="/product/productmanage/:productId" element={<ProductDetail />} />
+            <Route path="/product/addproduct" element={<AddProduct />} />
+            <Route path="/product/brand" element={<Brand />} />
+            <Route path="/product/brand/:brandId" element={<BrandDetail />} />
+            <Route path="/product/brand/addbrand" element={<AddBrand />} />
+            <Route path="/product/category" element={<Category />} />
+            <Route path="/product/category/:categoryId" element={<CategoryDetail />} />
+            <Route path="/site/main/bannertop" element={<BannerTop />} />
+            <Route path="/site/main/bannertop/addbanner" element={<AddBannerTop />} />
+            <Route path="/site/main/bannertop/:bannerId" element={<BannerDetail />} />
+            <Route path="/site/main/promotion" element={<Promotion />} />
+            <Route path="/site/main/promotion/addPromotion" element={<AddPromotion />} />
+            <Route path="/site/main/promotion/:promotionId" element={<PromotionDetail />} />
+            <Route path="/site/main/brand" element={<MainBrand />} />
+            <Route path="/site/main/brand/addbrand" element={<AddMainBrand />} />
+            <Route path="/site/main/brand/:mainBrandId" element={<MainBrandDetail />} />
+            <Route path="/site/main/magazine" element={<Magazine />} />
+            <Route path="/site/main/magazine/addmagazine" element={<AddMagazine />} />
+            <Route path="/site/main/brand/:magazineId" element={<MagazineDetail />} />
+            <Route path="/site/main/livelikeittaly" element={<LiveLikeIttaly />} />
+            <Route
+              path="/site/main/livelikeittaly/addlivelikeittaly"
+              element={<AddLiveLikeIttaly />}
+            />
+            <Route
+              path="/site/main/livelikeittaly/:liveittalyId"
+              element={<LiveLikeIttalyDetail />}
+            />
+            <Route path="/site/popup" element={<Popup />} />
+            <Route path="/site/banner/:bannerType" element={<MainHBanner />} />
+            <Route path="/site/event" element={<MainEvent />} />
+            <Route path="/site/event/add" element={<AddMainEvent />} />
+            <Route path="/site/event/:eventId" element={<MainEventDetail />} />
+            <Route path="/site/deposit" element={<Deposit />} />
+            <Route path="/site/coupon" element={<Coupon />} />
+            <Route path="/site/coupon/add" element={<AddCoupon />} />
+          </Route>
+
+          <Route path="*" element={<ErrorPage />} />
+        </Routes>
+
+        {/* <RouterProvider router={router} /> */}
       </MainContext.Provider>
     </>
   );

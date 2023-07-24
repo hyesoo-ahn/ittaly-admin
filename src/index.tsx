@@ -10,11 +10,17 @@ import "./styles/layout.css";
 import "./styles/addproduct.css";
 import "./styles/modal.css";
 import "./styles/productmanagement.css";
+import { BrowserRouter } from "react-router-dom";
+import ScrollTop from "./components/ScrollTop";
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
   // <React.StrictMode>
-  <App />
+  <BrowserRouter>
+    <ScrollTop />
+    <App />
+  </BrowserRouter>
+
   // </React.StrictMode>
 );
 

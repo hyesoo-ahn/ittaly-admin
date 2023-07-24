@@ -24,7 +24,7 @@ interface ISearchForm {
   category: {
     value: string;
     label: string;
-  };
+  } | null;
 }
 
 export default function ProductManagement(): JSX.Element {
@@ -35,10 +35,7 @@ export default function ProductManagement(): JSX.Element {
     productNameK: "",
     brandName: "",
     productCode: "",
-    category: {
-      value: "",
-      label: "",
-    },
+    category: null,
     salesStatus: {
       value: "",
       label: "",
@@ -76,7 +73,7 @@ export default function ProductManagement(): JSX.Element {
     if (searchForm.productNameK !== "") find.productNameK = searchForm.productNameK;
     if (searchForm.brandName !== "") find.brand = searchForm.brandName;
     if (searchForm.productCode !== "") find.productCode = searchForm.productCode;
-    if (searchForm.category.value !== "") find.category = searchForm.category.value;
+    if (searchForm.category!.value) find.category1 = searchForm.category!.value;
     if (searchForm.salesStatus.value !== "") find.saleStatus = searchForm.salesStatus.value;
 
     const { data }: any = await getDatas({
@@ -92,10 +89,7 @@ export default function ProductManagement(): JSX.Element {
       productNameK: "",
       brandName: "",
       productCode: "",
-      category: {
-        value: "",
-        label: "",
-      },
+      category: null,
       salesStatus: {
         value: "",
         label: "",
@@ -164,7 +158,7 @@ export default function ProductManagement(): JSX.Element {
           <SelectBox
             containerStyles={{ width: "33%", marginTop: 8 }}
             placeholder={"카테고리"}
-            defaultValue={null}
+            value={searchForm.category}
             onChange={(e: any) => {
               setSearchForm((prev: ISearchForm) => {
                 return {

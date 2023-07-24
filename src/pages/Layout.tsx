@@ -97,7 +97,7 @@ function Layout(): JSX.Element {
   const handleLogout = () => {
     context.handleStateChange("isUser", false);
     localStorage.removeItem("admin");
-    navigate("/");
+    navigate("/login");
   };
 
   return (

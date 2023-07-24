@@ -13,7 +13,7 @@ import Modal from "../components/Modal";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { currency, moveValue } from "../common/utils";
 import CheckboxS from "../components/CheckboxS";
-import { getDatas, postAddProduct, postUploadImage } from "../common/apis";
+import { getDatas, postAddProduct, postUploadImage, putUpdateData } from "../common/apis";
 import { useNavigate, useParams } from "react-router-dom";
 import SelectBox from "../components/SelectBox";
 
@@ -38,8 +38,8 @@ export default function ProductDetail(): JSX.Element {
   const params = useParams();
   const { productId } = params;
   const [form, setForm] = useState<any>({
-    category1: "",
-    category2: "",
+    category1: null,
+    category2: null,
     brand: "",
     productNameE: "",
     productNameK: "",
@@ -88,20 +88,7 @@ export default function ProductDetail(): JSX.Element {
     title: "",
     content: "",
   });
-  const [productInfos, setProductInfos] = useState<IProductInfo[]>([
-    {
-      title: "제조국",
-      content: "이탈리아",
-    },
-    {
-      title: "품질 보증 기준",
-      content: "공정거래위원회 고시(소비자분쟁해결기준)에 의거하여 보상해 드립니다.",
-    },
-    {
-      title: "A/S 책임자와 전화번호",
-      content: "ittaly, 010-4194-4399 (평일 09:00 - 18:00)",
-    },
-  ]);
+  const [productInfos, setProductInfos] = useState<IProductInfo[]>([]);
   const [saleStatus, setSaleStatus] = useState<string>("onSale");
 
   // 연관상품
@@ -131,8 +118,10 @@ export default function ProductDetail(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (form.category1 !== "") {
-      const targetIdx = categories.findIndex((el: any, i: number) => el.value === form.category1);
+    if (form.category1) {
+      const targetIdx = categories.findIndex(
+        (el: any, i: number) => el.value === form.category1.value
+      );
 
       let tempCategories = [];
       for (let i = 0; i < categories[targetIdx].subCategories.length; i++) {
@@ -142,21 +131,28 @@ export default function ProductDetail(): JSX.Element {
         });
       }
 
+      setForm((prev: any) => {
+        return {
+          ...prev,
+          category2: prev.category2,
+        };
+      });
       setSubCategories(tempCategories);
     }
 
     if (selectedCategory && relatedProducts.type === "planned") {
-      const targetIdx = categories.findIndex((el: any, i: number) => el === selectedCategory);
+      const targetIdx = categories?.findIndex((el: any, i: number) => el === selectedCategory);
 
       let tempCategories = [];
-      for (let i = 0; i < categories[targetIdx].subCategories?.length; i++) {
+      for (let i = 0; i < categories[targetIdx]?.subCategories?.length; i++) {
         tempCategories.push({
-          value: categories[targetIdx].subCategories[i].optionName,
-          label: categories[targetIdx].subCategories[i].optionName,
-          categoryId: categories[targetIdx]._id,
+          value: categories[targetIdx]?.subCategories[i]?.optionName,
+          label: categories[targetIdx]?.subCategories[i]?.optionName,
+          categoryId: categories[targetIdx]?._id,
         });
       }
 
+      setSelectedSubCategory(null);
       setSubCategories(tempCategories);
     }
 
@@ -231,11 +227,35 @@ export default function ProductDetail(): JSX.Element {
     }
 
     const detailData = getProduct.data[0];
-    console.log(detailData);
+
+    let tempDetailImages = [];
+    for (let i in detailData.additionalImg) {
+      tempDetailImages.push({
+        file: null,
+        fileUrl: detailData.additionalImg[i],
+      });
+    }
+
+    setFiles({
+      thumbnail: [
+        {
+          file: null,
+          fileUrl: detailData.thumbnail,
+        },
+      ],
+      additionalImg: tempDetailImages,
+    });
 
     setForm({
-      category1: detailData.category1,
-      category2: "",
+      category1: {
+        value: detailData.category1,
+        label: detailData.category1,
+      },
+      category2: {
+        value: detailData.category2,
+        label: detailData.category2,
+      },
+
       brand: {
         value: detailData.brand,
         label: detailData.brand,
@@ -259,18 +279,6 @@ export default function ProductDetail(): JSX.Element {
       originalPrice: currency(detailData.price),
       discounted: currency(detailData.discounted),
     });
-    setProductOptions(detailData.productOptions);
-    setSelectedCategory({
-      value: detailData.category1,
-      label: detailData.category1,
-      // ...detailData,
-    });
-
-    setSelectedSubCategory({
-      value: detailData.category2,
-      label: detailData.category2,
-      // ...detailData,
-    });
 
     let tempPoints = [];
     for (let i = 0; i < detailData.salesPoints?.length; i++) {
@@ -281,7 +289,6 @@ export default function ProductDetail(): JSX.Element {
           imgUrl: detailData.salesPoints[i]?.imgUrls[k],
         });
       }
-
       tempPoints.push({
         summary: detailData.salesPoints[i].summary,
         desc: detailData.salesPoints[i].desc,
@@ -289,10 +296,33 @@ export default function ProductDetail(): JSX.Element {
       });
     }
 
+    let tempProductOptions = [];
+
+    for (let i = 0; i < detailData?.productItemOptions?.length; i++) {
+      let tempOptionsImgUrls: any = [];
+      for (let k = 0; k < detailData?.productItemOptions[i]?.imgUrls?.length; k++) {
+        tempOptionsImgUrls.push({
+          file: null,
+          imgUrl: detailData.productItemOptions[i]?.imgUrls[k],
+        });
+      }
+      tempProductOptions.push({
+        optionName: detailData.productItemOptions[i].optionName,
+        imgUrls: tempOptionsImgUrls,
+      });
+    }
+
     setPoints(tempPoints);
-    // setPoints(detailData.salesPoints);
+    setProductItemOptions(tempProductOptions);
+    setProductInfos(detailData?.productInfos);
+    setSaleStatus(detailData?.saleStatus);
     setCategories(tempcategories);
     setBrands(tempBrands);
+    setProductOptions(detailData.productOptions);
+    setRelatedProducts({
+      type: detailData?.relatedProd?.length !== 0 ? "planned" : "random",
+      products: detailData?.relatedProd,
+    });
   };
   const onChangeForm = (type: string, value: string | object | boolean) => {
     setForm((prev: any) => {
@@ -383,15 +413,17 @@ export default function ProductDetail(): JSX.Element {
 
   const validationCheck = async () => {
     let isValid = true;
-    if (!selectedCategory) isValid = false;
-    if (!selectedSubCategory) isValid = false;
+    // if (!selectedCategory) isValid = false;
+    // if (!selectedSubCategory) isValid = false;
+    if (!form.category1) isValid = false;
+    if (!form.category2) isValid = false;
     if (!form.brand) isValid = false;
     if (form.productNameK === "" || form.productNameE === "") isValid = false;
     if (form.productCode === "") isValid = false;
     if (form.keywords === "") isValid = false;
     if (form.originalPrice === "") isValid = false;
     if (form.discounted === "") isValid = false;
-    if (!files.thumbnail.file) isValid = false;
+    if (files.thumbnail.fileUrl === "") isValid = false;
     if (points.length === 0) isValid = false;
     if (productInfos.length === 0) isValid = false;
 
@@ -667,6 +699,8 @@ export default function ProductDetail(): JSX.Element {
 
     let _body = {
       ...tempForm,
+      category1: form.category1.value,
+      category2: form.category2.value,
       categoryId,
       brand: tempForm.brand.value,
       brandId: tempForm.brand._id,
@@ -686,17 +720,23 @@ export default function ProductDetail(): JSX.Element {
 
     // 대표이미지(썸네일)
     const formData = new FormData();
-    formData.append("file", files.thumbnail[0]?.file);
-    const getUrl: any = await postUploadImage(formData);
-    _body.thumbnail = getUrl.url;
+    if (files.thumbnail.file) {
+      formData.append("file", files.thumbnail[0]?.file);
+      const getUrl: any = await postUploadImage(formData);
+      _body.thumbnail = getUrl.url;
+    }
 
     // // 추가이미지
     let tempAdditionalImg: string[] = [];
     for (let i = 0; i < files.additionalImg.length; i++) {
-      const formData = new FormData();
-      formData.append("file", files.additionalImg[i].file);
-      const getUrl: any = await postUploadImage(formData);
-      tempAdditionalImg.push(getUrl.url);
+      if (files.additionalImg[i].file) {
+        const formData = new FormData();
+        formData.append("file", files.additionalImg[i].file);
+        const getUrl: any = await postUploadImage(formData);
+        tempAdditionalImg.push(getUrl.url);
+      } else {
+        tempAdditionalImg.push(files.additionalImg[i].fileUrl);
+      }
     }
 
     _body.additionalImg = tempAdditionalImg;
@@ -707,11 +747,15 @@ export default function ProductDetail(): JSX.Element {
     for (let i = 0; i < tempPoints?.length; i++) {
       let tempImgArr: string[] = [];
       for (let k = 0; k < tempPoints[i]?.imgUrls?.length; k++) {
-        const formData = new FormData();
-        formData.append("file", tempPoints[i]?.imgUrls[k]?.file);
-        const getUrl: any = await postUploadImage(formData);
-        if (getUrl.result) {
-          tempImgArr.push(getUrl.url);
+        if (tempPoints[i]?.imgUrls[k]?.file) {
+          const formData = new FormData();
+          formData.append("file", tempPoints[i]?.imgUrls[k]?.file);
+          const getUrl: any = await postUploadImage(formData);
+          if (getUrl.result) {
+            tempImgArr.push(getUrl.url);
+          }
+        } else {
+          tempImgArr.push(tempPoints[i]?.imgUrls[k].imgUrl);
         }
       }
 
@@ -725,27 +769,33 @@ export default function ProductDetail(): JSX.Element {
     for (let i = 0; i < tempItemOptions?.length; i++) {
       let tempImgArr: string[] = [];
       for (let k = 0; k < tempItemOptions[i]?.imgUrls?.length; k++) {
-        const formData = new FormData();
-        formData.append("file", tempItemOptions[i]?.imgUrls[k]?.file);
-        const getUrl: any = await postUploadImage(formData);
-        if (getUrl.result) {
-          tempImgArr.push(getUrl.url);
+        if (tempItemOptions[i]?.imgUrls[k]?.file) {
+          const formData = new FormData();
+          formData.append("file", tempItemOptions[i]?.imgUrls[k]?.file);
+          const getUrl: any = await postUploadImage(formData);
+          if (getUrl.result) {
+            tempImgArr.push(getUrl.url);
+          }
+        } else {
+          tempImgArr.push(tempItemOptions[k]?.imgUrls[k]?.imgUrl);
         }
       }
       tempItemOptions[i].imgUrls = tempImgArr;
     }
     _body.productItemOptions = tempItemOptions;
 
-    const productAddResult: any = await postAddProduct({
+    const productAddResult: any = await putUpdateData({
       collection: "products",
+      _id: productId,
       ..._body,
     });
 
     if (productAddResult.result) {
-      alert("상품 등록이 완료되었습니다.");
+      alert("상품 수정이 완료되었습니다.");
     }
 
     setLoading(false);
+    init();
   };
 
   const handleCancelProductInfo = () => {
@@ -771,7 +821,7 @@ export default function ProductDetail(): JSX.Element {
   };
 
   const onSelectProduct = (e: any) => {
-    let tempProds = [...relatedProducts.products];
+    let tempProds = !relatedProducts.products ? [] : [...relatedProducts.products];
 
     let isValid = true;
     for (let i in tempProds) {
@@ -1004,15 +1054,23 @@ export default function ProductDetail(): JSX.Element {
             <SelectBox
               containerStyles={{ marginRight: 8 }}
               placeholder={"대분류"}
-              value={selectedCategory}
-              onChange={(e: any) => onChangeForm("category1", e.value)}
+              value={form.category1}
+              onChange={(e: any) => {
+                onChangeForm("category1", e);
+                setForm((prev: any) => {
+                  return {
+                    ...prev,
+                    category2: null,
+                  };
+                });
+              }}
               options={categories}
               noOptionsMessage={"등록된 카테고리가 없습니다."}
             />
             <SelectBox
               placeholder={"하위분류"}
-              value={selectedSubCategory}
-              onChange={(e: any) => onChangeForm("category2", e.value)}
+              value={form.category2}
+              onChange={(e: any) => onChangeForm("category2", e)}
               options={subCategories}
               noOptionsMessage={"카테고리가 없습니다."}
             />
@@ -1546,7 +1604,7 @@ export default function ProductDetail(): JSX.Element {
                     type="file"
                   />
                   <ButtonR
-                    name={`이미지 추가 ${files?.additionalImg.length}/4`}
+                    name={`이미지 추가 ${files?.additionalImg?.length}/4`}
                     onClick={() => handleUploadClick(1)}
                   />
                 </div>
@@ -1555,8 +1613,8 @@ export default function ProductDetail(): JSX.Element {
               </div>
 
               <div className="flex align-c">
-                {files?.additionalImg.length !== 0 &&
-                  files?.additionalImg.map((el: any, i: number) => (
+                {files?.additionalImg?.length !== 0 &&
+                  files?.additionalImg?.map((el: any, i: number) => (
                     <div key={i} className="mr-12">
                       <img
                         src={files?.additionalImg[i]?.fileUrl}
@@ -2166,33 +2224,31 @@ export default function ProductDetail(): JSX.Element {
                   </div>
 
                   <div className="flex mt-10">
-                    <Select
-                      classNamePrefix="react-select"
+                    <SelectBox
+                      containerStyles={{ marginRight: 8 }}
                       placeholder={"카테고리 대분류"}
                       value={selectedCategory}
                       onChange={(e: any) => setSelectedCategory(e)}
                       options={categories}
-                      className="react-select-container"
+                      noOptionsMessage={"카테고리가 없습니다."}
                     />
-                    <Select
-                      classNamePrefix="react-select"
+                    <SelectBox
                       placeholder={"카테고리 하위분류"}
                       value={selectedSubCategory}
                       onChange={(e: any) => setSelectedSubCategory(e)}
                       options={subCategories}
-                      className="react-select-container"
+                      noOptionsMessage={"카테고리가 없습니다."}
                     />
                   </div>
 
                   <div className="flex align-c mt-4">
-                    <Select
-                      classNamePrefix="react-select"
+                    <SelectBox
                       placeholder={"상품선택"}
-                      defaultValue={null}
+                      value={selectedProduct}
                       onChange={(e: any) => onSelectProduct(e)}
                       // onChange={(e: any) => setSelectedProduct(e)}
                       options={products}
-                      className="react-select-container"
+                      noOptionsMessage={"상품이 없습니다."}
                     />
                     {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
                   </div>
