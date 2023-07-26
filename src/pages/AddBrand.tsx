@@ -141,14 +141,18 @@ const AddBrand = () => {
 
           {file.url && (
             <div className="flex mt-10 mb-16">
-              <ButtonR
+              {/* <ButtonR
                 name={`변경`}
                 color={"white"}
                 onClick={() => {}}
                 // onClick={() => handleUploadClick(0)}
                 styles={{ marginRight: 4 }}
+              /> */}
+              <ButtonR
+                name={`삭제`}
+                color={"white"}
+                onClick={() => setFile({ file: null, url: "" })}
               />
-              <ButtonR name={`삭제`} color={"white"} onClick={() => {}} />
             </div>
           )}
         </div>

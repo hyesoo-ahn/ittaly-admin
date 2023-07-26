@@ -442,13 +442,13 @@ export default function AddMagazine(): JSX.Element {
 
               {files?.thumbnail.length !== 0 && (
                 <div className="flex mt-16 mb-16">
-                  <ButtonR
+                  {/* <ButtonR
                     name={`변경`}
                     color={"white"}
                     onClick={() => {}}
                     // onClick={() => handleUploadClick(0)}
                     styles={{ marginRight: 4 }}
-                  />
+                  /> */}
                   <ButtonR
                     name={`삭제`}
                     color={"white"}
@@ -491,13 +491,13 @@ export default function AddMagazine(): JSX.Element {
 
               {files?.detailImg?.length !== 0 && (
                 <div className="flex mt-16 mb-16">
-                  <ButtonR
+                  {/* <ButtonR
                     name={`변경`}
                     color={"white"}
                     onClick={() => {}}
                     // onClick={() => handleUploadClick(0)}
                     styles={{ marginRight: 4 }}
-                  />
+                  /> */}
                   <ButtonR
                     name={`삭제`}
                     color={"white"}

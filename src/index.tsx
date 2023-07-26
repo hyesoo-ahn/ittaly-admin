@@ -10,6 +10,7 @@ import "./styles/layout.css";
 import "./styles/addproduct.css";
 import "./styles/modal.css";
 import "./styles/productmanagement.css";
+import "./styles/users.css";
 import { BrowserRouter } from "react-router-dom";
 import ScrollTop from "./components/ScrollTop";
 

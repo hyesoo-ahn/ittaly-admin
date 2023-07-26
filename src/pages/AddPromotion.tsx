@@ -23,6 +23,7 @@ const Cateogyoptions1 = [
 
 const AddPromotion: React.FC = () => {
   const navigate = useNavigate();
+  const [eventType, setEventType] = useState<string>("normal");
   const [title, setTitle] = useState<string>("");
   const [desc, setDesc] = useState<string>("");
   const [txtLength, setTxtLength] = useState(0);
@@ -70,6 +71,7 @@ const AddPromotion: React.FC = () => {
         });
       }
 
+      setSelectedSubCategory(null);
       setSubCategories(tempCategories);
     }
 
@@ -336,7 +338,10 @@ const AddPromotion: React.FC = () => {
                 onChange={(e) => handleFileChange(e)}
                 type="file"
               />
-              <ButtonR onClick={() => fileRef?.current?.click()} name={`이미지 추가 0/1`} />
+              <ButtonR
+                onClick={() => fileRef?.current?.click()}
+                name={`이미지 추가 ${file.url !== "" ? 1 : 0}/1`}
+              />
             </div>
 
             <p className="font-desc">이미지 1장, 1080px x 1080px</p>
@@ -346,14 +351,23 @@ const AddPromotion: React.FC = () => {
 
           {file.url && (
             <div className="flex mt-10 mb-16">
-              <ButtonR
+              {/* <ButtonR
                 name={`변경`}
                 color={"white"}
                 onClick={() => {}}
                 // onClick={() => handleUploadClick(0)}
                 styles={{ marginRight: 4 }}
+              /> */}
+              <ButtonR
+                name={`삭제`}
+                color={"white"}
+                onClick={() =>
+                  setFile({
+                    file: null,
+                    url: "",
+                  })
+                }
               />
-              <ButtonR name={`삭제`} color={"white"} onClick={() => {}} />
             </div>
           )}
         </div>
@@ -395,7 +409,175 @@ const AddPromotion: React.FC = () => {
         </div>
       </div>
 
-    ㅊ
+      {eventType !== "recommend" && (
+        <div className="field-list-wrapper mt-2">
+          <div className="product-field mr-20">
+            <p>
+              관련상품 추가<span className="font-red">*</span>
+            </p>
+          </div>
+
+          {eventType === "normal" && (
+            <div style={{ flex: 1 }} className="mt-16 mb-16">
+              <div className="flex align-c">
+                <div className="checkbox-c mr-4">
+                  {relatedProducts.type === "category" && <div className="checkbox-c-filled" />}
+                </div>
+
+                <p
+                  onClick={() => handleRelatedProdType("category")}
+                  className="cursor font-desc mr-20"
+                >
+                  카테고리
+                </p>
+
+                <div className="checkbox-c mr-4">
+                  {relatedProducts.type === "brand" && <div className="checkbox-c-filled" />}
+                </div>
+                <p
+                  className="cursor font-desc mr-20"
+                  onClick={() => handleRelatedProdType("brand")}
+                >
+                  브랜드
+                </p>
+              </div>
+
+              {relatedProducts.type === "category" && (
+                <>
+                  <div className="mt-20">
+                    <p className="font-14 font-bold">상품선택</p>
+                  </div>
+
+                  <div className="flex mt-10">
+                    <SelectBox
+                      containerStyles={{ marginRight: 8 }}
+                      placeholder={"카테고리 대분류"}
+                      value={selectedCategory}
+                      onChange={(e: any) => setSelectedCategory(e)}
+                      options={categories}
+                      noOptionsMessage={"카테고리가 없습니다."}
+                    />
+                    <SelectBox
+                      placeholder={"카테고리 하위분류"}
+                      // defaultValue={null}
+                      value={selectedSubCategory}
+                      onChange={(e: any) => setSelectedSubCategory(e)}
+                      options={subCategories}
+                      noOptionsMessage={"카테고리가 없습니다."}
+                    />
+                  </div>
+
+                  <div className="flex align-c mt-4">
+                    <SelectBox
+                      placeholder={"상품선택"}
+                      // defaultValue={null}
+                      value={selectedProduct}
+                      onChange={(e: any) => onSelectProduct(e)}
+                      // onChange={(e: any) => setSelectedProduct(e)}
+                      options={products}
+                      noOptionsMessage={"상품이 없습니다."}
+                    />
+                    {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
+                  </div>
+                </>
+              )}
+
+              {relatedProducts.type === "brand" && (
+                <>
+                  <div className="mt-20">
+                    <p className="font-14 font-bold">상품선택</p>
+                  </div>
+
+                  <div className="flex mt-10">
+                    <SelectBox
+                      placeholder={"브랜드 선택"}
+                      value={selectedCategory}
+                      onChange={(e: any) => setSelectedCategory(e)}
+                      options={categories}
+                      noOptionsMessage={"브랜드가 없습니다."}
+                    />
+                  </div>
+
+                  <div className="flex align-c mt-4">
+                    <SelectBox
+                      placeholder={"상품선택"}
+                      value={selectedProduct}
+                      onChange={(e: any) => onSelectProduct(e)}
+                      options={products}
+                      noOptionsMessage={"상품이 없습니다."}
+                    />
+                    {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
+                  </div>
+                </>
+              )}
+
+              {/* <p className="font-12 mt-10">
+              *최대 10개까지 선택 가능하며, 상위 2개 상품은 메인에 노출됩니다.
+            </p> */}
+
+              {relatedProducts?.products?.length !== 0 && (
+                <div className="mt-4">
+                  {relatedProducts?.products.map((item: any, i: number) => (
+                    <div key={i} className="flex justify-sb align-c border-bottom-gray pt-10 pb-10">
+                      <div className="flex align-c">
+                        <img src={item.thumbnail} className="list-img mr-10" />
+                        <p>{item.productNameK}</p>
+                      </div>
+
+                      <ButtonR
+                        onClick={() => handleDeleteRelatedProd(item._id)}
+                        color={"white"}
+                        name="삭제"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {eventType === "luckydraw" && (
+            <div style={{ flex: 1 }} className="mt-16 mb-16">
+              <>
+                <div className="flex align-c mt-4">
+                  <SelectBox
+                    placeholder={"상품선택"}
+                    value={selectedProduct}
+                    //   defaultValue={null}
+                    onChange={(e: any) => onSelectProduct(e)}
+                    options={products}
+                    noOptionsMessage={"상품이 없습니다."}
+                  />
+                  {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
+                </div>
+              </>
+
+              {/* <p className="font-12 mt-10">
+              *최대 10개까지 선택 가능하며, 상위 2개 상품은 메인에 노출됩니다.
+            </p> */}
+
+              {relatedProducts?.products?.length !== 0 && (
+                <div className="mt-4">
+                  {relatedProducts?.products.map((item: any, i: number) => (
+                    <div key={i} className="flex justify-sb align-c border-bottom-gray pt-10 pb-10">
+                      <div className="flex align-c">
+                        <img src={item.thumbnail} className="list-img mr-10" />
+                        <p>{item.productNameK}</p>
+                      </div>
+
+                      <ButtonR
+                        onClick={() => handleDeleteRelatedProd(item._id)}
+                        color={"white"}
+                        name="삭제"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="product-field-wrapper mt-2 w100p">
         <div className="product-field mr-20">

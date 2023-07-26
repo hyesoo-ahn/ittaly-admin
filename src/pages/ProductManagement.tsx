@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { getDatas } from "../common/apis";
-import { currency, timeFormat1 } from "../common/utils";
+import { deleteData, getDatas, putUpdateDataBulk } from "../common/apis";
+import { currency, deleteItem, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
@@ -30,6 +30,7 @@ interface ISearchForm {
 export default function ProductManagement(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
+  const [allCheck, setAllCheck] = useState<boolean>(false);
   const [products, setProducts] = useState<any[]>([]);
   const [searchForm, setSearchForm] = useState<ISearchForm>({
     productNameK: "",
@@ -42,6 +43,7 @@ export default function ProductManagement(): JSX.Element {
     },
   });
   const [categories, setCategories] = useState<any>([]);
+
   useEffect(() => {
     init();
   }, []);
@@ -49,6 +51,7 @@ export default function ProductManagement(): JSX.Element {
   const init = async () => {
     const productData: any = await getDatas({
       collection: "products",
+      // limit: 2,
     });
     const getCategories: any = await getDatas({
       collection: "categories",
@@ -74,7 +77,7 @@ export default function ProductManagement(): JSX.Element {
     if (searchForm.brandName !== "") find.brand = searchForm.brandName;
     if (searchForm.productCode !== "") find.productCode = searchForm.productCode;
     if (searchForm.category!.value) find.category1 = searchForm.category!.value;
-    if (searchForm.salesStatus.value !== "") find.saleStatus = searchForm.salesStatus.value;
+    if (searchForm.salesStatus!.value) find.saleStatus = searchForm.salesStatus!.value;
 
     const { data }: any = await getDatas({
       collection: "products",
@@ -97,6 +100,73 @@ export default function ProductManagement(): JSX.Element {
     });
 
     init();
+  };
+
+  const handleCheckProduct = (item: any) => {
+    const getIdx = products.findIndex((el: any) => el === item);
+
+    const temp = [...products];
+    temp[getIdx].checked = !temp[getIdx].checked;
+
+    const tempFilter = temp.filter((el: any) => el.checked);
+    if (tempFilter.length !== 0 && tempFilter.length === products.length) {
+      setAllCheck(true);
+    } else {
+      setAllCheck(false);
+    }
+
+    setProducts(temp);
+  };
+
+  const handleDeleteBulk = async (): Promise<void> => {
+    const filterData: any = products.filter((el) => el.checked);
+    const confirm = window.confirm(`선택하신 ${filterData.length}개의 항목을 삭제하시겠습니까?`);
+    if (confirm) {
+      for (let i in filterData) {
+        await deleteData({
+          _id: filterData[i]._id,
+          collection: "products",
+        });
+      }
+
+      alert("삭제되었습니다.");
+    }
+    init();
+  };
+
+  const handleUpdateBulk = async (type: string) => {
+    const filterData: any = products.filter((el) => el.checked);
+    const updateData = [];
+    for (let i in filterData) {
+      updateData.push({
+        _id: filterData[i]._id,
+        setData: {
+          saleStatus: type,
+        },
+      });
+    }
+
+    await putUpdateDataBulk({
+      collection: "products",
+      updateData,
+    });
+    alert("수정되었습니다.");
+    init();
+  };
+
+  const handleAllCheck = (check: boolean) => {
+    let temp = [...products];
+    if (!check) {
+      for (let i in temp) {
+        temp[i].checked = true;
+      }
+    } else {
+      for (let i in temp) {
+        temp[i].checked = false;
+      }
+    }
+    setProducts(temp);
+    setAllCheck((prev: boolean) => !prev);
   };
 
   return (
@@ -174,7 +244,7 @@ export default function ProductManagement(): JSX.Element {
           <SelectBox
             containerStyles={{ width: "33%", marginTop: 8 }}
             placeholder={"판매상태"}
-            defaultValue={null}
+            value={searchForm.salesStatus}
             onChange={(e: any) => {
               setSearchForm((prev: ISearchForm) => {
                 return {
@@ -214,7 +284,7 @@ export default function ProductManagement(): JSX.Element {
 
       <div className="list-header mt-10 pl-18 pr-18">
         <div className="w5p">
-          <input type="checkbox" />
+          <input type="checkbox" checked={allCheck} onChange={() => handleAllCheck(allCheck)} />
         </div>
 
         <div className="w10p">
@@ -246,7 +316,13 @@ export default function ProductManagement(): JSX.Element {
         <div key={i} className="list-content pl-18 pr-18">
           <div className="flex align-c mt-8 mb-8">
             <div className="w5p">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={productItem.checked}
+                onChange={() => {
+                  handleCheckProduct(productItem);
+                }}
+              />
             </div>
 
             <div className="w10p">
@@ -283,8 +359,8 @@ export default function ProductManagement(): JSX.Element {
                 color="white"
                 styles={{ marginRight: 4 }}
                 onClick={async () => {
-                  // await deleteItem("banners", aBanner._id, "배너");
-                  // await init();
+                  await deleteItem("products", productItem._id, "상품");
+                  await init();
                 }}
               />
             </div>
@@ -294,10 +370,30 @@ export default function ProductManagement(): JSX.Element {
 
       <div className="mt-20 flex justify-sb align-c flex-wrap">
         <div className="flex">
-          <ButtonR name="선택삭제" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
-          <ButtonR name="판매중" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
-          <ButtonR name="판매중지" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
-          <ButtonR name="일시품절" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
+          <ButtonR
+            name="선택삭제"
+            color="white"
+            onClick={handleDeleteBulk}
+            styles={{ marginRight: 4 }}
+          />
+          <ButtonR
+            name="판매중"
+            color="white"
+            onClick={() => handleUpdateBulk("onSale")}
+            styles={{ marginRight: 4 }}
+          />
+          <ButtonR
+            name="판매중지"
+            color="white"
+            onClick={() => handleUpdateBulk("saleStopped")}
+            styles={{ marginRight: 4 }}
+          />
+          <ButtonR
+            name="일시품절"
+            color="white"
+            onClick={() => handleUpdateBulk("soldOut")}
+            styles={{ marginRight: 4 }}
+          />
         </div>
 
         <div className="flex pagination">

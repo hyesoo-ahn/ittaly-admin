@@ -1,3 +1,10 @@
+.body {
+  color: #000;
+  width: 85%;
+  min-height: 100%;
+  float: right;
+}
+
 /* nav bar */
 .nav_container {
   position: fixed;
@@ -7,19 +14,11 @@
   height: 100%;
   background-color: #232323;
   z-index: 1;
-
   display: flex;
   flex-direction: column;
   padding: 0 24px 20px 24px;
   overflow-y: scroll;
   min-width: 240px;
-}
-
-.body {
-  color: #000;
-  width: 85%;
-  min-height: 100%;
-  float: right;
 }
 
 .logo_wrapper {

@@ -24,6 +24,10 @@ export const deleteItem = async (collection: string, _id: string, type: string) 
   let typeSubject = "";
 
   switch (type) {
+    case "상품":
+      typeSubject = "상품을";
+      break;
+
     case "배너":
       typeSubject = "배너를";
       break;
@@ -73,11 +77,19 @@ export const getLocation = (path: string) => {
     selected = "사이트관리";
   }
 
+  if (split[1]?.includes("customer")) {
+    selected = "고객";
+  }
+
   if (split[2]?.includes("main")) {
     subSelected = "첫 화면 관리";
   }
   if (split[2]?.includes("banner")) {
     subSelected = "배너 관리";
+  }
+
+  if (split[1]?.includes("customer")) {
+    subSelected = "회원 관리";
   }
 
   return { selected, subSelected };

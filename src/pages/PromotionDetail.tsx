@@ -380,7 +380,10 @@ const PromotionDetail: React.FC = () => {
                 onChange={(e) => handleFileChange(e)}
                 type="file"
               />
-              <ButtonR onClick={() => fileRef?.current?.click()} name={`이미지 추가 0/1`} />
+              <ButtonR
+                onClick={() => fileRef?.current?.click()}
+                name={`이미지 추가 ${file.url !== "" ? 1 : 0}/1`}
+              />
             </div>
 
             <p className="font-desc">이미지 1장, 1080px x 1080px</p>
@@ -393,11 +396,19 @@ const PromotionDetail: React.FC = () => {
               <ButtonR
                 name={`변경`}
                 color={"white"}
-                onClick={() => {}}
-                // onClick={() => handleUploadClick(0)}
+                onClick={() => fileRef?.current?.click()}
                 styles={{ marginRight: 4 }}
               />
-              <ButtonR name={`삭제`} color={"white"} onClick={() => {}} />
+              <ButtonR
+                name={`삭제`}
+                color={"white"}
+                onClick={() =>
+                  setFile({
+                    file: null,
+                    url: "",
+                  })
+                }
+              />
             </div>
           )}
         </div>

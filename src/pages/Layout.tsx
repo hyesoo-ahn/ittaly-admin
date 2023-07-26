@@ -77,6 +77,37 @@ const NAV_DATA = [
       { title: "약관", path: "terms" },
     ],
   },
+
+  {
+    title: "고객",
+    path: "",
+    navArr1: [
+      {
+        title: "회원 관리",
+        path: "",
+        navArr2: [
+          {
+            title: "회원정보 조회",
+            path: "/customer/user",
+          },
+          {
+            title: "휴면회원 관리",
+            path: "/customer/inactive",
+          },
+          {
+            title: "탈퇴회원 관리",
+            path: "/customer/withdrawn",
+          },
+        ],
+      },
+      { title: "추천인 프로그램", path: "/error" },
+      { title: "1:1 문의 관리", path: "/error" },
+      { title: "상품 문의 관리", path: "/error" },
+      { title: "상품 후기 관리", path: "/error" },
+      { title: "입고 요청 관리", path: "/error" },
+      { title: "푸시 발송 관리", path: "/error" },
+    ],
+  },
 ];
 
 function Layout(): JSX.Element {

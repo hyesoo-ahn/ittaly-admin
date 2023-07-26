@@ -51,8 +51,8 @@ export default function AddProduct(): JSX.Element {
       luckyDraw: false,
     },
     dutyFree: false,
-    freeShip: true,
-    deliveryFee: "",
+    freeShip: false,
+    deliveryFee: "15,000",
     deliveryFeeForException: "",
     deliveryType: "international",
     originalPrice: "",
@@ -329,17 +329,47 @@ export default function AddProduct(): JSX.Element {
     let isValid = true;
     // if (!selectedCategory) isValid = false;
     // if (!selectedSubCategory) isValid = false;
-    if (!form.category1) isValid = false;
-    if (!form.category2) isValid = false;
-    if (!form.brand) isValid = false;
-    if (form.productNameK === "" || form.productNameE === "") isValid = false;
-    if (form.productCode === "") isValid = false;
-    if (form.keywords === "") isValid = false;
-    if (form.originalPrice === "") isValid = false;
-    if (form.discounted === "") isValid = false;
-    if (!files.thumbnail.file) isValid = false;
-    if (points.length === 0) isValid = false;
-    if (productInfos.length === 0) isValid = false;
+    const err: string[] = [];
+    if (!form.category1) {
+      isValid = false;
+      err.push("카테고리1");
+    }
+    if (!form.category2) {
+      isValid = false;
+      err.push("카테고리2");
+    }
+    if (!form.brand) {
+      isValid = false;
+      err.push("브랜드");
+    }
+    if (form.productNameK === "" || form.productNameE === "") {
+      isValid = false;
+      err.push("상품이름");
+    }
+    if (form.productCode === "") {
+      isValid = false;
+      err.push("상품코드");
+    }
+    if (form.keywords === "") {
+      isValid = false;
+      err.push("키워드");
+    }
+    if (form.originalPrice === "") {
+      isValid = false;
+      err.push("가격");
+    }
+    if (form.discounted === "") {
+      isValid = false;
+      err.push("할인가");
+    }
+    if (!files.thumbnail[0]?.file) {
+      isValid = false;
+      err.push("썸네일이미지");
+    }
+    if (points.length === 0) {
+      isValid = false;
+      err.push("상품포인트");
+    }
 
     return isValid;
   };
@@ -595,7 +625,7 @@ export default function AddProduct(): JSX.Element {
 
     let categoryId: string = "";
     for (let i in categories) {
-      if (categories[i].value === form.category1) {
+      if (categories[i].value === form.category1.value) {
         categoryId = categories[i]._id;
       }
     }
@@ -620,12 +650,15 @@ export default function AddProduct(): JSX.Element {
       brandId: tempForm.brand._id,
       price: Number(form.originalPrice.replace(/,/gi, "")),
       discounted: Number(form.discounted.replace(/,/gi, "")),
-      deliveryFee: Number(form.deliveryFee.replace(/,/gi, "")),
-      deliveryFeeForException: Number(form.deliveryFeeForException.replace(/,/gi, "")),
+      deliveryFee: form.freeShip ? 0 : Number(form.deliveryFee.replace(/,/gi, "")),
+      deliveryFeeForException: form.freeShip
+        ? 0
+        : Number(form.deliveryFeeForException.replace(/,/gi, "")),
       noneCoupon: form.productSetting.noneCoupon,
       bossPick: form.productSetting.bossPick,
       best: form.productSetting.best,
       luckyDraw: form.productSetting.luckyDraw,
+      relatedProdType: relatedProd.length === 0 ? "random" : "manual",
       productOptions,
       productInfos,
       saleStatus,
@@ -1364,28 +1397,40 @@ export default function AddProduct(): JSX.Element {
             </div>
 
             <div
-              onClick={() => onChangeForm("deliveryType", "international")}
+              onClick={() => {
+                onChangeForm("deliveryType", "international");
+                onChangePrice("deliveryFee", "15000");
+              }}
               className="checkbox-c mr-4"
             >
               {form.deliveryType === "international" && <div className="checkbox-c-filled"></div>}
             </div>
 
             <p
-              onClick={() => onChangeForm("deliveryType", "international")}
+              onClick={() => {
+                onChangeForm("deliveryType", "international");
+                onChangePrice("deliveryFee", "15000");
+              }}
               className="font-desc mr-20 cursor"
             >
               해외배송
             </p>
 
             <div
-              onClick={() => onChangeForm("deliveryType", "domestic")}
+              onClick={() => {
+                onChangeForm("deliveryType", "domestic");
+                onChangePrice("deliveryFee", "2500");
+              }}
               className="checkbox-c mr-4"
             >
               {form.deliveryType === "domestic" && <div className="checkbox-c-filled"></div>}
             </div>
 
             <p
-              onClick={() => onChangeForm("deliveryType", "domestic")}
+              onClick={() => {
+                onChangeForm("deliveryType", "domestic");
+                onChangePrice("deliveryFee", "2500");
+              }}
               className="font-desc cursor"
             >
               국내배송

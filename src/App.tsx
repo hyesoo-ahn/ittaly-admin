@@ -44,6 +44,8 @@ import ProductDetail from "./pages/ProductDetail";
 import Coupon from "./pages/Coupon";
 import AddCoupon from "./pages/AddCoupon";
 import ScrollTop from "./components/ScrollTop";
+import Users from "./pages/Users";
+import UserDetail from "./pages/UserDetail";
 
 function App() {
   useEffect(() => {
@@ -270,7 +272,7 @@ function App() {
             <Route path="/site/main/brand/:mainBrandId" element={<MainBrandDetail />} />
             <Route path="/site/main/magazine" element={<Magazine />} />
             <Route path="/site/main/magazine/addmagazine" element={<AddMagazine />} />
-            <Route path="/site/main/brand/:magazineId" element={<MagazineDetail />} />
+            <Route path="/site/main/magazine/:magazineId" element={<MagazineDetail />} />
             <Route path="/site/main/livelikeittaly" element={<LiveLikeIttaly />} />
             <Route
               path="/site/main/livelikeittaly/addlivelikeittaly"
@@ -288,6 +290,10 @@ function App() {
             <Route path="/site/deposit" element={<Deposit />} />
             <Route path="/site/coupon" element={<Coupon />} />
             <Route path="/site/coupon/add" element={<AddCoupon />} />
+
+            {/* 고객 */}
+            <Route path="/customer/user" element={<Users />} />
+            <Route path="/customer/user/:userId/:tab" element={<UserDetail />} />
           </Route>
 
           <Route path="*" element={<ErrorPage />} />

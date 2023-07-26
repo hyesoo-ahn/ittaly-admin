@@ -8,13 +8,15 @@ interface IProps {
   placeholer?: string;
   innerStyle?: any;
   type?: string;
+  onKeyDown?: any;
 }
 
 const InputR = (props: IProps) => {
   return (
     // <div>
     <input
-      type={props.type === "password" ? "password" : ""}
+      onKeyDown={props.onKeyDown}
+      type={props.type ? props.type : ""}
       style={{ ...props.innerStyle }}
       value={props.value}
       onChange={props.onChange}

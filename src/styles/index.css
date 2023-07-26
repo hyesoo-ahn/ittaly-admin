@@ -145,6 +145,10 @@ h1 {
   margin-bottom: 20px;
 }
 
+.mb-30 {
+  margin-bottom: 30px;
+}
+
 .mb-40 {
   margin-bottom: 40px;
 }
@@ -286,8 +290,12 @@ h1 {
   font-weight: 700;
 }
 
+.font-10 {
+  font-size: 10px !important;
+}
+
 .font-12 {
-  font-size: 12px;
+  font-size: 12px !important;
 }
 
 .font-14 {
@@ -312,8 +320,12 @@ h1 {
   line-height: 16.71px;
 }
 
+.font-300 {
+  font-weight: 300 !important;
+}
+
 .font-400 {
-  font-weight: 400;
+  font-weight: 400 !important;
 }
 
 .font-desc {

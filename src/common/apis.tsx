@@ -90,12 +90,13 @@ export const getDatas = async (body: any): Promise<boolean | object> => {
     const find = body.find ? body.find : {};
     const sort = body.sort ? body.sort : {};
     const start = body.start ? body.start : 0;
+    const limit = body.limit ? body.limit : {};
     const end = body.end ? body.end : 0;
 
     const { data }: any = await axios.get(
       `${URI}/admin/find?collection=${collection}&find=${JSON.stringify(
         find
-      )}&sort=${JSON.stringify(sort)}&start=${start}&end=${end}`,
+      )}&sort=${JSON.stringify(sort)}&start=${start}&end=${end}&limit=${limit}`,
       {
         headers: {
           "Content-Type": "application/json",
