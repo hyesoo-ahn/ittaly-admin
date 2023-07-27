@@ -218,7 +218,7 @@ export default function Users(): JSX.Element {
               name="상세"
               color="white"
               styles={{ marginRight: 4 }}
-              onClick={() => navigate("/customer/user/1234/tab1")}
+              onClick={() => navigate("/customer/users/1234/tab1")}
             />
           </div>
         </div>

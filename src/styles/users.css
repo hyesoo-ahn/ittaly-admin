@@ -36,3 +36,10 @@
 .bg-gray {
   background-color: #f1f1f1;
 }
+
+.text-line {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}

@@ -28,7 +28,7 @@ const MEMBERSHIP_LEVEL = [
   },
 ];
 
-export default function UserDetail(): JSX.Element {
+export default function InactiveUserDetail(): JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectArr, setSelectArr] = useState<any>([
@@ -65,7 +65,7 @@ export default function UserDetail(): JSX.Element {
   return (
     <div>
       <div className="flex justify-sb align-c">
-        <p className="page-title">회원정보 상세</p>
+        <p className="page-title">휴면회원 상세</p>
       </div>
 
       {/* tab */}
@@ -361,6 +361,16 @@ const Tab1 = ({ navigate }: any) => {
 
             <div className="flex align-c flex1 pt-10 pb-10">
               <p>abcdefg23</p>
+            </div>
+          </div>
+
+          <div className="field-list-wrapper mt-2">
+            <div className="product-field mr-20">
+              <p>휴면회원 처리일</p>
+            </div>
+
+            <div className="flex align-c flex1 pt-10 pb-10">
+              <p>2024.01.01</p>
             </div>
           </div>
         </div>

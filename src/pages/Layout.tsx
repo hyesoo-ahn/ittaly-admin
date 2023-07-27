@@ -88,11 +88,11 @@ const NAV_DATA = [
         navArr2: [
           {
             title: "회원정보 조회",
-            path: "/customer/user",
+            path: "/customer/users",
           },
           {
             title: "휴면회원 관리",
-            path: "/customer/inactive",
+            path: "/customer/inactiveusers",
           },
           {
             title: "탈퇴회원 관리",

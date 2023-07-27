@@ -46,6 +46,8 @@ import AddCoupon from "./pages/AddCoupon";
 import ScrollTop from "./components/ScrollTop";
 import Users from "./pages/Users";
 import UserDetail from "./pages/UserDetail";
+import InactiveUsers from "./pages/InactiveUsers";
+import InactiveUserDetail from "./pages/InactiveUserDetail";
 
 function App() {
   useEffect(() => {
@@ -77,171 +79,7 @@ function App() {
     isUser: false,
   });
 
-  const [loading, setLoading] = useState<boolean>(false);
-
-  // const router = createBrowserRouter([
-  //   {
-  //     path: "/",
-  //     element: data.isUser ? <Layout /> : <Login />,
-  //     children: [
-  //       {
-  //         path: "/",
-  //         element: <Main />,
-  //       },
-  //       {
-  //         path: "/product/productmanage",
-  //         element: <ProductManagement />,
-  //       },
-  //       {
-  //         path: "/product/productmanage/:productId",
-  //         element: <ProductDetail />,
-  //       },
-
-  //       {
-  //         path: "/product/addproduct",
-  //         element: <AddProduct />,
-  //       },
-  //       {
-  //         path: "/product/brand",
-  //         element: <Brand />,
-  //       },
-
-  //       {
-  //         path: "/product/brand/:brandId",
-  //         element: <BrandDetail />,
-  //       },
-
-  //       {
-  //         path: "/product/brand/addbrand",
-  //         element: <AddBrand />,
-  //       },
-
-  //       {
-  //         path: "/product/category",
-  //         element: <Category />,
-  //       },
-
-  //       {
-  //         path: "/product/category/:categoryId",
-  //         element: <CategoryDetail />,
-  //       },
-
-  //       {
-  //         path: "/product/category/addcategory",
-  //         element: <AddCategory />,
-  //       },
-
-  //       {
-  //         path: "/login",
-  //         element: <Login />,
-  //       },
-  //       {
-  //         path: "/signup",
-  //         element: <Signup />,
-  //       },
-
-  //       {
-  //         path: "/site/main/bannertop",
-  //         element: <BannerTop />,
-  //       },
-  //       {
-  //         path: "/site/main/bannertop/addbanner",
-  //         element: <AddBannerTop />,
-  //       },
-  //       {
-  //         path: "/site/main/bannertop/:bannerId",
-  //         element: <BannerDetail />,
-  //       },
-
-  //       {
-  //         path: "/site/main/promotion",
-  //         element: <Promotion />,
-  //       },
-  //       {
-  //         path: "/site/main/promotion/addPromotion",
-  //         element: <AddPromotion />,
-  //       },
-
-  //       {
-  //         path: "/site/main/promotion/:promotionId",
-  //         element: <PromotionDetail />,
-  //       },
-  //       {
-  //         path: "/site/main/brand",
-  //         element: <MainBrand />,
-  //       },
-  //       {
-  //         path: "/site/main/brand/addbrand",
-  //         element: <AddMainBrand />,
-  //       },
-  //       {
-  //         path: "/site/main/brand/:mainBrandId",
-  //         element: <MainBrandDetail />,
-  //       },
-  //       {
-  //         path: "/site/main/magazine",
-  //         element: <Magazine />,
-  //       },
-  //       {
-  //         path: "/site/main/magazine/addmagazine",
-  //         element: <AddMagazine />,
-  //       },
-  //       {
-  //         path: "/site/main/magazine/:magazineId",
-  //         element: <MagazineDetail />,
-  //       },
-
-  //       {
-  //         path: "/site/main/livelikeittaly",
-  //         element: <LiveLikeIttaly />,
-  //       },
-  //       {
-  //         path: "/site/main/livelikeittaly/addlivelikeittaly",
-  //         element: <AddLiveLikeIttaly />,
-  //       },
-  //       {
-  //         path: "/site/main/livelikeittaly/:liveittalyId",
-  //         element: <LiveLikeIttalyDetail />,
-  //       },
-  //       {
-  //         path: "/site/popup",
-  //         element: <Popup />,
-  //       },
-  //       {
-  //         path: "/site/banner/:bannerType",
-  //         element: <MainHBanner />,
-  //       },
-  //       {
-  //         path: "/site/event",
-  //         element: <MainEvent />,
-  //       },
-  //       {
-  //         path: "/site/event/add",
-  //         element: <AddMainEvent />,
-  //       },
-  //       {
-  //         path: "/site/event/:eventId",
-  //         element: <MainEventDetail />,
-  //       },
-  //       {
-  //         path: "/site/deposit",
-  //         element: <Deposit />,
-  //       },
-  //       {
-  //         path: "/site/coupon",
-  //         element: <Coupon />,
-  //       },
-  //       {
-  //         path: "/site/coupon/add",
-  //         element: <AddCoupon />,
-  //       },
-  //       {
-  //         path: "*",
-  //         element: <ErrorPage />,
-  //       },
-  //     ],
-  //   },
-  // ]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   if (loading) return <Loading />;
 
@@ -292,8 +130,10 @@ function App() {
             <Route path="/site/coupon/add" element={<AddCoupon />} />
 
             {/* 고객 */}
-            <Route path="/customer/user" element={<Users />} />
-            <Route path="/customer/user/:userId/:tab" element={<UserDetail />} />
+            <Route path="/customer/users" element={<Users />} />
+            <Route path="/customer/users/:userId/:tab" element={<UserDetail />} />
+            <Route path="/customer/inactiveusers" element={<InactiveUsers />} />
+            <Route path="/customer/inactiveusers/:userId/:tab" element={<InactiveUserDetail />} />
           </Route>
 
           <Route path="*" element={<ErrorPage />} />

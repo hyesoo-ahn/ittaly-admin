@@ -38,6 +38,10 @@ h1 {
   flex: 1;
 }
 
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
 .f-direction-column {
   flex-direction: column;
 }
@@ -251,12 +255,20 @@ h1 {
   padding-bottom: 15px;
 }
 
+.pl-6 {
+  padding-left: 6px;
+}
+
 .pl-18 {
   padding-left: 18px;
 }
 
 .pl-30 {
   padding-left: 30px !important;
+}
+
+.pr-6 {
+  padding-right: 6px;
 }
 
 .pr-14 {
@@ -299,11 +311,19 @@ h1 {
 }
 
 .font-14 {
-  font-size: 14px;
+  font-size: 14px !important;
 }
 
 .font-16 {
-  font-size: 16px;
+  font-size: 16px !important;
+}
+
+.font-18 {
+  font-size: 18px !important;
+}
+
+.font-38 {
+  font-size: 38px !important;
 }
 
 .font-red {
@@ -326,6 +346,14 @@ h1 {
 
 .font-400 {
   font-weight: 400 !important;
+}
+
+.font-600 {
+  font-weight: 600 !important;
+}
+
+.font-700 {
+  font-weight: 700 !important;
 }
 
 .font-desc {
@@ -402,6 +430,9 @@ h1 {
 .react-select__menu {
   border-radius: 0px !important;
   font-size: 14px !important;
+
+  /* position: relative !important; */
+  z-index: 1000 !important;
 }
 
 .react-select__option {
@@ -422,91 +453,13 @@ h1 {
   box-shadow: 0 0 0 1px #979797 !important;
 }
 
-/* .css-13cymwt-control {
-  width: 280px;
-  min-height: 32px !important;
-  max-height: 32px !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  padding: 0 10px !important;
+.absolute {
+  position: absolute !important;
 }
 
-.css-b62m3t-container {
-  height: 32px !important;
+.relative {
+  position: relative !important;
 }
-
-.css-t3ipsp-control:hover {
-  border-color: #232323 !important;
-}
-
-.css-t3ipsp-control {
-  border-color: #232323 !important;
-  box-shadow: none !important;
-  border-radius: 0px !important;
-  height: 32px !important;
-  padding: 0 10px !important;
-  min-height: 32px !important;
-}
-
-.css-13cymwt-control:hover {
-  border: 1px solid #232323;
-  height: 32px !important;
-}
-
-.css-1u9des2-indicatorSeparator {
-  display: none;
-}
-
-.css-b62m3t-container {
-  width: 280px;
-  border-radius: 0 !important;
-}
-
-.css-qbdosj-Input {
-  font-size: 13px !important;
-}
-
-.css-1fdsijx-ValueContainer {
-  font-size: 14px;
-  color: #fff;
-
-  padding: 0 !important;
-  height: 32px !important;
-}
-
-.css-1hb7zxy-IndicatorsContainer {
-
-  padding: 0 !important;
-}
-
-.css-b62m3t-container {
-  padding: 0;
-}
-
-.css-1xc3v61-indicatorContainer {
-  padding: 0 !important;
-}
-
-.css-15lsz6c-indicatorContainer {
-  padding: 0 !important;
-}
-
-.react-select__option {
-  height: 32px !important;
-  font-size: 14px !important;
-}
-
-.react-select-container {
-  margin-right: 10px !important;
-}
-
-.react-select-container2 {
-  width: calc(100%) !important;
-}
-
-.react-select__control {
-  width: calc(100% - 7px) !important;
-} */
 
 /* 공용 컴포넌트 버튼 레귤러 */
 .button-r {
@@ -598,4 +551,44 @@ input {
 
 .border-radius-8 {
   border-radius: 8px;
+}
+
+.font-link {
+  color: #001aff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.font-link:hover {
+  font-weight: bold;
+}
+
+/* 대시보드 */
+.main-container {
+  border-radius: 8px;
+  background-color: #f1f1f1;
+  padding: 30px 0;
+}
+
+.main-top-text:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.text-underline {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.main-mid-content {
+  width: 100%;
+  border-bottom: 1px solid #d9d9d9;
+  padding: 12px 0;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  cursor: pointer;
 }
