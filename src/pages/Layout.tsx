@@ -246,7 +246,7 @@ function Layout(): JSX.Element {
           </div>
         </nav>
         {/* nav bar */}
-        <div className="padding-40">
+        <div className="padding-40" style={{ width: "85%" }}>
           <Outlet />
         </div>
       </div>

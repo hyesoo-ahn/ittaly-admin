@@ -154,32 +154,6 @@ export default function Main(): JSX.Element {
           </div>
         </div>
       </div>
-      {/* <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1>
-      <h1>This Is Main page</h1> */}
     </div>
   );
 }
