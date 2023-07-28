@@ -28,7 +28,7 @@ const MEMBERSHIP_LEVEL = [
   },
 ];
 
-export default function InactiveUserDetail(): JSX.Element {
+export default function WithdrawnUserDetail(): JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectArr, setSelectArr] = useState<any>([
@@ -65,7 +65,7 @@ export default function InactiveUserDetail(): JSX.Element {
   return (
     <div>
       <div className="flex justify-sb align-c">
-        <p className="page-title">휴면회원 상세</p>
+        <p className="page-title">탈퇴회원 상세</p>
       </div>
 
       {/* tab */}
@@ -75,7 +75,7 @@ export default function InactiveUserDetail(): JSX.Element {
             key={i}
             onClick={() => {
               setSelectedTab(tabItem.label);
-              navigate(`/customer/users/inactive/1234/${tabItem.label}`);
+              navigate(`/customer/users/withdrawn/1234/${tabItem.label}`);
             }}
             className={`tab-item 
             ${i === 4 && "border-right-black"}
@@ -298,7 +298,7 @@ const Tab1 = ({ navigate }: any) => {
               <p>이름</p>
             </div>
 
-            <p>김모노</p>
+            <p>-</p>
           </div>
 
           <div className="field-list-wrapper mt-2">
@@ -307,9 +307,7 @@ const Tab1 = ({ navigate }: any) => {
             </div>
 
             <div className="flex1 pt-10 pb-10">
-              <p>
-                (30098) 세종특별자치시 보듬4로 20 10단지 호반베르디움 어반시티 아파트 101동 101{" "}
-              </p>
+              <p>-</p>
             </div>
           </div>
 
@@ -319,7 +317,7 @@ const Tab1 = ({ navigate }: any) => {
             </div>
 
             <div className="flex align-c flex1 pt-10 pb-10">
-              <p className="mr-20">Gold</p>
+              <p className="mr-20">-</p>
 
               <ButtonR
                 name="등급변경"
@@ -347,9 +345,7 @@ const Tab1 = ({ navigate }: any) => {
 
             <div className="flex align-c flex1 pt-10 pb-10">
               <div>
-                <p>사용가능한 쿠폰: 2장</p>
-                <p className="mt-2">사용한 쿠폰: 10장</p>
-                <p className="mt-2">사용기한 만료 쿠폰: 23장</p>
+                <p>-</p>
               </div>
             </div>
           </div>
@@ -360,7 +356,7 @@ const Tab1 = ({ navigate }: any) => {
             </div>
 
             <div className="flex align-c flex1 pt-10 pb-10">
-              <p>abcdefg23</p>
+              <p>-</p>
             </div>
           </div>
 
@@ -381,7 +377,7 @@ const Tab1 = ({ navigate }: any) => {
               <p>이메일</p>
             </div>
 
-            <p>abcdefg@kakao.com</p>
+            <p>-</p>
           </div>
 
           <div className="product-field-wrapper mt-2">
@@ -397,7 +393,7 @@ const Tab1 = ({ navigate }: any) => {
               <p>휴대폰번호</p>
             </div>
 
-            <p>010-1234-5678</p>
+            <p>-</p>
           </div>
 
           <div className="field-list-wrapper mt-2">
@@ -406,7 +402,7 @@ const Tab1 = ({ navigate }: any) => {
             </div>
 
             <div className="flex align-c flex1 pt-10 pb-10">
-              <p>부재시 경비실에 맡겨주세요</p>
+              <p>-</p>
             </div>
           </div>
 
@@ -437,7 +433,7 @@ const Tab1 = ({ navigate }: any) => {
             </div>
 
             <div className="flex align-c flex1 pt-10 pb-10">
-              <p>1,234원</p>
+              <p>-</p>
             </div>
           </div>
 
@@ -456,7 +452,7 @@ const Tab1 = ({ navigate }: any) => {
         <ButtonR
           name={"목록"}
           styleClass={"mr-8"}
-          onClick={() => navigate("/customer/users/inactive")}
+          onClick={() => navigate("/customer/users/withdrawn")}
           color={"white"}
         />
         <ButtonR name={"탈퇴처리"} onClick={() => {}} color={"white"} />

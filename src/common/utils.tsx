@@ -84,12 +84,17 @@ export const getLocation = (path: string) => {
   if (split[2]?.includes("main")) {
     subSelected = "첫 화면 관리";
   }
+
   if (split[2]?.includes("banner")) {
     subSelected = "배너 관리";
   }
 
-  if (split[1]?.includes("customer")) {
+  if (split[2]?.includes("users")) {
     subSelected = "회원 관리";
+  }
+
+  if (split[2]?.includes("referral")) {
+    subSelected = "추천인 프로그램";
   }
 
   return { selected, subSelected };

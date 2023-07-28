@@ -59,7 +59,7 @@ export default function UserDetail(): JSX.Element {
     const { pathname } = location;
 
     const tab = pathname.split("/");
-    setSelectedTab(tab[4]);
+    setSelectedTab(tab[5]);
   }, []);
 
   return (
@@ -446,7 +446,7 @@ const Tab1 = ({ navigate }: any) => {
         <ButtonR
           name={"목록"}
           styleClass={"mr-8"}
-          onClick={() => navigate("/customer/users")}
+          onClick={() => navigate("/customer/users/active")}
           color={"white"}
         />
         <ButtonR name={"탈퇴처리"} onClick={() => {}} color={"white"} />

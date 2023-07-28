@@ -8,12 +8,11 @@ import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
 
 const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
+  { value: "일반탈퇴", label: "일반탈퇴" },
+  { value: "강제탈퇴", label: "강제탈퇴" },
 ];
 
-export default function InactiveUsers(): JSX.Element {
+export default function Withdrawnusers(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
 
@@ -34,7 +33,7 @@ export default function InactiveUsers(): JSX.Element {
   return (
     <div>
       <div className="flex justify-sb align-c">
-        <p className="page-title">휴면회원 관리</p>
+        <p className="page-title">탈퇴회원 관리</p>
       </div>
 
       <div className="w100p filter-container" style={{ flex: 1 }}>
@@ -68,7 +67,16 @@ export default function InactiveUsers(): JSX.Element {
             style={{
               height: 32,
             }}
-          ></div>
+          >
+            <SelectBox
+              containerStyles={{ width: "100%" }}
+              placeholder="탈퇴유형"
+              onChange={(e: any) => setSelected(e)}
+              options={Cateogyoptions1}
+              value={selected}
+              noOptionsMessage={""}
+            />
+          </div>
           <div
             className="flex1 mr-4 ml-4 flex w100p"
             style={{
@@ -110,38 +118,38 @@ export default function InactiveUsers(): JSX.Element {
       </div>
 
       <div className="list-header mt-10 pl-18 pr-18">
-        <div className="w25p text-left pl-6 pl-6">
+        <div className="w55p text-left pl-6 pl-6">
           <p>닉네임/ID</p>
         </div>
-        <div className="w25p text-center pl-6 pl-6">
-          <p>휴면처리일</p>
+        <div className="w10p text-center pl-6 pl-6">
+          <p>회원탈퇴일</p>
         </div>
         <div className="w25p text-center pl-6 pl-6">
-          <p>이메일</p>
+          <p>탈퇴유형</p>
         </div>
 
-        <div className="w25p text-center pl-6 pl-6">
+        <div className="w10p text-center pl-6 pl-6">
           <p>기능</p>
         </div>
       </div>
 
       <div className={`list-content pl-18 pr-18`}>
         <div className={`flex align-c mt-8 mb-8`}>
-          <div className="w25p text-left pl-6 pl-6">
+          <div className="w55p text-left pl-6 pl-6">
             <p>행복한 물개(ew*****)</p>
           </div>
-          <div className="w25p text-center pl-6 pl-6">
+          <div className="w10p text-center pl-6 pl-6">
             <p>2023.01.01</p>
           </div>
           <div className="w25p text-center pl-6 pl-6">
-            <p>******************</p>
+            <p>일반 탈퇴</p>
           </div>
 
-          <div className="w25p text-center pl-6 pl-6">
+          <div className="w10p text-center pl-6 pl-6">
             <ButtonR
               name="상세"
               color="white"
-              onClick={() => navigate("/customer/users/inactive/1234/tab1")}
+              onClick={() => navigate("/customer/users/withdrawn/1234/tab1")}
             />
           </div>
         </div>

@@ -88,19 +88,32 @@ const NAV_DATA = [
         navArr2: [
           {
             title: "회원정보 조회",
-            path: "/customer/users",
+            path: "/customer/users/active",
           },
           {
             title: "휴면회원 관리",
-            path: "/customer/inactiveusers",
+            path: "/customer/users/inactive",
           },
           {
             title: "탈퇴회원 관리",
-            path: "/customer/withdrawn",
+            path: "/customer/users/withdrawn",
           },
         ],
       },
-      { title: "추천인 프로그램", path: "/error" },
+      {
+        title: "추천인 프로그램",
+        path: "",
+        navArr2: [
+          {
+            title: "추천인 적립금 지급관리",
+            path: "/customer/referral/rewards",
+          },
+          {
+            title: "추천인 관리",
+            path: "/customer/referral/managing",
+          },
+        ],
+      },
       { title: "1:1 문의 관리", path: "/error" },
       { title: "상품 문의 관리", path: "/error" },
       { title: "상품 후기 관리", path: "/error" },
@@ -121,6 +134,7 @@ function Layout(): JSX.Element {
   useEffect(() => {
     const getSelected: any = getLocation(location.pathname);
 
+    console.log(getSelected);
     setSelect(getSelected?.selected);
     setSubSelect(getSelected?.subSelected);
   }, []);
@@ -201,7 +215,9 @@ function Layout(): JSX.Element {
                                           : "";
                                       });
                                     }}
-                                    className="flex justify-sb align-center mb-20 cursor"
+                                    className={`${
+                                      subSelect === subNav1.title && "font-bold"
+                                    }   flex justify-sb align-center mb-20 cursor`}
                                   >
                                     <div>{subNav1.title}</div>
                                     <img

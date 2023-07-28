@@ -48,6 +48,9 @@ import Users from "./pages/Users";
 import UserDetail from "./pages/UserDetail";
 import InactiveUsers from "./pages/InactiveUsers";
 import InactiveUserDetail from "./pages/InactiveUserDetail";
+import Withdrawnusers from "./pages/WithdrawnUsers";
+import WithdrawnUserDetail from "./pages/WithdrawnUserDetail";
+import ReferralRewards from "./pages/ReferralRewards";
 
 function App() {
   useEffect(() => {
@@ -130,10 +133,18 @@ function App() {
             <Route path="/site/coupon/add" element={<AddCoupon />} />
 
             {/* 고객 */}
-            <Route path="/customer/users" element={<Users />} />
-            <Route path="/customer/users/:userId/:tab" element={<UserDetail />} />
-            <Route path="/customer/inactiveusers" element={<InactiveUsers />} />
-            <Route path="/customer/inactiveusers/:userId/:tab" element={<InactiveUserDetail />} />
+            {/* 유저 */}
+            <Route path="/customer/users/active" element={<Users />} />
+            <Route path="/customer/users/active/:userId/:tab" element={<UserDetail />} />
+            <Route path="/customer/users/inactive" element={<InactiveUsers />} />
+            <Route path="/customer/users/inactive/:userId/:tab" element={<InactiveUserDetail />} />
+            <Route path="/customer/users/withdrawn" element={<Withdrawnusers />} />
+            <Route
+              path="/customer/users/withdrawn/:userId/:tab"
+              element={<WithdrawnUserDetail />}
+            />
+            {/* 추천인 */}
+            <Route path="/customer/referral/rewards" element={<ReferralRewards />} />
           </Route>
 
           <Route path="*" element={<ErrorPage />} />
