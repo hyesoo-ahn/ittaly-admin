@@ -89,6 +89,10 @@ export const getLocation = (path: string) => {
     subSelected = "배너 관리";
   }
 
+  if (split[2]?.includes("terms")) {
+    subSelected = "약관";
+  }
+
   if (split[2]?.includes("users")) {
     subSelected = "회원 관리";
   }

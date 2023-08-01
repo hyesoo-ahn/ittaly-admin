@@ -43,3 +43,19 @@
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
 }
+
+.rewards-contents {
+  border: 1px solid #e4e4e4;
+  height: 34px;
+  width: 100%;
+}
+
+.h100 {
+  height: 100%;
+}
+
+.reward-input {
+  border: none;
+  padding: 0 10px;
+  width: 100%;
+}

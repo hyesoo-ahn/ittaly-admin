@@ -16,19 +16,20 @@ const Cateogyoptions1 = [
 export default function Coupon(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
-
-  const [events, setEvents] = useState<any[]>([]);
+  const [coupons, setCoupons] = useState<any[]>([]);
 
   useEffect(() => {
     init();
   }, []);
 
   const init = async () => {
-    const productData: any = await getDatas({
-      collection: "events",
+    const { data }: any = await getDatas({
+      collection: "coupons",
       sort: { sort: -1 },
     });
-    setEvents(productData.data);
+
+    console.log(data);
+    setCoupons(data);
   };
 
   return (
@@ -43,14 +44,14 @@ export default function Coupon(): JSX.Element {
             <input
               type="date"
               className="main-event-date-input mr-4"
-              data-placeholder="시작일(~부터)"
+              data-placeholder="생성일(~부터)"
               required
               aria-required="true"
             />
             <input
               type="date"
               className="main-event-date-input ml-4"
-              data-placeholder="종료일(~까지)"
+              data-placeholder="생성일(~까지)"
               required
               aria-required="true"
             />
@@ -65,7 +66,7 @@ export default function Coupon(): JSX.Element {
               onChange={(e: any) => setSelected(e)}
               options={Cateogyoptions1}
               noOptionsMessage={"상태가 없습니다."}
-              placeholder="진행상태"
+              placeholder="발급구분"
             />
           </div>
           <div style={{ flex: 1, margin: "0 4px" }}>
@@ -75,7 +76,7 @@ export default function Coupon(): JSX.Element {
               onChange={(e: any) => setSelected(e)}
               options={Cateogyoptions1}
               noOptionsMessage={"상태가 없습니다."}
-              placeholder="진행상태"
+              placeholder="혜택구분"
             />
           </div>
         </div>
@@ -99,7 +100,7 @@ export default function Coupon(): JSX.Element {
               onChange={(e: any) => setSelected(e)}
               options={Cateogyoptions1}
               noOptionsMessage={"상태가 없습니다."}
-              placeholder="공개여부"
+              placeholder="상태"
             />
           </div>
           <div className="flex" style={{ flex: 1, margin: "0 4px", height: 32 }}>
@@ -245,73 +246,97 @@ export default function Coupon(): JSX.Element {
         </div>
 
         <div className="w10p">
-          <p>이벤트 유형</p>
-        </div>
-
-        <div className="w25p">
-          <p>이벤트명</p>
-        </div>
-
-        <div className="w30p">
-          <p>이벤트 기간</p>
+          <p>쿠폰번호</p>
         </div>
 
         <div className="w10p text-center">
-          <p>진행상태</p>
+          <p>쿠폰명</p>
         </div>
 
         <div className="w10p text-center">
-          <p>조회수</p>
+          <p>혜택구분</p>
         </div>
 
-        <div className="w5p text-center">
-          <p>공개여부</p>
+        <div className="w10p text-center">
+          <p>혜택</p>
         </div>
 
-        <div className="text-center w15p">
+        <div className="w15p text-center">
+          <p>사용기간</p>
+        </div>
+
+        <div className="w10p text-center">
+          <p>발급수</p>
+        </div>
+
+        <div className="w10p text-center">
+          <p>발급구분</p>
+        </div>
+
+        <div className="w10p text-center">
+          <p>상태</p>
+        </div>
+
+        <div className="w10p text-center">
           <p>기능</p>
         </div>
       </div>
 
-      {events?.map((eventItem: any, i: number) => (
-        <div key={i} className={`list-content pl-18 pr-18 ${i === 0 && "bg-blue border-radius-8"}`}>
+      {coupons?.map((couponItem: any, i: number) => (
+        <div key={i} className={`list-content pl-18 pr-18`}>
           <div className={`flex align-c mt-8 mb-8`}>
             <div className="w5p">
               <input type="checkbox" />
             </div>
 
             <div className="w10p">
-              {eventItem.eventType === "normal" && <p>일반</p>}
-              {eventItem.eventType === "luckydraw" && <p>럭키드로우</p>}
-              {eventItem.eventType === "recommend" && <p>추천인</p>}
-            </div>
-
-            <div className="w25p">
-              <p>{eventItem.title}</p>
-            </div>
-
-            <div className="w30p">
-              <p>
-                {timeFormat1(eventItem.term[0])} ~ {timeFormat1(eventItem.term[1])}
-              </p>
+              <p>1234567890</p>
             </div>
 
             <div className="w10p text-center">
-              <p> {eventItem.term[1] > Date.now() ? "진행중" : "종료"}</p>
+              <p>{couponItem.title}</p>
             </div>
 
-            <div className="w10p">{/* <p>{currency(productItem.price)}원</p> */}</div>
-
-            <div className="w5p text-center">
-              <p>Y</p>
+            <div className="w10p text-center">
+              {couponItem.discountRatio !== 0 && <p>할인율</p>}
+              {couponItem.discountPrice !== 0 && <p>할인금액</p>}
+              {couponItem.freeshipping && <p>무료배송</p>}
             </div>
 
-            <div className="text-center w15p flex justify-c">
+            <div className="w10p text-center">
+              {couponItem.discountRatio !== 0 && <p>{couponItem.discountRatio}%</p>}
+              {couponItem.discountPrice !== 0 && <p>{currency(couponItem.discountPrice)}</p>}
+              {couponItem.freeshipping && <p>무료배송</p>}
+            </div>
+
+            <div className="w15p text-center">
+              {couponItem.startingDate && couponItem.endingDate && (
+                <p>
+                  <span>{couponItem.startingDate ? timeFormat1(couponItem.startingDate) : ""}</span>{" "}
+                  ~ <span>{couponItem.endingDate ? timeFormat1(couponItem.endingDate) : ""}</span>
+                </p>
+              )}
+
+              {!couponItem.startingDate && !couponItem.endingDate && <p>-</p>}
+            </div>
+            <div className="w10p text-center">
+              <p>발급수</p>
+            </div>
+
+            <div className="w10p text-center">
+              {couponItem.targetMember && <p>고객 다운로드</p>}
+              {!couponItem.targetMember && <p>조건부 발급</p>}
+            </div>
+            <div className="w10p text-center">
+              <p>{couponItem.status ? "사용가능" : "사용불가"}</p>
+            </div>
+
+            <div className="w10p flex justify-c text-center">
               <ButtonR
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/site/event/${eventItem._id}`)}
+                onClick={() => navigate(`/site/event/${couponItem._id}`)}
               />
               <ButtonR
                 name="삭제"
@@ -329,22 +354,8 @@ export default function Coupon(): JSX.Element {
 
       <div className="mt-20 flex justify-sb align-c flex-wrap">
         <div className="flex">
-          <ButtonR name="공개" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
-          <ButtonR name="비공개" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
-          <ButtonR
-            name="우선노출지정"
-            color="white"
-            onClick={() => {}}
-            styles={{ marginRight: 4 }}
-            styleClass={"bg-blue"}
-          />
-          <ButtonR
-            name="우선노출해제"
-            color="white"
-            onClick={() => {}}
-            styles={{ marginRight: 4 }}
-            styleClass={"bg-blue"}
-          />
+          <ButtonR name="사용가능" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
+          <ButtonR name="사용불가" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
         </div>
 
         <div className="flex pagination">

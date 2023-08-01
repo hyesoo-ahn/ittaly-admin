@@ -51,6 +51,8 @@ import InactiveUserDetail from "./pages/InactiveUserDetail";
 import Withdrawnusers from "./pages/WithdrawnUsers";
 import WithdrawnUserDetail from "./pages/WithdrawnUserDetail";
 import ReferralRewards from "./pages/ReferralRewards";
+import TermsOfPrivacy from "./pages/TermsOfPrivacy";
+import Notice from "./pages/Notice";
 
 function App() {
   useEffect(() => {
@@ -131,6 +133,8 @@ function App() {
             <Route path="/site/deposit" element={<Deposit />} />
             <Route path="/site/coupon" element={<Coupon />} />
             <Route path="/site/coupon/add" element={<AddCoupon />} />
+            <Route path="/site/terms/privacy" element={<TermsOfPrivacy />} />
+            <Route path="/site/notice" element={<Notice />} />
 
             {/* 고객 */}
             {/* 유저 */}

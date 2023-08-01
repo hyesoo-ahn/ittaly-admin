@@ -175,3 +175,30 @@ export const putUpdateDataBulk = async (_body: any): Promise<boolean> => {
     return false;
   }
 };
+
+// 유저리스트
+export const getUsers = async (body: any): Promise<boolean | object> => {
+  try {
+    const find = body.find ? body.find : {};
+    const sort = body.sort ? body.sort : {};
+    const start = body.start ? body.start : 0;
+    const limit = body.limit ? body.limit : {};
+    const end = body.end ? body.end : 0;
+
+    const { data }: any = await axios.get(
+      `${URI}/admin/userinfo?collection=users&find=${JSON.stringify(find)}&sort=${JSON.stringify(
+        sort
+      )}&start=${start}&end=${end}&limit=${limit}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${ADMIN_TOKEN}`,
+        },
+      }
+    );
+
+    return data;
+  } catch (error) {
+    return false;
+  }
+};

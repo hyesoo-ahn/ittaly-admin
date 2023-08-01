@@ -42,17 +42,33 @@ const membershipLevel = [
 const AddMainEvent: React.FC = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState<string>("");
-  const [files, setFiles] = useState<any>({
-    thumbnail: {},
-    detailImg: {},
+  const [couponType, setCouponType] = useState<string>("할인율");
+  const [couponBenefit, setCouponBenefit] = useState<any>({
+    discountRatio: "",
+    discountPrice: "",
+    freeshipping: false,
   });
-  const inputFileRef = useRef<any[]>([]);
-  const [openStatus, setOpenStatus] = useState<boolean>(true);
+  const [distributionMethod, setDistributionMethod] = useState<any>({
+    targetMember: true,
+    downloadMemberType: null,
+  });
+  const [issuanceDate, setIssuanceDate] = useState<any>({
+    issuanceDate: "now",
+    issuanceTimestamp: "",
+  });
+  const [applicationScope, setApplicationScope] = useState<string>("billCoupon");
+  const [termsOfUse, setTermsOfUse] = useState<any>({
+    type: "unlimit",
+    maxDiscountAmount: "",
+    minAmount: "",
+  });
+
+  const [status, setStatus] = useState<boolean>(true);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState<any>(null);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [relatedProducts, setRelatedProducts] = useState<any>({
-    type: "category",
+    type: "all",
     products: [],
   });
   const [categories, setCategories] = useState<any[]>([]);
@@ -69,16 +85,10 @@ const AddMainEvent: React.FC = () => {
     openingDate: "",
     winnerAnnouncementDate: "",
   });
-  const [cautions, setCautions] = useState<string[]>([]);
-  const [cautionText, setCautionText] = useState<string>("");
+
   const [eventType, setEventType] = useState<string>("normal");
   const [eventFeature, setEventFeature] = useState<string>("coupon");
-  const [coupons, setCoupons] = useState<any[]>([]);
   const [selectedCoupon, setSelectedCoupon] = useState<any>({});
-  const [links, setLinks] = useState<any>({
-    btnName: "",
-    path: "",
-  });
 
   useEffect(() => {
     init();
@@ -120,7 +130,6 @@ const AddMainEvent: React.FC = () => {
         };
       });
       setSelectedCoupon({});
-      setLinks({});
     }
   }, [selectedSubCategory, eventType]);
 
@@ -178,81 +187,88 @@ const AddMainEvent: React.FC = () => {
     setProducts(tempProductSelect);
   };
 
-  // 이벤트 등록
-  const handleAddPromotion = async () => {
+  // 쿠폰 등록
+  const handleAddCoupon = async () => {
     const startingDate = new Date(dates.startingDate);
     const endingDate = new Date(dates.endingDate);
-    const openingDate = new Date(dates.openingDate);
-    const winnerAnnouncementDate = new Date(dates.winnerAnnouncementDate);
     const startingDateStamp = startingDate.getTime();
     const endingDateStamp = endingDate.getTime();
-    const openingDateStamp = openingDate.getTime();
-    const winnerAnnouncementDateStamp = winnerAnnouncementDate.getTime();
+    const issueCouponDate = new Date(issuanceDate.issuanceTimestamp);
+    const issuanceStamp = issueCouponDate.getTime();
 
-    const relatedProd = [];
-    for (let i in relatedProducts.products) {
-      relatedProd.push({
-        _id: relatedProducts.products[i]._id,
-        productNameK: relatedProducts.products[i].productNameK,
-        thumbnail: relatedProducts.products[i].thumbnail,
-        originalPrice: relatedProducts.products[i].price,
-        discounted: relatedProducts.products[i].discounted,
-      });
-    }
-
-    // const formData = new FormData();
-    // formData.append("file", files.file as File);
-    // const getThumbnailUrl: any = await postUploadImage(formData);
-
-    const postImagePromise = [];
-    for (let i = 0; i < Object.keys(files).length; i++) {
-      const formData = new FormData();
-      formData.append("file", files[Object.keys(files)[i]].file as File);
-
-      postImagePromise.push(postUploadImage(formData));
-    }
-
-    const imgArrResult: any[] = await Promise.all(postImagePromise);
-
-    const body: any = {
-      collection: "events",
-      eventType,
+    const _body = {
+      collection: "coupons",
       title,
-      term: [startingDateStamp, endingDateStamp],
-      imgUrl: imgArrResult[0]?.url,
-      detailUrl: imgArrResult[1]?.url,
-      winnerAnnouncementTimeStamp: winnerAnnouncementDateStamp, // eventType==="normal"일때 있으면 안됨.
-      eventFeature, // eventType==="luckydraw"일때 있으면 안됨
-      coupon: selectedCoupon,
-      links,
-      cautions,
-      relatedProd,
-      openingStamp: openingDateStamp,
-      openStatus,
+      discountRatio: Number(couponBenefit.discountRatio.replace(/,/gi, "")),
+      discountPrice: Number(couponBenefit.discountPrice.replace(/,/gi, "")),
+      freeshipping: couponBenefit.freeshipping,
+      targetMember: distributionMethod.targetMember,
+      downloadMemberType: distributionMethod.downloadMemberType
+        ? distributionMethod.downloadMemberType.value
+        : null,
+      issuanceDate: issuanceDate.issuanceDate,
+      issuanceTimestamp: issuanceStamp,
+      startingDate: isNaN(startingDateStamp) ? null : startingDateStamp,
+      endingDate: isNaN(endingDateStamp) ? null : endingDateStamp,
+      applicationScope,
+      maxDiscountAmount: Number(termsOfUse.maxDiscountAmount.replace(/,/gi, "")),
+      minAmount: Number(termsOfUse.minAmount.replace(/,/gi, "")),
+      eligibleProd: relatedProducts,
+      status,
     };
 
-    if (eventType === "normal" && eventFeature === "coupon") {
-      delete body.winnerAnnouncementTimeStamp;
-      delete body.links;
-    }
-
-    if (eventType === "normal" && eventFeature === "link") {
-      delete body.winnerAnnouncementTimeStamp;
-      delete body.coupon;
-    }
-
-    if (eventType === "luckydraw") {
-      delete body.eventFeature;
-      delete body.coupon;
-      delete body.links;
-    }
-
-    const addResult: any = await postCollection(body);
+    // console.log(_body);
+    // const startingDate = new Date(dates.startingDate);
+    // const endingDate = new Date(dates.endingDate);
+    // const openingDate = new Date(dates.openingDate);
+    // const winnerAnnouncementDate = new Date(dates.winnerAnnouncementDate);
+    // const startingDateStamp = startingDate.getTime();
+    // const endingDateStamp = endingDate.getTime();
+    // const openingDateStamp = openingDate.getTime();
+    // const winnerAnnouncementDateStamp = winnerAnnouncementDate.getTime();
+    // const relatedProd = [];
+    // for (let i in relatedProducts.products) {
+    //   relatedProd.push({
+    //     _id: relatedProducts.products[i]._id,
+    //     productNameK: relatedProducts.products[i].productNameK,
+    //     thumbnail: relatedProducts.products[i].thumbnail,
+    //     originalPrice: relatedProducts.products[i].price,
+    //     discounted: relatedProducts.products[i].discounted,
+    //   });
+    // }
+    // // const formData = new FormData();
+    // // formData.append("file", files.file as File);
+    // // const getThumbnailUrl: any = await postUploadImage(formData);
+    // const body: any = {
+    //   collection: "events",
+    //   eventType,
+    //   title,
+    //   term: [startingDateStamp, endingDateStamp],
+    //   winnerAnnouncementTimeStamp: winnerAnnouncementDateStamp, // eventType==="normal"일때 있으면 안됨.
+    //   eventFeature, // eventType==="luckydraw"일때 있으면 안됨
+    //   coupon: selectedCoupon,
+    //   relatedProd,
+    //   openingStamp: openingDateStamp,
+    //   // openStatus,
+    // };
+    // if (eventType === "normal" && eventFeature === "coupon") {
+    //   delete body.winnerAnnouncementTimeStamp;
+    //   delete body.links;
+    // }
+    // if (eventType === "normal" && eventFeature === "link") {
+    //   delete body.winnerAnnouncementTimeStamp;
+    //   delete body.coupon;
+    // }
+    // if (eventType === "luckydraw") {
+    //   delete body.eventFeature;
+    //   delete body.coupon;
+    //   delete body.links;
+    // }
+    const addResult: any = await postCollection(_body);
     if (addResult.result && addResult.status === 200) {
-      alert("이벤트 등록이 완료되었습니다.");
+      alert("쿠폰 등록이 완료되었습니다.");
     }
     navigate(-1);
-    // }
   };
 
   const onSelectProduct = (e: any) => {
@@ -340,6 +356,34 @@ const AddMainEvent: React.FC = () => {
     });
   };
 
+  const handleOnChangeNum = (e: any, type: string, state: string) => {
+    let value: string = e.target.value;
+    const numCheck: boolean = /^[0-9,]/.test(value);
+
+    if (!numCheck && value) return;
+
+    if (numCheck) {
+      const numValue = value.replaceAll(",", "");
+      value = numValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    if (state === "couponBenefit") {
+      setCouponBenefit((prev: any) => {
+        return {
+          ...prev,
+          [type]: value,
+        };
+      });
+    } else {
+      setTermsOfUse((prev: any) => {
+        return {
+          ...prev,
+          [type]: value,
+        };
+      });
+    }
+  };
+
   return (
     <div>
       <div className="flex align-c justify-sb pb-30">
@@ -368,7 +412,7 @@ const AddMainEvent: React.FC = () => {
             size="full"
             value={title}
             onChange={(e: any) => setTitle(e.target.value)}
-            placeholer={"이벤트 제목을 입력해 주세요."}
+            placeholer={"쿠폰 이름을 입력해 주세요."}
           />
         </div>
       </div>
@@ -382,37 +426,113 @@ const AddMainEvent: React.FC = () => {
 
         <div className="mt-16 mb-16">
           <div className="flex align-c" style={{ height: 32 }}>
-            <div onClick={() => setOpenStatus(true)} className="checkbox-c mr-4 cursor">
-              {openStatus && <div className="checkbox-c-filled"></div>}
+            <div
+              onClick={() => {
+                setCouponType("할인율");
+                setCouponBenefit({
+                  discountRatio: "",
+                  discountPrice: "",
+                  freeshipping: false,
+                });
+              }}
+              className="checkbox-c mr-4 cursor"
+            >
+              {couponType === "할인율" && <div className="checkbox-c-filled"></div>}
             </div>
 
-            <p onClick={() => setOpenStatus(true)} className="mr-30 cursor">
+            <p
+              onClick={() => {
+                setCouponType("할인율");
+                setCouponBenefit({
+                  discountRatio: "",
+                  discountPrice: "",
+                  freeshipping: false,
+                });
+              }}
+              className="mr-30 cursor"
+            >
               할인율
             </p>
 
-            <InputR size={"small"} />
-            <p>%</p>
+            {couponType === "할인율" && (
+              <>
+                <InputR
+                  value={couponBenefit.discountRatio}
+                  size={"small"}
+                  onChange={(e: any) => handleOnChangeNum(e, "discountRatio", "couponBenefit")}
+                />
+                <p>%</p>
+              </>
+            )}
           </div>
 
           <div className="flex align-c mt-10" style={{ height: 32 }}>
-            <div className="checkbox-c mr-4 cursor">
-              {<div className="checkbox-c-filled"></div>}
+            <div
+              onClick={() => {
+                setCouponType("할인금액");
+                setCouponBenefit({
+                  discountRatio: "",
+                  discountPrice: "",
+                  freeshipping: false,
+                });
+              }}
+              className="checkbox-c mr-4 cursor"
+            >
+              {couponType === "할인금액" && <div className="checkbox-c-filled"></div>}
             </div>
 
-            <p onClick={() => setOpenStatus(true)} className="mr-30 cursor">
+            <p
+              onClick={() => {
+                setCouponType("할인금액");
+                setCouponBenefit({
+                  discountRatio: "",
+                  discountPrice: "",
+                  freeshipping: false,
+                });
+              }}
+              className="mr-30 cursor"
+            >
               할인금액
             </p>
 
-            <InputR size={"small"} />
-            <p>원</p>
+            {couponType === "할인금액" && (
+              <>
+                <InputR
+                  value={couponBenefit.discountPrice}
+                  onChange={(e: any) => handleOnChangeNum(e, "discountPrice", "couponBenefit")}
+                  size={"small"}
+                />
+                <p>원</p>
+              </>
+            )}
           </div>
 
           <div className="flex align-c mt-10" style={{ height: 32 }}>
-            <div onClick={() => setOpenStatus(true)} className="checkbox-c mr-4 cursor">
-              {openStatus && <div className="checkbox-c-filled"></div>}
+            <div
+              onClick={() => {
+                setCouponType("무료배송");
+                setCouponBenefit({
+                  discountRatio: "",
+                  discountPrice: "",
+                  freeshipping: false,
+                });
+              }}
+              className="checkbox-c mr-4 cursor"
+            >
+              {couponType === "무료배송" && <div className="checkbox-c-filled"></div>}
             </div>
 
-            <p onClick={() => setOpenStatus(true)} className="mr-30 cursor">
+            <p
+              onClick={() => {
+                setCouponType("무료배송");
+                setCouponBenefit({
+                  discountRatio: "",
+                  discountPrice: "",
+                  freeshipping: true,
+                });
+              }}
+              className="mr-30 cursor"
+            >
               무료배송
             </p>
           </div>
@@ -428,70 +548,77 @@ const AddMainEvent: React.FC = () => {
 
         <div className="mt-16 mb-16">
           <div className="flex align-c" style={{ height: 32 }}>
-            <div onClick={() => setOpenStatus(true)} className="checkbox-c mr-4 cursor">
-              {openStatus && <div className="checkbox-c-filled"></div>}
+            <div
+              onClick={() =>
+                setDistributionMethod({
+                  targetMember: true,
+                  downloadMemberType: null,
+                })
+              }
+              className="checkbox-c mr-4 cursor"
+            >
+              {distributionMethod.targetMember && <div className="checkbox-c-filled" />}
             </div>
 
-            <p onClick={() => setOpenStatus(true)} className="mr-30 cursor">
+            <p
+              onClick={() =>
+                setDistributionMethod({
+                  targetMember: true,
+                  downloadMemberType: null,
+                })
+              }
+              className="mr-30 cursor"
+            >
               대상자 지정 발급
             </p>
 
-            <InputR size={"small"} />
-            <p>%</p>
+            {/* <>
+              <InputR size={"small"} />
+              <p>%</p>
+            </> */}
           </div>
 
           <div className="flex align-c mt-10" style={{ height: 32 }}>
             <div className="checkbox-c mr-4 cursor">
-              {<div className="checkbox-c-filled"></div>}
+              {distributionMethod.downloadMemberType && <div className="checkbox-c-filled"></div>}
             </div>
 
-            <p onClick={() => setOpenStatus(true)} className="mr-30 cursor">
+            <p
+              onClick={() =>
+                setDistributionMethod({
+                  targetMember: false,
+                  downloadMemberType: {
+                    label: "모든 회원",
+                    value: "모든 회원",
+                  },
+                })
+              }
+              className="mr-30 cursor"
+            >
               고객 다운로드 발급
             </p>
 
-            <SelectBox
-              containerStyles={{ marginRight: 8 }}
-              placeholder={"모든 회원"}
-              value={selectedCategory}
-              onChange={(e: any) => setSelectedCategory(e)}
-              options={membershipLevel}
-              noOptionsMessage={"카테고리가 없습니다."}
-            />
+            {distributionMethod.downloadMemberType && (
+              <SelectBox
+                containerStyles={{ marginRight: 8 }}
+                placeholder={"모든 회원"}
+                value={distributionMethod.downloadMemberType}
+                onChange={(e: any) => {
+                  setDistributionMethod((prev: any) => {
+                    return {
+                      ...prev,
+                      targetMember: false,
+                      downloadMemberType: e,
+                    };
+                  });
+                }}
+                options={membershipLevel}
+                noOptionsMessage={"카테고리가 없습니다."}
+              />
+            )}
           </div>
         </div>
       </div>
-
-      {/* <div className="product-field-wrapper mt-2 w100p">
-        <div className="product-field mr-20">
-          <p>
-            지급시점<span className="font-red">*</span>
-          </p>
-        </div>
-
-        <div onClick={() => setOpenStatus(true)} className="checkbox-c mr-4 cursor">
-          {openStatus && <div className="checkbox-c-filled"></div>}
-        </div>
-
-        <p onClick={() => setOpenStatus(true)} className="mr-30 cursor">
-          즉시발급
-        </p>
-
-        <div onClick={() => setOpenStatus(false)} className="checkbox-c mr-4 cursor">
-          {!openStatus && <div className="checkbox-c-filled" />}
-        </div>
-
-        <p onClick={() => setOpenStatus(false)} className="mr-30 cursor">
-          지정한 시점
-        </p>
-
-        <div onClick={() => setOpenStatus(false)} className="checkbox-c mr-4 cursor">
-          {!openStatus && <div className="checkbox-c-filled" />}
-        </div>
-
-        <p onClick={() => setOpenStatus(false)} className="mr-30 cursor">
-          회원가입 시
-        </p>
-      </div> */}
 
       <div className="field-list-wrapper mt-2">
         <div className="product-field mr-20">
@@ -500,102 +627,108 @@ const AddMainEvent: React.FC = () => {
 
         <div style={{ flex: 1 }} className="mt-16 mb-16">
           <div className="flex align-c">
-            <div className="checkbox-c mr-4">
-              {relatedProducts.type === "category" && <div className="checkbox-c-filled" />}
+            <div
+              onClick={() =>
+                setIssuanceDate((prev: any) => {
+                  return {
+                    issuanceDate: "now",
+                    issuanceTimestamp: "",
+                  };
+                })
+              }
+              className="checkbox-c mr-4"
+            >
+              {issuanceDate.issuanceDate === "now" && <div className="checkbox-c-filled" />}
             </div>
 
-            <p onClick={() => handleRelatedProdType("category")} className="cursor mr-20">
+            <p
+              onClick={() =>
+                setIssuanceDate((prev: any) => {
+                  return {
+                    issuanceDate: "now",
+                    issuanceTimestamp: "",
+                  };
+                })
+              }
+              className="cursor mr-20"
+            >
               즉시발급
             </p>
 
-            <div className="checkbox-c mr-4">
-              {relatedProducts.type === "category" && <div className="checkbox-c-filled" />}
+            <div
+              onClick={() =>
+                setIssuanceDate((prev: any) => {
+                  return {
+                    issuanceDate: "time",
+                    issuanceTimestamp: "",
+                  };
+                })
+              }
+              className="checkbox-c mr-4"
+            >
+              {issuanceDate.issuanceDate === "time" && <div className="checkbox-c-filled" />}
             </div>
 
-            <p onClick={() => handleRelatedProdType("category")} className="cursor mr-20">
+            <p
+              onClick={() =>
+                setIssuanceDate((prev: any) => {
+                  return {
+                    issuanceDate: "time",
+                    issuanceTimestamp: "",
+                  };
+                })
+              }
+              className="cursor mr-20"
+            >
               지정한 시점
             </p>
 
-            <div className="checkbox-c mr-4">
-              {relatedProducts.type === "brand" && <div className="checkbox-c-filled" />}
+            <div
+              onClick={() =>
+                setIssuanceDate((prev: any) => {
+                  return {
+                    issuanceDate: "join",
+                    issuanceTimestamp: "",
+                  };
+                })
+              }
+              className="checkbox-c mr-4"
+            >
+              {issuanceDate.issuanceDate === "join" && <div className="checkbox-c-filled" />}
             </div>
-            <p className="cursor mr-20" onClick={() => handleRelatedProdType("brand")}>
+            <p
+              className="cursor mr-20"
+              onClick={() =>
+                setIssuanceDate((prev: any) => {
+                  return {
+                    issuanceDate: "join",
+                    issuanceTimestamp: "",
+                  };
+                })
+              }
+            >
               회원가입 시
             </p>
           </div>
 
-          {relatedProducts.type === "category" && (
+          {issuanceDate.issuanceDate === "time" && (
             <>
-              <div className="mt-20">
-                <p className="font-14 font-bold">상품선택</p>
-              </div>
-
               <div className="flex mt-10">
-                <SelectBox
-                  containerStyles={{ marginRight: 10 }}
-                  placeholder={"카테고리 대분류"}
-                  defaultValue={null}
-                  onChange={(e: any) => setSelectedCategory(e)}
-                  options={categories}
-                  noOptionsMessage="카테고리가 없습니다."
+                <input
+                  style={{ border: "1px solid #cccccc", padding: "4px 10px", color: "#979797" }}
+                  type="date"
+                  value={issuanceDate.issuanceTimestamp}
+                  onChange={(e: any) => {
+                    setIssuanceDate((prev: any) => {
+                      return {
+                        ...prev,
+                        issuanceTimestamp: e.target.value,
+                      };
+                    });
+                  }}
                 />
               </div>
             </>
-          )}
-
-          {relatedProducts.type === "brand" && (
-            <>
-              <div className="mt-20">
-                <p className="font-14 font-bold">상품선택</p>
-              </div>
-
-              <div className="flex mt-10">
-                <Select
-                  classNamePrefix="react-select"
-                  placeholder={"브랜드 선택"}
-                  defaultValue={null}
-                  onChange={(e: any) => setSelectedCategory(e)}
-                  options={categories}
-                  className="react-select-container"
-                />
-              </div>
-
-              <div className="flex align-c mt-4">
-                <Select
-                  classNamePrefix="react-select"
-                  placeholder={"상품선택"}
-                  defaultValue={null}
-                  onChange={(e: any) => onSelectProduct(e)}
-                  // onChange={(e: any) => setSelectedProduct(e)}
-                  options={products}
-                  className="react-select-container"
-                />
-                {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
-              </div>
-            </>
-          )}
-
-          <p className="font-12 mt-10">
-            *최대 10개까지 선택 가능하며, 상위 2개 상품은 메인에 노출됩니다.
-          </p>
-
-          {relatedProducts?.products?.length !== 0 && (
-            <div className="mt-4">
-              {relatedProducts?.products.map((item: any, i: number) => (
-                <div key={i} className="flex justify-sb align-c border-bottom-gray pt-10 pb-10">
-                  <div className="flex align-c">
-                    <img src={item.thumbnail} className="list-img mr-10" />
-                    <p>{item.productNameK}</p>
-                  </div>
-
-                  <ButtonR
-                    onClick={() => handleDeleteRelatedProd(item._id)}
-                    color={"white"}
-                    name="삭제"
-                  />
-                </div>
-              ))}
-            </div>
           )}
         </div>
       </div>
@@ -604,10 +737,7 @@ const AddMainEvent: React.FC = () => {
 
       <div className="field-list-wrapper mt-13 w100p">
         <div className="product-field mr-20">
-          <p>
-            사용기간
-            <span className="font-red">*</span>
-          </p>
+          <p>사용기간</p>
         </div>
 
         <div className="mt-16 mb-16">
@@ -652,19 +782,22 @@ const AddMainEvent: React.FC = () => {
           <p>적용범위</p>
         </div>
 
-        <div onClick={() => setOpenStatus(true)} className="checkbox-c mr-4 cursor">
-          {openStatus && <div className="checkbox-c-filled"></div>}
+        <div onClick={() => setApplicationScope("billCoupon")} className="checkbox-c mr-4 cursor">
+          {applicationScope === "billCoupon" && <div className="checkbox-c-filled"></div>}
         </div>
 
-        <p onClick={() => setOpenStatus(true)} className="mr-30 cursor">
+        <p onClick={() => setApplicationScope("billCoupon")} className="mr-30 cursor">
           주문서 쿠폰
         </p>
 
-        <div onClick={() => setOpenStatus(false)} className="checkbox-c mr-4 cursor">
-          {!openStatus && <div className="checkbox-c-filled" />}
+        <div
+          onClick={() => setApplicationScope("productCoupon")}
+          className="checkbox-c mr-4 cursor"
+        >
+          {applicationScope === "productCoupon" && <div className="checkbox-c-filled" />}
         </div>
 
-        <p onClick={() => setOpenStatus(false)} className="mr-35 cursor">
+        <p onClick={() => setApplicationScope("productCoupon")} className="mr-35 cursor">
           상품 쿠폰
         </p>
       </div>
@@ -706,10 +839,10 @@ const AddMainEvent: React.FC = () => {
         <div style={{ flex: 1 }} className="mt-16 mb-16">
           <div className="flex align-c">
             <div className="checkbox-c mr-4">
-              {relatedProducts.type === "category" && <div className="checkbox-c-filled" />}
+              {relatedProducts.type === "all" && <div className="checkbox-c-filled" />}
             </div>
 
-            <p onClick={() => handleRelatedProdType("category")} className="cursor mr-20">
+            <p onClick={() => handleRelatedProdType("all")} className="cursor mr-20">
               전체
             </p>
 
@@ -796,9 +929,11 @@ const AddMainEvent: React.FC = () => {
             </>
           )}
 
-          <p className="font-12 mt-10">
-            *최대 10개까지 선택 가능하며, 상위 2개 상품은 메인에 노출됩니다.
-          </p>
+          {relatedProducts.type !== "all" && (
+            <p className="font-12 mt-10">
+              *최대 10개까지 선택 가능하며, 상위 2개 상품은 메인에 노출됩니다.
+            </p>
+          )}
 
           {relatedProducts?.products?.length !== 0 && (
             <div className="mt-4">
@@ -821,34 +956,125 @@ const AddMainEvent: React.FC = () => {
         </div>
       </div>
 
-      <div className="product-field-wrapper mt-2 w100p">
+      <div className="field-list-wrapper mt-2">
         <div className="product-field mr-20">
           <p>사용조건</p>
         </div>
 
-        <div onClick={() => setOpenStatus(true)} className="checkbox-c mr-4 cursor">
-          {openStatus && <div className="checkbox-c-filled"></div>}
+        <div style={{ flex: 1 }} className="mt-16 mb-16">
+          <div className="flex align-c">
+            <div
+              onClick={() =>
+                setTermsOfUse((prev: any) => {
+                  return {
+                    type: "unlimit",
+                    maxDiscountAmount: "",
+                    minAmount: "",
+                  };
+                })
+              }
+              className="checkbox-c mr-4 cursor"
+            >
+              {termsOfUse.type === "unlimit" && <div className="checkbox-c-filled"></div>}
+            </div>
+
+            <p
+              onClick={() =>
+                setTermsOfUse((prev: any) => {
+                  return {
+                    type: "unlimit",
+                    maxDiscountAmount: "",
+                    minAmount: "",
+                  };
+                })
+              }
+              className="mr-30 cursor"
+            >
+              사용제한없음
+            </p>
+
+            <div
+              onClick={() =>
+                setTermsOfUse((prev: any) => {
+                  return {
+                    type: "maxDiscountAmount",
+                    maxDiscountAmount: "",
+                    minAmount: "",
+                  };
+                })
+              }
+              className="checkbox-c mr-4 cursor"
+            >
+              {termsOfUse.type === "maxDiscountAmount" && <div className="checkbox-c-filled" />}
+            </div>
+
+            <p
+              onClick={() =>
+                setTermsOfUse((prev: any) => {
+                  return {
+                    type: "maxDiscountAmount",
+                    maxDiscountAmount: "",
+                    minAmount: "",
+                  };
+                })
+              }
+              className="mr-30 cursor"
+            >
+              최대 할인 금액 설정
+            </p>
+
+            <div
+              onClick={() =>
+                setTermsOfUse((prev: any) => {
+                  return {
+                    type: "minAmount",
+                    maxDiscountAmount: "",
+                    minAmount: "",
+                  };
+                })
+              }
+              className="checkbox-c mr-4 cursor"
+            >
+              {termsOfUse.type === "minAmount" && <div className="checkbox-c-filled" />}
+            </div>
+
+            <p
+              onClick={() =>
+                setTermsOfUse((prev: any) => {
+                  return {
+                    type: "minAmount",
+                    maxDiscountAmount: "",
+                    minAmount: "",
+                  };
+                })
+              }
+              className="mr-30 cursor"
+            >
+              사용가능 기준금액 설정
+            </p>
+          </div>
+
+          {termsOfUse.type === "maxDiscountAmount" && (
+            <div className="flex align-c mt-10">
+              <InputR
+                value={termsOfUse.maxDiscountAmount}
+                onChange={(e: any) => handleOnChangeNum(e, "maxDiscountAmount", "termsOfUse")}
+                size={"small"}
+              />
+              <p>원</p>
+            </div>
+          )}
+          {termsOfUse.type === "minAmount" && (
+            <div className="flex align-c mt-10">
+              <InputR
+                value={termsOfUse.minAmount}
+                onChange={(e: any) => handleOnChangeNum(e, "minAmount", "termsOfUse")}
+                size={"small"}
+              />
+              <p>원 이상 구매시</p>
+            </div>
+          )}
         </div>
-
-        <p onClick={() => setOpenStatus(true)} className="mr-30 cursor">
-          사용제한없음
-        </p>
-
-        <div onClick={() => setOpenStatus(false)} className="checkbox-c mr-4 cursor">
-          {!openStatus && <div className="checkbox-c-filled" />}
-        </div>
-
-        <p onClick={() => setOpenStatus(false)} className="mr-30 cursor">
-          최대 할인 금액 설정
-        </p>
-
-        <div onClick={() => setOpenStatus(false)} className="checkbox-c mr-4 cursor">
-          {!openStatus && <div className="checkbox-c-filled" />}
-        </div>
-
-        <p onClick={() => setOpenStatus(false)} className="mr-30 cursor">
-          사용가능 기준금액 설정
-        </p>
       </div>
 
       <div className="product-field-wrapper mt-2 w100p">
@@ -856,19 +1082,19 @@ const AddMainEvent: React.FC = () => {
           <p>상태</p>
         </div>
 
-        <div onClick={() => setOpenStatus(true)} className="checkbox-c mr-4 cursor">
-          {openStatus && <div className="checkbox-c-filled"></div>}
+        <div onClick={() => setStatus(true)} className="checkbox-c mr-4 cursor">
+          {status && <div className="checkbox-c-filled"></div>}
         </div>
 
-        <p onClick={() => setOpenStatus(true)} className="mr-30 cursor">
+        <p onClick={() => setStatus(true)} className="mr-30 cursor">
           사용가능
         </p>
 
-        <div onClick={() => setOpenStatus(false)} className="checkbox-c mr-4 cursor">
-          {!openStatus && <div className="checkbox-c-filled" />}
+        <div onClick={() => setStatus(false)} className="checkbox-c mr-4 cursor">
+          {!status && <div className="checkbox-c-filled" />}
         </div>
 
-        <p onClick={() => setOpenStatus(false)} className="mr-30 cursor">
+        <p onClick={() => setStatus(false)} className="mr-30 cursor">
           사용불가
         </p>
       </div>
@@ -879,7 +1105,7 @@ const AddMainEvent: React.FC = () => {
         </div> */}
         <div className="flex">
           <ButtonR name={"취소"} onClick={() => navigate(-1)} styleClass={"mr-4"} color={"white"} />
-          <ButtonR name={"저장"} onClick={handleAddPromotion} />
+          <ButtonR name={"저장"} onClick={handleAddCoupon} />
         </div>
       </div>
     </div>

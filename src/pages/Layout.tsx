@@ -72,9 +72,22 @@ const NAV_DATA = [
       { title: "이벤트 관리", path: "/site/event" },
       { title: "적립금 관리", path: "/site/deposit" },
       { title: "쿠폰 관리", path: "/site/coupon" },
-      { title: "공지사항", path: "notice" },
+      { title: "공지사항", path: "/site/notice" },
       { title: "FAQ", path: "faq" },
-      { title: "약관", path: "terms" },
+      {
+        title: "약관",
+        path: "",
+        navArr2: [
+          {
+            title: "개인정보처리방침",
+            path: "/site/terms/privacy",
+          },
+          {
+            title: "이용약관",
+            path: "/site/terms/service",
+          },
+        ],
+      },
     ],
   },
 
@@ -134,7 +147,7 @@ function Layout(): JSX.Element {
   useEffect(() => {
     const getSelected: any = getLocation(location.pathname);
 
-    console.log(getSelected);
+    // console.log(getSelected);
     setSelect(getSelected?.selected);
     setSubSelect(getSelected?.subSelected);
   }, []);

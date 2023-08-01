@@ -75,7 +75,7 @@ export default function UserDetail(): JSX.Element {
             key={i}
             onClick={() => {
               setSelectedTab(tabItem.label);
-              navigate(`/customer/users/1234/${tabItem.label}`);
+              navigate(`/customer/users/active/1234/${tabItem.label}`);
             }}
             className={`tab-item 
             ${i === 4 && "border-right-black"}
