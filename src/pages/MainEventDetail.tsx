@@ -98,13 +98,13 @@ const MainEventDetail: React.FC = () => {
 
     if (eventType === "luckydraw") {
       selectedProducts();
-      setRelatedProducts((prev: any) => {
-        return {
-          ...prev,
-          type: "category",
-          products: [],
-        };
-      });
+      // setRelatedProducts((prev: any) => {
+      //   return {
+      //     ...prev,
+      //     type: "category",
+      //     products: [],
+      //   };
+      // });
       setSelectedCoupon({});
       setLinks({});
     }
@@ -121,7 +121,7 @@ const MainEventDetail: React.FC = () => {
       find: { _id: eventId },
     });
 
-    console.log("DATA", data);
+    // console.log("DATA", data);
 
     let tempcategories = [];
     for (let i = 0; i < getCategories?.data?.length; i++) {
@@ -132,11 +132,16 @@ const MainEventDetail: React.FC = () => {
         _id: getCategories?.data[i]?._id,
       });
     }
+
+    setRelatedProducts({
+      type: "category",
+      products: data[0]?.relatedProd,
+    });
     setEventType(data[0]?.eventType);
     setTitle(data[0]?.title);
     setDates({
-      startingDate: timeFormat2(data[0]?.term[0]),
-      endingDate: timeFormat2(data[0]?.term[1]),
+      startingDate: timeFormat2(data[0]?.startingDate),
+      endingDate: timeFormat2(data[0]?.endingDate),
       openingDate: timeFormat2(data[0]?.openingStamp),
       winnerAnnouncementDate: timeFormat2(data[0]?.winnerAnnouncementTimeStamp),
     });
@@ -152,16 +157,20 @@ const MainEventDetail: React.FC = () => {
       },
     });
     setLinks({
-      btnName: data[0]?.links.btnName,
-      path: data[0]?.links.path,
+      btnName: data[0]?.links?.btnName,
+      path: data[0]?.links?.path,
     });
     setCautions(data[0]?.cautions);
-    setRelatedProducts({
-      type: "category",
-      products: data[0]?.relatedProd,
-    });
+
     setOpenStatus(data[0]?.openStatus);
     setCategories(tempcategories);
+
+    return () => {
+      setRelatedProducts({
+        type: "category",
+        products: data[0]?.relatedProd,
+      });
+    };
   };
 
   const selectedProducts = async () => {
@@ -243,7 +252,8 @@ const MainEventDetail: React.FC = () => {
       _id: eventId,
       eventType,
       title,
-      term: [startingDateStamp, endingDateStamp],
+      staringDate: startingDateStamp,
+      endingDate: endingDateStamp,
       imgUrl: imgArrResult[0] ? imgArrResult[0]?.url : files.thumbnail.fileUrl,
       detailUrl: imgArrResult[1] ? imgArrResult[1]?.url : files.detailImg.fileUrl,
       winnerAnnouncementTimeStamp: winnerAnnouncementDateStamp, // eventType==="normal"일때 있으면 안됨.

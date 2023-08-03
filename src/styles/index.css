@@ -279,6 +279,10 @@ h1 {
   padding-left: 6px;
 }
 
+.pl-10 {
+  padding-left: 10px;
+}
+
 .pl-18 {
   padding-left: 18px;
 }
@@ -289,6 +293,10 @@ h1 {
 
 .pr-6 {
   padding-right: 6px;
+}
+
+.pr-10 {
+  padding-right: 10px;
 }
 
 .pr-14 {
@@ -630,4 +638,21 @@ input {
   border: 1px solid #cccccc;
   padding: 4px 10px;
   color: #979797;
+}
+
+/* background */
+.bg-white {
+  background-color: #fff;
+}
+
+.border-black {
+  border: 1px solid #000;
+}
+
+.h100p {
+  height: 100%;
+}
+
+.border-none {
+  border: none;
 }

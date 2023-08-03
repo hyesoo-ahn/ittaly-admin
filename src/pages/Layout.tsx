@@ -127,7 +127,7 @@ const NAV_DATA = [
           },
         ],
       },
-      { title: "1:1 문의 관리", path: "/error" },
+      { title: "1:1 문의 관리", path: "/customer/inquiry" },
       { title: "상품 문의 관리", path: "/error" },
       { title: "상품 후기 관리", path: "/error" },
       { title: "입고 요청 관리", path: "/error" },
@@ -244,10 +244,10 @@ function Layout(): JSX.Element {
                                   {subSelect === subNav1.title && (
                                     <div className="sub-category2">
                                       {subNav1?.navArr2?.map((subNav2: any, idx: number) => (
-                                        <div className="mb-20">
+                                        <div key={idx} className="mb-20">
                                           <NavLink
                                             to={subNav2.path}
-                                            className={({ isActive }) => {
+                                            className={({ isActive, isPending }) => {
                                               return isActive ? "nav-active" : "nav-deactive";
                                             }}
                                           >

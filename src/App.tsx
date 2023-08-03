@@ -53,6 +53,9 @@ import WithdrawnUserDetail from "./pages/WithdrawnUserDetail";
 import ReferralRewards from "./pages/ReferralRewards";
 import TermsOfPrivacy from "./pages/TermsOfPrivacy";
 import Notice from "./pages/Notice";
+import Referrals from "./pages/Referrals";
+import CustomerInquiry from "./pages/CustomerInquiry";
+import CustomerInquiryDetail from "./pages/CustomerInquiryDetail";
 
 function App() {
   useEffect(() => {
@@ -149,6 +152,12 @@ function App() {
             />
             {/* 추천인 */}
             <Route path="/customer/referral/rewards" element={<ReferralRewards />} />
+            <Route path="/customer/referral/managing" element={<Referrals />} />
+            <Route path="/customer/referral/managing/:tab" element={<Referrals />} />
+
+            {/* 1:1 문의 */}
+            <Route path="/customer/inquiry" element={<CustomerInquiry />} />
+            <Route path="/customer/inquiry/:inquiryId" element={<CustomerInquiryDetail />} />
           </Route>
 
           <Route path="*" element={<ErrorPage />} />

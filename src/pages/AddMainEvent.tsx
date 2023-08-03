@@ -202,7 +202,9 @@ const AddMainEvent: React.FC = () => {
       collection: "events",
       eventType,
       title,
-      term: [startingDateStamp, endingDateStamp],
+      startingDate: startingDateStamp,
+      endingDate: endingDateStamp,
+
       imgUrl: imgArrResult[0]?.url,
       detailUrl: imgArrResult[1]?.url,
       winnerAnnouncementTimeStamp: winnerAnnouncementDateStamp, // eventType==="normal"일때 있으면 안됨.
