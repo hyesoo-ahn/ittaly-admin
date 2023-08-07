@@ -1541,7 +1541,7 @@ export default function AddProduct(): JSX.Element {
             </div>
           </div>
 
-          <div className="mt-2" style={{ display: "flex" }}>
+          <div className="mt-2 flex">
             <div className="product-field mr-20">
               <p>추가 이미지</p>
             </div>
@@ -1550,7 +1550,7 @@ export default function AddProduct(): JSX.Element {
               <p className="font-desc mt-16 ">
                 ※ 상품 상세화면의 상단 이미지에 대표이미지와 함께 노출됩니다.
               </p>
-              <div className="list-header-content align-c" style={{ border: "none" }}>
+              <div className="list-header-content align-c border-none">
                 <div className="mr-12">
                   <input
                     style={{ display: "none" }}
@@ -1643,20 +1643,17 @@ export default function AddProduct(): JSX.Element {
                 </div>
                 <div className="text-center w80p">
                   <div className="flex align-c mb-10">
-                    <div className="w10p" style={{ width: "10%" }}></div>
+                    <div className="w10p"></div>
                     <p className="text-left font-12 font-gray">
                       추가 버튼을 클릭해서 정보를 추가해주세요.
                     </p>
                   </div>
                   <div className="flex align-c">
-                    <div
-                      className="font-14 text-center font-bold flex align-c justify-c"
-                      style={{ width: "10%" }}
-                    >
+                    <div className="font-14 text-center font-bold flex align-c justify-c w10p">
                       요약
                     </div>
 
-                    <div style={{ width: "80%" }}>
+                    <div className="w80p">
                       <input
                         value={pointForm?.summary}
                         onChange={(e) => {
@@ -1672,10 +1669,8 @@ export default function AddProduct(): JSX.Element {
                       />
                     </div>
                   </div>
-                  <div className="flex align-c mt-10">
-                    <div className="font-14 font-bold" style={{ width: "10%" }}>
-                      설명
-                    </div>
+                  <div className="flex align-c mt-10 w10p">
+                    <div className="font-14 font-bold">설명</div>
                     <div style={{ width: "80%" }}>
                       <textarea
                         value={pointForm?.desc}
@@ -1694,15 +1689,8 @@ export default function AddProduct(): JSX.Element {
                   </div>
 
                   <div className="flex mt-10">
-                    <div className="font-14 font-bold" style={{ width: "10%" }}>
-                      이미지
-                    </div>
-                    <div
-                      className="mr-12 flex"
-                      style={{
-                        flexDirection: "column",
-                      }}
-                    >
+                    <div className="font-14 font-bold w10p">이미지</div>
+                    <div className="mr-12 flex f-direction-column">
                       <div className="flex align-c">
                         <input
                           ref={(el) => (inputFileRef.current[2] = el)}
@@ -1795,10 +1783,8 @@ export default function AddProduct(): JSX.Element {
                       </div>
                     </div>
                     <div className="flex align-c mt-10">
-                      <div className="font-14 font-bold" style={{ width: "10%" }}>
-                        설명
-                      </div>
-                      <div style={{ width: "80%" }}>
+                      <div className="font-14 font-bold w10p">설명</div>
+                      <div className="w80p">
                         <textarea
                           value={aPoint.desc}
                           // value={pointForm?.desc}
@@ -1817,15 +1803,8 @@ export default function AddProduct(): JSX.Element {
                     </div>
 
                     <div className="flex mt-10">
-                      <div className="font-14 font-bold" style={{ width: "10%" }}>
-                        이미지
-                      </div>
-                      <div
-                        className="mr-12 flex"
-                        style={{
-                          flexDirection: "column",
-                        }}
-                      >
+                      <div className="font-14 font-bold w10p">이미지</div>
+                      <div className="mr-12 flex f-direction-column">
                         <div
                           className={`text-left flex ${pointForm.imgUrls.length !== 0 && "mt-10"}`}
                         >
@@ -1860,7 +1839,7 @@ export default function AddProduct(): JSX.Element {
               <p>브랜드 소개</p>
             </div>
 
-            <div style={{ flex: 1, padding: "15px 0" }}>
+            <div className="flex1" style={{ padding: "15px 0" }}>
               <p className="font-desc">
                 ※ 카테고리/기본정보에서 선택한 브랜드 정보가 자동으로 노출됩니다.
               </p>
@@ -1880,7 +1859,7 @@ export default function AddProduct(): JSX.Element {
               <p>상품옵션</p>
             </div>
 
-            <div style={{ flex: 1, padding: "15px 0" }}>
+            <div className="flex1" style={{ padding: "15px 0" }}>
               <p className="font-desc">※ 종류, 컬러, 맛 등 각 옵션별로 이미지를 등록해 주세요.</p>
               <div className="list-header mt-6">
                 <div className="text-center w10p">순서</div>
@@ -1895,21 +1874,16 @@ export default function AddProduct(): JSX.Element {
                 </div>
                 <div className="text-center w80p">
                   <div className="flex align-c mb-10">
-                    <div className="w10p" style={{ width: "10%" }}></div>
+                    <div className="w10p"></div>
                     <p className="text-left font-12 font-gray">
                       추가 버튼을 클릭해서 정보를 추가해주세요.
                     </p>
                   </div>
 
                   <div className="flex align">
-                    <div
-                      className="font-14 justify-c font-bold flex align-c"
-                      style={{ width: "10%" }}
-                    >
-                      옵션명
-                    </div>
+                    <div className="font-14 justify-c font-bold flex align-c w10p">옵션명</div>
 
-                    <div style={{ width: "80%" }}>
+                    <div className="w80p">
                       <input
                         value={productItemForm.optionName}
                         onChange={(e: any) => {
@@ -1927,15 +1901,8 @@ export default function AddProduct(): JSX.Element {
                   </div>
 
                   <div className="flex align-c mt-10">
-                    <div className="font-14 font-bold" style={{ width: "10%" }}>
-                      이미지
-                    </div>
-                    <div
-                      className="mr-12 flex"
-                      style={{
-                        flexDirection: "column",
-                      }}
-                    >
+                    <div className="font-14 font-bold w10p">이미지</div>
+                    <div className="mr-12 flex f-direction-column">
                       <div className="flex align-c">
                         <input
                           ref={(el) => (inputFileRef.current[3] = el)}
@@ -2006,14 +1973,9 @@ export default function AddProduct(): JSX.Element {
                   </div>
                   <div className="text-center w80p">
                     <div className="flex align">
-                      <div
-                        className="font-14 justify-c font-bold flex align-c"
-                        style={{ width: "10%" }}
-                      >
-                        옵션명
-                      </div>
+                      <div className="font-14 justify-c font-bold flex align-c w10p">옵션명</div>
 
-                      <div style={{ width: "80%" }}>
+                      <div className="w80p">
                         <input
                           value={aItem.optionName}
                           className="input-desc"
@@ -2023,9 +1985,7 @@ export default function AddProduct(): JSX.Element {
                     </div>
 
                     <div className="flex mt-10">
-                      <div className="font-14 font-bold" style={{ width: "10%" }}>
-                        이미지
-                      </div>
+                      <div className="font-14 font-bold w10p">이미지</div>
                       <div
                         className="mr-12 flex"
                         style={{
@@ -2121,7 +2081,7 @@ export default function AddProduct(): JSX.Element {
               <p>연관 추천상품</p>
             </div>
 
-            <div style={{ flex: 1 }} className="mt-16 mb-16">
+            <div className="mt-16 mb-16 flex1">
               <div className="flex align-c">
                 <div className="checkbox-c mr-4">
                   {relatedProducts.type === "random" && <div className="checkbox-c-filled" />}

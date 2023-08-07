@@ -205,7 +205,7 @@ const BannerDetail: React.FC = () => {
         </div>
 
         <div className="flex f-direction-column">
-          <div className="list-header-content align-c" style={{ border: "none" }}>
+          <div className="list-header-content align-c border-none">
             <div className="mr-12">
               <input
                 style={{ display: "none" }}
@@ -254,7 +254,7 @@ const BannerDetail: React.FC = () => {
           </p>
         </div>
 
-        <div className="mt-16 mb-16 flex" style={{ position: "relative" }}>
+        <div className="mt-16 mb-16 flex relative">
           <div className="flex align-center f-direction-column">
             <div className="flex align-center">
               <div onClick={() => setLabel("")} className="checkbox-c mr-4 cursor">
@@ -333,7 +333,7 @@ const BannerDetail: React.FC = () => {
 
         <div className="flex1">
           <input
-            style={{ border: "1px solid #cccccc", padding: "4px 10px", color: "#979797" }}
+            className="input-date"
             type="date"
             value={openingStamp}
             onChange={(e: any) => setOpeningStamp(e.target.value)}

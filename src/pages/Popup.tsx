@@ -163,7 +163,7 @@ const Popup: React.FC = () => {
         </div>
 
         <div className="flex f-direction-column">
-          <div className="list-header-content align-c" style={{ border: "none" }}>
+          <div className="list-header-content align-c border-none">
             <div className="mr-12">
               <input
                 style={{ display: "none" }}
@@ -230,7 +230,7 @@ const Popup: React.FC = () => {
 
         <div className="flex1 flex align-c">
           <input
-            style={{ border: "1px solid #cccccc", padding: "4px 10px", color: "#979797" }}
+            className="input-date"
             type="date"
             value={dates.startingDate}
             onChange={(e: any) => {
@@ -244,7 +244,7 @@ const Popup: React.FC = () => {
           />
           <p className="mr-8 ml-8">-</p>
           <input
-            style={{ border: "1px solid #cccccc", padding: "4px 10px", color: "#979797" }}
+            className="input-date"
             type="date"
             value={dates.endingDate}
             onChange={(e: any) => {

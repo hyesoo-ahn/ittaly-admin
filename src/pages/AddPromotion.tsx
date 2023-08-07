@@ -330,7 +330,7 @@ const AddPromotion: React.FC = () => {
         </div>
 
         <div className="flex f-direction-column">
-          <div className="list-header-content align-c" style={{ border: "none" }}>
+          <div className="list-header-content align-c border-none">
             <div className="mr-12">
               <input
                 style={{ display: "none" }}

@@ -38,7 +38,7 @@ export default function Coupon(): JSX.Element {
         <p className="page-title">쿠폰 조회</p>
       </div>
 
-      <div className="w100p filter-container" style={{ flex: 1 }}>
+      <div className="w100p filter-container flex1">
         <div className="flex">
           <div className="flex1 ml-4 mr-4 flex">
             <input
@@ -59,7 +59,7 @@ export default function Coupon(): JSX.Element {
             {/* <input style={{ width: "100%", marginRight: 4 }} type="date" /> */}
             {/* <input style={{ width: "100%", marginLeft: 4 }} type="date" /> */}
           </div>
-          <div style={{ flex: 1, margin: "0 4px" }}>
+          <div className="flex1 ml-4 mr-4">
             <SelectBox
               containerStyles={{ width: "100%" }}
               value={selected}
@@ -69,7 +69,7 @@ export default function Coupon(): JSX.Element {
               placeholder="발급구분"
             />
           </div>
-          <div style={{ flex: 1, margin: "0 4px" }}>
+          <div className="flex1 ml-4 mr-4">
             <SelectBox
               containerStyles={{ width: "100%" }}
               value={selected}
@@ -81,7 +81,7 @@ export default function Coupon(): JSX.Element {
           </div>
         </div>
 
-        <div style={{ display: "flex", marginTop: 8 }}>
+        <div className="flex1 ml-4 mr-4">
           <div
             style={{
               flex: 1,
@@ -93,7 +93,7 @@ export default function Coupon(): JSX.Element {
           >
             <InputR size="full" placeholer="쿠폰명" innerStyle={{ margin: 0 }} />
           </div>
-          <div style={{ flex: 1, margin: "0 4px", height: 32 }}>
+          <div className="flex1 ml-4 mr-4" style={{ height: 32 }}>
             <SelectBox
               containerStyles={{ width: "100%" }}
               value={selected}
@@ -103,31 +103,9 @@ export default function Coupon(): JSX.Element {
               placeholder="상태"
             />
           </div>
-          <div className="flex" style={{ flex: 1, margin: "0 4px", height: 32 }}>
-            <button
-              className="btn-add-b"
-              style={{
-                width: "50%",
-                marginRight: 4,
-                // backgroundColor: "blue",
-                // marginRight: 10,
-                height: "100%",
-                border: "none",
-              }}
-            >
-              검색
-            </button>
-            <button
-              style={{
-                width: "50%",
-                backgroundColor: "#fff",
-                height: "100%",
-                marginLeft: 4,
-                border: "1px solid black",
-              }}
-            >
-              초기화
-            </button>
+          <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
+            <button className="btn-add-b w50p mr-4 h100p border-none">검색</button>
+            <button className="w50p bg-white h100p ml-4 border-black">초기화</button>
           </div>
         </div>
         {/* <SelectBox
@@ -354,8 +332,8 @@ export default function Coupon(): JSX.Element {
 
       <div className="mt-20 flex justify-sb align-c flex-wrap">
         <div className="flex">
-          <ButtonR name="사용가능" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
-          <ButtonR name="사용불가" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
+          <ButtonR name="사용가능" color="white" styleClass="mr-4" onClick={() => {}} />
+          <ButtonR name="사용불가" color="white" styleClass="mr-4" onClick={() => {}} />
         </div>
 
         <div className="flex pagination">

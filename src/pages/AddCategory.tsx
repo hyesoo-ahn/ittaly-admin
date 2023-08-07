@@ -306,13 +306,13 @@ const AddCategory = () => {
 
                 <div className="text-center w20p flex align-c justify-c">
                   <div className="checkbox-c mr-4 cursor">
-                    {aSub.openStatus && <div className="checkbox-c-filled"></div>}
+                    {aSub.openStatus && <div className="checkbox-c-filled" />}
                   </div>
 
                   <p className="mr-30">공개</p>
 
                   <div className="checkbox-c mr-4 cursor">
-                    {!aSub.openStatus && <div className="checkbox-c-filled"></div>}
+                    {!aSub.openStatus && <div className="checkbox-c-filled" />}
                   </div>
 
                   <p className="mr-35">비공개</p>

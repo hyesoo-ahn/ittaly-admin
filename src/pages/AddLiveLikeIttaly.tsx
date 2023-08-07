@@ -308,7 +308,7 @@ const AddLiveLikeIttaly: React.FC = () => {
         </div>
 
         <div className="flex f-direction-column">
-          <div className="list-header-content align-c" style={{ border: "none" }}>
+          <div className="list-header-content align-c border-none">
             <div className="mr-12">
               <input
                 style={{ display: "none" }}
@@ -397,11 +397,9 @@ const AddLiveLikeIttaly: React.FC = () => {
                   placeholder={"상품선택"}
                   defaultValue={null}
                   onChange={(e: any) => onSelectProduct(e)}
-                  // onChange={(e: any) => setSelectedProduct(e)}
                   options={products}
                   noOptionsMessage={"상품이 없습니다."}
                 />
-                {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
               </div>
             </>
           )}
@@ -429,7 +427,6 @@ const AddLiveLikeIttaly: React.FC = () => {
                   placeholder={"상품선택"}
                   defaultValue={null}
                   onChange={(e: any) => onSelectProduct(e)}
-                  // onChange={(e: any) => setSelectedProduct(e)}
                   options={products}
                   className="react-select-container"
                 />
@@ -466,7 +463,7 @@ const AddLiveLikeIttaly: React.FC = () => {
 
         <div className="flex1">
           <input
-            style={{ border: "1px solid #cccccc", padding: "4px 10px", color: "#979797" }}
+            className="input-date"
             type="date"
             value={dates.openingDate}
             onChange={(e: any) => {

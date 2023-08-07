@@ -22,46 +22,28 @@ export default function Main(): JSX.Element {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        height: "100vh",
-      }}
-    >
-      {/* <p>This is Login page</p> */}
-      <div style={{ marginBottom: 40, textAlign: "center" }}>
-        <img src={logo} style={{ width: 158, height: "auto" }} />
+    <div className="flex align-c justify-c f-direction-column " style={{ height: "100vh" }}>
+      <div className="text-center mb-40">
+        <img src={logo} className="login-logo" alt="login-logo" />
         <div className="mt-20"></div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div className="flex f-direction-column">
           <InputR
             type={"password"}
             innerStyle={{ margin: 0 }}
             placeholer={"관리자 비밀번호"}
             value={password}
             onChange={(e: any) => setPassword(e.target.value)}
-            // onChange={(e: any) => onChangeForm("productDesc", e.target.value)}
-            // placeholer={"예시) 레드 / 블루 / 화이트 / 블랙"}
           />
 
           <button
             onClick={handleLogin}
-            className="mt-10 cursor"
-            style={{
-              height: 32,
-              width: 280,
-              border: "none",
-              backgroundColor: "black",
-              color: "#fff",
-            }}
+            className="mt-10 cursor border-none bg-black font-white"
+            style={{ height: 32, width: 280 }}
           >
             로그인
           </button>
         </div>
       </div>
-      {/* <button onClick={() => context.handleStateChange("isUser", true)}>로그인</button> */}
     </div>
   );
 }

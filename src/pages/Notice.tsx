@@ -59,7 +59,7 @@ export default function Notice(): JSX.Element {
         <p className="page-title">공지사항 관리</p>
       </div>
 
-      <div className="w100p filter-container" style={{ flex: 1 }}>
+      <div className="w100p filter-container flex1">
         <div className="flex"></div>
 
         <div className="flex">

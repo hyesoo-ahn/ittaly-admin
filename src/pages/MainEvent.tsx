@@ -147,7 +147,7 @@ export default function MainEvent(): JSX.Element {
               aria-required="true"
             />
           </div>
-          <div style={{ flex: 1, margin: "0 4px" }}>
+          <div className="flex1 ml-4 mr-4">
             <SelectBox
               containerStyles={{ width: "100%" }}
               value={selected}
@@ -157,7 +157,7 @@ export default function MainEvent(): JSX.Element {
               placeholder="이벤트 유형"
             />
           </div>
-          <div style={{ flex: 1, margin: "0 4px" }}>
+          <div className="flex1 ml-4 mr-4">
             <SelectBox
               containerStyles={{ width: "100%" }}
               value={selected}
@@ -169,16 +169,8 @@ export default function MainEvent(): JSX.Element {
           </div>
         </div>
 
-        <div style={{ display: "flex", marginTop: 8 }}>
-          <div
-            style={{
-              flex: 1,
-              margin: "0 4px",
-              height: 32,
-              width: "100%",
-              display: "flex",
-            }}
-          >
+        <div className="flex mt-8">
+          <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}>
             <InputR size="full" placeholer="쿠폰명" innerStyle={{ margin: 0 }} />
           </div>
           <div style={{ flex: 1, margin: "0 4px", height: 32 }}>
@@ -191,31 +183,9 @@ export default function MainEvent(): JSX.Element {
               placeholder="공개여부"
             />
           </div>
-          <div className="flex" style={{ flex: 1, margin: "0 4px", height: 32 }}>
-            <button
-              className="btn-add-b"
-              style={{
-                width: "50%",
-                marginRight: 4,
-                // backgroundColor: "blue",
-                // marginRight: 10,
-                height: "100%",
-                border: "none",
-              }}
-            >
-              검색
-            </button>
-            <button
-              style={{
-                width: "50%",
-                backgroundColor: "#fff",
-                height: "100%",
-                marginLeft: 4,
-                border: "1px solid black",
-              }}
-            >
-              초기화
-            </button>
+          <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
+            <button className="btn-add-b w50p mr-4 h100p border-none">검색</button>
+            <button className="w50p bg-white h100p ml-4 border-black">초기화</button>
           </div>
         </div>
       </div>

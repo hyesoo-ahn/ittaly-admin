@@ -264,7 +264,7 @@ const AddMainBrand: React.FC = () => {
           </p>
         </div>
 
-        <div className="mt-16 mb-16 flex1" style={{ position: "relative" }}>
+        <div className="mt-16 mb-16 flex1 relative">
           <textarea
             value={desc}
             onChange={(e) => onChangeHandler(e)}
@@ -314,19 +314,7 @@ const AddMainBrand: React.FC = () => {
           {relatedProducts.type === "brand" && (
             <div className="flex align-c">
               <div className="flex">
-                <div
-                  style={{
-                    width: 273,
-                    height: 32,
-                    display: "flex",
-                    alignItems: "center",
-                    marginRight: 20,
-                    border: "1px solid hsl(0, 0%, 80%)",
-                    paddingLeft: 10,
-                    color: "#333333",
-                    fontWeight: 400,
-                  }}
-                >
+                <div className="select-brand-container">
                   <p>{selectedBrand ? selectedBrand.value : "브랜드 선택"}</p>
                 </div>
               </div>
@@ -373,7 +361,7 @@ const AddMainBrand: React.FC = () => {
 
         <div className="flex1">
           <input
-            style={{ border: "1px solid #cccccc", padding: "4px 10px", color: "#979797" }}
+            className="input-date"
             type="date"
             value={dates.openingDate}
             onChange={(e: any) => {

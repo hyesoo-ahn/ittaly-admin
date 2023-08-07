@@ -143,11 +143,6 @@ export default function AddMagazine(): JSX.Element {
     setProducts(tempProductSelect);
   };
 
-  // useEffect(() => {
-  //   console.log(productOptions);
-  //   console.log(form);
-  // }, [productOptions, form]);
-
   const handleUploadClick = async (idx: number) => {
     inputFileRef?.current[idx]?.click();
   };
@@ -419,7 +414,7 @@ export default function AddMagazine(): JSX.Element {
             </div>
 
             <div className="flex f-direction-column">
-              <div className="list-header-content align-c" style={{ border: "none" }}>
+              <div className="list-header-content align-c border-none">
                 <div className="mr-12">
                   <input
                     style={{ display: "none" }}
@@ -468,7 +463,7 @@ export default function AddMagazine(): JSX.Element {
             </div>
 
             <div className="flex f-direction-column">
-              <div className="list-header-content align-c" style={{ border: "none" }}>
+              <div className="list-header-content align-c border-none">
                 <div className="mr-12">
                   <input
                     style={{ display: "none" }}
@@ -515,7 +510,7 @@ export default function AddMagazine(): JSX.Element {
               </p>
             </div>
 
-            <div className="mt-16 mb-16 flex1" style={{ position: "relative" }}>
+            <div className="mt-16 mb-16 flex1 relative">
               <textarea
                 className="input-textarea"
                 placeholder="내용을 입력해 주세요"
@@ -559,18 +554,13 @@ export default function AddMagazine(): JSX.Element {
                 </div>
                 <div className="text-center w80p">
                   <div className="flex align-c mb-10">
-                    <div className="w10p" style={{ width: "10%" }}></div>
+                    <div className="w10p"></div>
                     <p className="text-left font-12 font-gray">
                       추가 버튼을 클릭해서 정보를 추가해주세요.
                     </p>
                   </div>
                   <div className="flex align-c">
-                    <div
-                      className="font-14 text-center font-bold flex align-c justify-c"
-                      style={{ width: "10%" }}
-                    >
-                      요약
-                    </div>
+                    <div className="font-14 text-center font-bold flex align-c justify-c">요약</div>
 
                     <div style={{ width: "80%" }}>
                       <input
@@ -589,10 +579,8 @@ export default function AddMagazine(): JSX.Element {
                     </div>
                   </div>
                   <div className="flex align-c mt-10">
-                    <div className="font-14 font-bold" style={{ width: "10%" }}>
-                      설명
-                    </div>
-                    <div style={{ width: "80%" }}>
+                    <div className="font-14 font-bold w10p">설명</div>
+                    <div className="w80p">
                       <textarea
                         value={contentForm?.detail}
                         onChange={(e) => {
@@ -610,9 +598,7 @@ export default function AddMagazine(): JSX.Element {
                   </div>
 
                   <div className="flex mt-10">
-                    <div className="font-14 font-bold" style={{ width: "10%" }}>
-                      이미지
-                    </div>
+                    <div className="font-14 font-bold w10p">이미지</div>
                     <div
                       className="mr-12 flex"
                       style={{
@@ -700,25 +686,14 @@ export default function AddMagazine(): JSX.Element {
                       <div style={{ width: "80%" }}>
                         <input
                           value={contentItem?.title}
-                          // value={pointForm?.summary}
-                          // onChange={(e) => {
-                          //   setPointForm((prevState: IPoint) => {
-                          //     return {
-                          //       ...prevState,
-                          //       summary: e.target.value,
-                          //     };
-                          //   });
-                          // }}
                           className="input-desc"
                           placeholder="50자 이내로 입력해 주세요.(필수)"
                         />
                       </div>
                     </div>
                     <div className="flex align-c mt-10">
-                      <div className="font-14 font-bold" style={{ width: "10%" }}>
-                        설명
-                      </div>
-                      <div style={{ width: "80%" }}>
+                      <div className="font-14 font-bold w10p">설명</div>
+                      <div className="w80p">
                         <textarea
                           value={contentItem?.detail}
                           // value={pointForm?.desc}
@@ -737,15 +712,8 @@ export default function AddMagazine(): JSX.Element {
                     </div>
 
                     <div className="flex mt-10">
-                      <div className="font-14 font-bold" style={{ width: "10%" }}>
-                        이미지
-                      </div>
-                      <div
-                        className="mr-12 flex"
-                        style={{
-                          flexDirection: "column",
-                        }}
-                      >
+                      <div className="font-14 font-bold w10p">이미지</div>
+                      <div className="mr-12 flex f-direction-column">
                         <div
                           className={`text-left flex ${contentForm.images.length !== 0 && "mt-10"}`}
                         >
@@ -780,7 +748,7 @@ export default function AddMagazine(): JSX.Element {
               <p>연관 추천상품</p>
             </div>
 
-            <div style={{ flex: 1 }} className="mt-16 mb-16">
+            <div className="mt-16 mb-16 flex1">
               <div className="flex mt-10">
                 <SelectBox
                   containerStyles={{ marginRight: 8 }}
@@ -807,7 +775,6 @@ export default function AddMagazine(): JSX.Element {
                   options={products}
                   noOptionsMessage={"상품이 없습니다."}
                 />
-                {/* <p className="font-12">※ 최소 1개 ~ 최대 4개 선택 가능합니다.</p> */}
               </div>
 
               {relatedProducts?.products?.length !== 0 && (
@@ -838,7 +805,7 @@ export default function AddMagazine(): JSX.Element {
 
             <div className="flex1">
               <input
-                style={{ border: "1px solid #cccccc", padding: "4px 10px", color: "#979797" }}
+                className="input-date"
                 type="date"
                 value={dates.openingDate}
                 onChange={(e: any) => {

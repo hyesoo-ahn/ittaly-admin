@@ -217,53 +217,6 @@ const AddMainEvent: React.FC = () => {
       status,
     };
 
-    // console.log(_body);
-    // const startingDate = new Date(dates.startingDate);
-    // const endingDate = new Date(dates.endingDate);
-    // const openingDate = new Date(dates.openingDate);
-    // const winnerAnnouncementDate = new Date(dates.winnerAnnouncementDate);
-    // const startingDateStamp = startingDate.getTime();
-    // const endingDateStamp = endingDate.getTime();
-    // const openingDateStamp = openingDate.getTime();
-    // const winnerAnnouncementDateStamp = winnerAnnouncementDate.getTime();
-    // const relatedProd = [];
-    // for (let i in relatedProducts.products) {
-    //   relatedProd.push({
-    //     _id: relatedProducts.products[i]._id,
-    //     productNameK: relatedProducts.products[i].productNameK,
-    //     thumbnail: relatedProducts.products[i].thumbnail,
-    //     originalPrice: relatedProducts.products[i].price,
-    //     discounted: relatedProducts.products[i].discounted,
-    //   });
-    // }
-    // // const formData = new FormData();
-    // // formData.append("file", files.file as File);
-    // // const getThumbnailUrl: any = await postUploadImage(formData);
-    // const body: any = {
-    //   collection: "events",
-    //   eventType,
-    //   title,
-    //   term: [startingDateStamp, endingDateStamp],
-    //   winnerAnnouncementTimeStamp: winnerAnnouncementDateStamp, // eventType==="normal"일때 있으면 안됨.
-    //   eventFeature, // eventType==="luckydraw"일때 있으면 안됨
-    //   coupon: selectedCoupon,
-    //   relatedProd,
-    //   openingStamp: openingDateStamp,
-    //   // openStatus,
-    // };
-    // if (eventType === "normal" && eventFeature === "coupon") {
-    //   delete body.winnerAnnouncementTimeStamp;
-    //   delete body.links;
-    // }
-    // if (eventType === "normal" && eventFeature === "link") {
-    //   delete body.winnerAnnouncementTimeStamp;
-    //   delete body.coupon;
-    // }
-    // if (eventType === "luckydraw") {
-    //   delete body.eventFeature;
-    //   delete body.coupon;
-    //   delete body.links;
-    // }
     const addResult: any = await postCollection(_body);
     if (addResult.result && addResult.status === 200) {
       alert("쿠폰 등록이 완료되었습니다.");
@@ -437,7 +390,7 @@ const AddMainEvent: React.FC = () => {
               }}
               className="checkbox-c mr-4 cursor"
             >
-              {couponType === "할인율" && <div className="checkbox-c-filled"></div>}
+              {couponType === "할인율" && <div className="checkbox-c-filled" />}
             </div>
 
             <p
@@ -478,7 +431,7 @@ const AddMainEvent: React.FC = () => {
               }}
               className="checkbox-c mr-4 cursor"
             >
-              {couponType === "할인금액" && <div className="checkbox-c-filled"></div>}
+              {couponType === "할인금액" && <div className="checkbox-c-filled" />}
             </div>
 
             <p
@@ -625,7 +578,7 @@ const AddMainEvent: React.FC = () => {
           <p>발급시점</p>
         </div>
 
-        <div style={{ flex: 1 }} className="mt-16 mb-16">
+        <div className="mt-16 mb-16 flex1">
           <div className="flex align-c">
             <div
               onClick={() =>
@@ -715,7 +668,7 @@ const AddMainEvent: React.FC = () => {
             <>
               <div className="flex mt-10">
                 <input
-                  style={{ border: "1px solid #cccccc", padding: "4px 10px", color: "#979797" }}
+                  className="input-date"
                   type="date"
                   value={issuanceDate.issuanceTimestamp}
                   onChange={(e: any) => {
@@ -743,7 +696,7 @@ const AddMainEvent: React.FC = () => {
         <div className="mt-16 mb-16">
           <div className="flex1 flex align-c">
             <input
-              style={{ border: "1px solid #cccccc", padding: "4px 10px", color: "#979797" }}
+              className="input-date"
               type="date"
               value={dates.startingDate}
               onChange={(e: any) => {
@@ -757,7 +710,7 @@ const AddMainEvent: React.FC = () => {
             />
             <p className="mr-8 ml-8">-</p>
             <input
-              style={{ border: "1px solid #cccccc", padding: "4px 10px", color: "#979797" }}
+              className="input-date"
               type="date"
               value={dates.endingDate}
               onChange={(e: any) => {
@@ -802,35 +755,6 @@ const AddMainEvent: React.FC = () => {
         </p>
       </div>
 
-      {/* <div className="product-field-wrapper mt-2 w100p">
-        <div className="product-field mr-20">
-          <p>적용상품</p>
-        </div>
-
-        <div onClick={() => setOpenStatus(true)} className="checkbox-c mr-4 cursor">
-          {openStatus && <div className="checkbox-c-filled"></div>}
-        </div>
-
-        <p onClick={() => setOpenStatus(true)} className="mr-30 cursor">
-          전체
-        </p>
-
-        <div onClick={() => setOpenStatus(true)} className="checkbox-c mr-4 cursor">
-          {openStatus && <div className="checkbox-c-filled"></div>}
-        </div>
-
-        <p onClick={() => setOpenStatus(true)} className="mr-30 cursor">
-          특정상품
-        </p>
-
-        <div onClick={() => setOpenStatus(false)} className="checkbox-c mr-4 cursor">
-          {!openStatus && <div className="checkbox-c-filled" />}
-        </div>
-
-        <p onClick={() => setOpenStatus(false)} className="mr-35 cursor">
-          특정브랜드
-        </p>
-      </div> */}
       <div className="field-list-wrapper mt-2">
         <div className="product-field mr-20">
           <p>적용상품</p>
@@ -1113,22 +1037,3 @@ const AddMainEvent: React.FC = () => {
 };
 
 export default AddMainEvent;
-// {
-//   title:"",
-//   benefitType:{
-//     discountPercentage:false,
-//     discountedAmount:false,
-//     discountPercentageInt:0,
-//     discountedAmountInt:0,
-//     freeship:false,
-//   },
-//   couponClassification: {
-//     targetCustomers:false,
-//     customerDownload:false,
-//     customerList:[],
-//   },
-//   couponIssuanceMoment : "",
-//   couponIssuanceTimestamp:0,
-//   usagePeriod:[],
-//
-// }

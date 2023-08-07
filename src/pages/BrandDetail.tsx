@@ -117,25 +117,14 @@ const BrandDetail = () => {
           </p>
         </div>
 
-        <div className="mt-16 mb-16 flex1" style={{ position: "relative" }}>
+        <div className="mt-16 mb-16 flex1 relative">
           <textarea
             value={desc}
             onChange={(e) => onChangeHandler(e)}
             className="input-textarea"
             placeholder="공백포함 100자 이내"
           />
-          <div
-            className="font-12"
-            style={{
-              position: "absolute",
-              bottom: 10,
-              right: 10,
-              fontWeight: 400,
-              color: "rgba(0,0,0,0.4)",
-            }}
-          >
-            {txtLength}/100
-          </div>
+          <div className="font-12 text-length-wrapper">{txtLength}/100</div>
         </div>
       </div>
 
@@ -150,7 +139,7 @@ const BrandDetail = () => {
         </div>
 
         <div className="flex f-direction-column">
-          <div className="list-header-content align-c" style={{ border: "none" }}>
+          <div className="list-header-content align-c border-none">
             <div className="mr-12">
               <input
                 style={{ display: "none" }}

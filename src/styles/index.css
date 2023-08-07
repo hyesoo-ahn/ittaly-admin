@@ -651,6 +651,10 @@ input {
   background-color: #fff;
 }
 
+.bg-black {
+  background-color: #000;
+}
+
 .border-black {
   border: 1px solid #000;
 }
@@ -661,4 +665,29 @@ input {
 
 .border-none {
   border: none;
+}
+
+.text-length-wrapper {
+  bottom: 10px;
+  right: 10px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.select-brand-container {
+  width: 273px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  border: 1px solid hsl(0, 0%, 80%);
+  padding-left: 10px;
+  color: #333333;
+  font-weight: 400;
+}
+
+/* 로그인 */
+.login-logo {
+  width: 158px;
+  height: auto;
 }
