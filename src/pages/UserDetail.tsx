@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { memo, useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ButtonR from "../components/ButtonR";
 import Modal from "../components/Modal";
 import SelectBox from "../components/SelectBox";
 import close from "../images/close.png";
+import { getDatas, getUsers, postCollection, putUpdateData } from "../common/apis";
+import { timeFormat1 } from "../common/utils";
 
 const MEMBERSHIP_LEVEL = [
   {
@@ -31,6 +33,7 @@ const MEMBERSHIP_LEVEL = [
 export default function UserDetail(): JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
+  const { userId } = useParams();
   const [selectArr, setSelectArr] = useState<any>([
     {
       label: "tab1",
@@ -54,13 +57,31 @@ export default function UserDetail(): JSX.Element {
     },
   ]);
   const [selectedTab, setSelectedTab] = useState<string>("tab1");
+  const [user, setUser] = useState<any>({});
+  const [memos, setMemos] = useState<any>([]);
 
   useEffect(() => {
     const { pathname } = location;
+    init();
 
     const tab = pathname.split("/");
     setSelectedTab(tab[5]);
   }, []);
+
+  const init = async () => {
+    const { data }: any = await getUsers({
+      collection: "users",
+      find: { _id: userId },
+    });
+
+    const momoData: any = await getDatas({
+      collection: "customerMemos",
+      find: { targetUserId: userId },
+    });
+
+    setMemos(momoData?.data);
+    setUser(data[0] ? data[0] : {});
+  };
 
   return (
     <div>
@@ -90,7 +111,9 @@ export default function UserDetail(): JSX.Element {
 
       {/* 컨텐츠 */}
       <div className="mt-30 mb-30">
-        {selectedTab === "tab1" && <Tab1 navigate={navigate} />}
+        {selectedTab === "tab1" && (
+          <Tab1 navigate={navigate} user={user} init={init} memos={memos} />
+        )}
         {selectedTab === "tab2" && <Tab2 />}
         {selectedTab === "tab3" && <Tab3 />}
         {selectedTab === "tab4" && <Tab4 />}
@@ -100,12 +123,45 @@ export default function UserDetail(): JSX.Element {
   );
 }
 
-const Tab1 = ({ navigate }: any) => {
+const Tab1 = ({ navigate, user, init, memos }: any) => {
   const [memoPopup, setMemoPopup] = useState<boolean>(false);
   const [customerLevelPopup, setCustomerLevelPopup] = useState<boolean>(false);
   const [popupAdd, setPopupAdd] = useState<string>("");
   const [memoContents, setMemoContents] = useState<string>("");
+  const [editMemoId, setEditMemoId] = useState<string>("");
   const [selectedLevel, setSelectedLevel] = useState<any>(null);
+
+  const handleSaveCustomerMemo = async () => {
+    if (popupAdd === "add") {
+      const body = {
+        collection: "customerMemos",
+        targetUserId: user._id,
+        contents: memoContents,
+      };
+
+      const postResult = await postCollection(body);
+      if (postResult.status === 200) {
+        alert("메모 등록이 완료되었습니다.");
+      }
+    }
+
+    if (popupAdd === "edit") {
+      const body = {
+        collection: "customerMemos",
+        _id: editMemoId,
+        contents: memoContents,
+      };
+
+      const updateResult: any = await putUpdateData(body);
+      if (updateResult.status === 200) {
+        alert("메모 수정이 완료되었습니다.");
+      }
+    }
+
+    setMemoPopup(false);
+    setMemoContents("");
+    init();
+  };
 
   return (
     <>
@@ -134,7 +190,9 @@ const Tab1 = ({ navigate }: any) => {
                     <p>닉네임/ID</p>
                   </div>
 
-                  <p>행복한 물개(ews24s)</p>
+                  <p>
+                    {user.nickname} ({user.kakaoId})
+                  </p>
                 </div>
                 <div className="product-field-wrapper mt-2">
                   <div className="product-field mr-20">
@@ -165,6 +223,8 @@ const Tab1 = ({ navigate }: any) => {
               <div className="flex align-c flex1 pt-10 pb-10">
                 {popupAdd !== "view" && (
                   <textarea
+                    value={memoContents}
+                    onChange={(e: any) => setMemoContents(e.target.value)}
                     className="input-textarea"
                     style={{ height: 200 }}
                     placeholder="내용을 입력해 주세요"
@@ -173,7 +233,17 @@ const Tab1 = ({ navigate }: any) => {
 
                 {popupAdd === "view" && (
                   <div>
-                    <h1>메모내용 한줄 노출</h1>
+                    <p>
+                      {memoContents.split("\n").map((line) => {
+                        return (
+                          <span>
+                            {line}
+                            <br />
+                          </span>
+                        );
+                      })}
+                    </p>
+                    {/* <h1>메모내용 한줄 노출</h1>
                     <h1>메모내용 한줄 노출</h1>
                     <h1>메모내용 한줄 노출</h1>
                     <h1>메모내용 한줄 노출</h1>
@@ -194,7 +264,7 @@ const Tab1 = ({ navigate }: any) => {
                     <h1>메모내용 한줄 노출</h1>
                     <h1>메모내용 한줄 노출</h1>
                     <h1>메모내용 한줄 노출</h1>
-                    <h1>메모내용 한줄 노출</h1> <h1>메모내용 한줄 노출</h1>
+                    <h1>메모내용 한줄 노출</h1> <h1>메모내용 한줄 노출</h1> */}
                   </div>
                 )}
               </div>
@@ -208,7 +278,7 @@ const Tab1 = ({ navigate }: any) => {
                 styleClass={"mr-8"}
               />
               {popupAdd === "view" && <ButtonR name={"변경"} onClick={() => setPopupAdd("edit")} />}
-              {popupAdd !== "view" && <ButtonR name={"저장"} onClick={() => {}} />}
+              {popupAdd !== "view" && <ButtonR name={"저장"} onClick={handleSaveCustomerMemo} />}
             </div>
           </div>
         </Modal>
@@ -282,7 +352,9 @@ const Tab1 = ({ navigate }: any) => {
               <p>닉네임/ID</p>
             </div>
 
-            <p>행복한 물개(ews24s)</p>
+            <p>
+              {user.nickname} ({user.kakaoId})
+            </p>
           </div>
 
           <div className="product-field-wrapper mt-2">
@@ -290,7 +362,10 @@ const Tab1 = ({ navigate }: any) => {
               <p>가입 SNS 채널</p>
             </div>
 
-            <p>카카오</p>
+            {user.kakao && <p>카카오</p>}
+            {user.naver && <p>네이버</p>}
+            {user.google && <p>구글</p>}
+            {user.apple && <p>애플</p>}
           </div>
 
           <div className="product-field-wrapper mt-2">
@@ -298,7 +373,7 @@ const Tab1 = ({ navigate }: any) => {
               <p>이름</p>
             </div>
 
-            <p>김모노</p>
+            <p>{user.name}</p>
           </div>
 
           <div className="field-list-wrapper mt-2">
@@ -455,12 +530,14 @@ const Tab1 = ({ navigate }: any) => {
       <div className="mt-40">
         <div className="flex justify-sb align-c">
           <p className="font-bold font-16">
-            회원메모 2<span className="font-400">건</span>
+            회원메모 {memos.length}
+            <span className="font-400">건</span>
           </p>
           <ButtonR
             name={"메모 작성"}
             onClick={() => {
               setMemoPopup(true);
+              setMemoContents("");
               setPopupAdd("add");
             }}
           />
@@ -488,46 +565,49 @@ const Tab1 = ({ navigate }: any) => {
           </div>
         </div>
 
-        <div className="list-content pl-18 pr-18">
-          <div className="flex align-c mt-8 mb-8 text-center">
-            <div className="w10p text-left">
-              <p>2</p>
-            </div>
+        {memos.map((aMemo: any, i: number) => (
+          <div key={i} className="list-content pl-18 pr-18">
+            <div className="flex align-c mt-8 mb-8 text-center">
+              <div className="w10p text-left">
+                <p>{i + 1}</p>
+              </div>
 
-            <div className="w40p">
-              <p>메모내용 한줄 노출</p>
-            </div>
+              <div className="w40p">
+                <p className="text-line">{aMemo.contents}</p>
+              </div>
 
-            <div className="w15p">
-              <p>작성자</p>
-            </div>
+              <div className="w15p">
+                <p>작성자</p>
+              </div>
 
-            <div className="w25p">
-              <p>2023.07.19 11:11:11</p>
-            </div>
+              <div className="w25p">
+                <p>{timeFormat1(aMemo.created)}</p>
+              </div>
 
-            <div className="text-center w10p flex justify-c">
-              <ButtonR
-                name="상세"
-                color="white"
-                styles={{ marginRight: 4 }}
-                onClick={() => {
-                  setMemoPopup(true);
-                  setPopupAdd("view");
-                }}
-                // onClick={() => navigate(`/site/main/bannertop/${aBanner._id}`)}
-              />
-              <ButtonR
-                name="삭제"
-                color="white"
-                onClick={() => {}}
-                // onClick={() => navigate(`/site/main/bannertop/${aBanner._id}`)}
-              />
+              <div className="text-center w10p flex justify-c">
+                <ButtonR
+                  name="상세"
+                  color="white"
+                  styles={{ marginRight: 4 }}
+                  onClick={() => {
+                    setMemoPopup(true);
+                    setMemoContents(aMemo.contents);
+                    setPopupAdd("view");
+                    setEditMemoId(aMemo._id);
+                  }}
+                  // onClick={() => navigate(`/site/main/bannertop/${aBanner._id}`)}
+                />
+                <ButtonR
+                  name="삭제"
+                  color="white"
+                  onClick={() => {}}
+                  // onClick={() => navigate(`/site/main/bannertop/${aBanner._id}`)}
+                />
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="list-content pl-18 pr-18">
+        ))}
+        {/* <div className="list-content pl-18 pr-18">
           <div className="flex align-c mt-8 mb-8 text-center">
             <div className="w10p text-left">
               <p>1</p>
@@ -561,7 +641,7 @@ const Tab1 = ({ navigate }: any) => {
               />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );

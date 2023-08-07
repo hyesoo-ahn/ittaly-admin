@@ -2,13 +2,13 @@ import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { getAdminLookup, getDatas, getUsers } from "../common/apis";
-// import { ObjectId } from "mongodb";
 
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
 import { deleteItem, timeFormat1, timeFormat2 } from "../common/utils";
-import { ObjectID } from "mongodb";
+import ObjectID from "bson-objectid";
+// import { ObjectId } from "mongodb";
 
 const SELECT_STATUS = [
   { value: "전체", label: "전체" },
@@ -41,27 +41,27 @@ export default function ProductInquiry(): JSX.Element {
   }, []);
 
   const init = async () => {
-    const { data }: any = await getAdminLookup({
+    let qna: any = await getAdminLookup({
+      collection: "productQna",
+      lookupFrom: "products",
+      addField: "targetId",
+      as: "productInfo",
+    });
+    qna = qna.data;
+    let users: any = await getAdminLookup({
       collection: "productQna",
       lookupFrom: "users",
       addField: "userId",
       as: "userInfo",
     });
+    users = users.data;
 
-    const productIds = [];
-    for (let i in data) {
-      productIds.push(new ObjectID(data[i].targetId));
+    for (let i = 0; i < qna.length; i++) {
+      qna[i].userInfo = users[i].userInfo;
     }
+    console.log(qna);
 
-    console.log(productIds);
-    const productData = await getDatas({
-      collection: "products",
-      find: { _id: { $in: productIds } },
-    });
-
-    console.log(productData);
-
-    setData(data);
+    setData(qna);
   };
 
   const handleOnChangeRewards = (e: any) => {
@@ -196,7 +196,7 @@ export default function ProductInquiry(): JSX.Element {
             </div>
 
             <div className="w20p pl-10 pr-10">
-              <p className="text-line">{item.content}</p>
+              <p className="text-line">{item.productInfo[0]?.productNameK}</p>
             </div>
 
             <div className="w25p pl-10 pr-10">
