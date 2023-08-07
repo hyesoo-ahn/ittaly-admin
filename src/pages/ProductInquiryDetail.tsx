@@ -4,10 +4,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getAdminLookup, getDatas } from "../common/apis";
 import { timeFormat1 } from "../common/utils";
 
-export const CustomerInquiryDetail = () => {
+export const ProductInquiryDetail = () => {
   const navigate = useNavigate();
   const params = useParams();
-  const { inquiryId } = params;
+  const { productinquiryId } = params;
   const [detail, setDetail] = useState<any>([]);
 
   useLayoutEffect(() => {
@@ -17,7 +17,7 @@ export const CustomerInquiryDetail = () => {
   const init = async () => {
     const { data }: any = await getAdminLookup({
       collection: "productQna",
-      find: { _id: inquiryId },
+      find: { _id: productinquiryId },
       lookupFrom: "users",
       addField: "userId",
       as: "userInfo",
@@ -29,13 +29,20 @@ export const CustomerInquiryDetail = () => {
 
   return (
     <>
-      <p className="page-title">1:1문의 관리</p>
+      <p className="page-title">상품문의 상세</p>
 
       <div>
         <p className="font-category mt-30">문의 내용</p>
       </div>
       <div className="flex mt-13">
         <div className="flex1">
+          <div className="product-field-wrapper mt-2">
+            <div className="product-field mr-20">
+              <p>카테고리</p>
+            </div>
+
+            <p>{detail[0]?.category}</p>
+          </div>
           <div className="product-field-wrapper mt-2">
             <div className="product-field mr-20">
               <p>작성자</p>
@@ -48,18 +55,18 @@ export const CustomerInquiryDetail = () => {
 
           <div className="product-field-wrapper mt-2">
             <div className="product-field mr-20">
-              <p>이메일</p>
+              <p>상품명</p>
             </div>
 
-            <p>{detail[0]?.userInfo[0]?.email}</p>
+            <p className="font-blue text-underline">Seletti 하이브리드 푸르트 볼그릇</p>
           </div>
 
           <div className="product-field-wrapper mt-2">
             <div className="product-field mr-20">
-              <p>카테고리</p>
+              <p>공개여부</p>
             </div>
 
-            <p>{detail[0]?.category}</p>
+            <p>공개</p>
           </div>
         </div>
 
@@ -74,18 +81,10 @@ export const CustomerInquiryDetail = () => {
 
           <div className="product-field-wrapper mt-2">
             <div className="product-field mr-20">
-              <p>휴대폰</p>
+              <p>조회수</p>
             </div>
 
-            <p>{detail[0]?.userInfo[0]?.phone}</p>
-          </div>
-
-          <div className="product-field-wrapper mt-2">
-            <div className="product-field mr-20">
-              <p>주문번호</p>
-            </div>
-
-            <p>1234567890</p>
+            <p>1,234</p>
           </div>
         </div>
       </div>
@@ -98,20 +97,15 @@ export const CustomerInquiryDetail = () => {
           <p>{detail[0]?.content}</p>
         </div>
       </div>
-      <div className="field-list-wrapper mt-2">
+      {/* <div className="field-list-wrapper mt-2">
         <div className="product-field mr-20">
-          <p>첨부이미지</p>
+          <p>내용</p>
         </div>
 
-        <div className="flex1 pt-10 pb-10 flex">
-          {detail[0]?.imgUrls.map((img: string, i: number) => (
-            <img key={i} src={img} style={{ width: 80, height: "auto" }} />
-          ))}
-          {/* <div style={{ width: 50, height: 50, border: "1px solid gray" }} className="mr-4"></div> */}
-          {/* <div style={{ width: 50, height: 50, border: "1px solid gray" }} className="mr-4"></div> */}
-          {/* <div style={{ width: 50, height: 50, border: "1px solid gray" }} className="mr-4"></div> */}
+        <div className="flex1 pt-10 pb-10">
+          <p>{detail[0]?.content}</p>
         </div>
-      </div>
+      </div> */}
 
       {/* 답변 내용 */}
       <div className="flex align-c mt-30">
@@ -133,13 +127,13 @@ export const CustomerInquiryDetail = () => {
         </div>
 
         <div className="flex1">
-          <div className="product-field-wrapper mt-2">
+          {/* <div className="product-field-wrapper mt-2">
             <div className="product-field mr-20">
               <p>작성일자</p>
             </div>
 
             <p>2023.01.01 10:00:00</p>
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="field-list-wrapper mt-2">
@@ -152,12 +146,15 @@ export const CustomerInquiryDetail = () => {
         </div>
       </div>
 
-      <div className="flex justify-fe">
-        <ButtonR name={"취소"} color={"white"} onClick={() => navigate(-1)} styleClass={"mr-4"} />
-        <ButtonR name={"답변송부"} onClick={() => {}} />
+      <div className="flex justify-sb mt-10">
+        <ButtonR name={"삭제"} color={"white"} onClick={() => navigate(-1)} styleClass={"mr-4"} />
+        <div className="flex">
+          <ButtonR name={"취소"} color={"white"} onClick={() => navigate(-1)} styleClass={"mr-4"} />
+          <ButtonR name={"답변등록"} onClick={() => {}} />
+        </div>
       </div>
     </>
   );
 };
 
-export default CustomerInquiryDetail;
+export default ProductInquiryDetail;

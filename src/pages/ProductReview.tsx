@@ -6,17 +6,26 @@ import { getAdminLookup, getDatas, getUsers } from "../common/apis";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
-import { timeFormat1, timeFormat2 } from "../common/utils";
+import { deleteItem, timeFormat1, timeFormat2 } from "../common/utils";
 
-const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
+const SELECT_STATUS = [
+  { value: "전체", label: "전체" },
+  { value: "상품문의", label: "상품문의" },
+  { value: "배송문의", label: "배송문의" },
+  { value: "교환/환불/취소 문의", label: "교환/환불/취소 문의" },
+  { value: "기타 문의", label: "기타 문의" },
 ];
 
-export default function CustomerInquiry(): JSX.Element {
+const OPEN_STATUS = [
+  { value: "전체", label: "전체" },
+  { value: "Y", label: "Y" },
+  { value: "N", label: "N" },
+];
+
+export default function ProductReviews(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
+  const [openSelected, setOpenSelected] = useState<any>("");
   const [rewardsPopup, setRewardsPopup] = useState<boolean>(false);
   const [rewards, setRewards] = useState<string>("");
   const [rewardType, setRewardType] = useState<string>("지급");
@@ -30,6 +39,11 @@ export default function CustomerInquiry(): JSX.Element {
   }, []);
 
   const init = async () => {
+    // const { data }: any = await getDatas({
+    //   collection: "productQna",
+    // });
+    // // console.log(data);
+    // setData(data);
     const { data }: any = await getAdminLookup({
       collection: "productQna",
 
@@ -58,7 +72,7 @@ export default function CustomerInquiry(): JSX.Element {
   return (
     <div>
       <div className="flex justify-sb align-c">
-        <p className="page-title">1:1 문의 관리</p>
+        <p className="page-title">상품문의 관리</p>
       </div>
 
       <div className="w100p filter-container" style={{ flex: 1 }}>
@@ -79,56 +93,59 @@ export default function CustomerInquiry(): JSX.Element {
               aria-required="true"
             />
           </div>
-          <div style={{ flex: 1, margin: "0 4px" }}>
+          <div style={{ flex: 1, margin: "0 4px" }}></div>
+          <div className="flex" style={{ flex: 1, margin: "0 4px" }}>
+            <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
+              <button className="btn-add-b w50p border-none mr-4 h100p" style={{}}>
+                검색
+              </button>
+              <button className="w50p bg-white border-black h100p ml-4">초기화</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex mt-8">
+          <div className="flex1 ml-4 mr-4 flex">
             <SelectBox
               containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
+              value={openSelected}
+              onChange={(e: any) => setOpenSelected(e)}
+              options={SELECT_STATUS}
               noOptionsMessage={"상태가 없습니다."}
-              placeholder="상태"
+              placeholder="유형"
             />
           </div>
-          <div style={{ flex: 1, margin: "0 4px" }}>
+          <div className="flex1 mr-4 ml-4">
             <SelectBox
               containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
+              value={openSelected}
+              onChange={(e: any) => setOpenSelected(e)}
+              options={SELECT_STATUS}
               noOptionsMessage={"상태가 없습니다."}
-              placeholder="카테고리"
+              placeholder="적립금 지급여부"
+            />
+          </div>
+          <div className="flex1 ml-4 mr-4">
+            <SelectBox
+              containerStyles={{ width: "100%" }}
+              value={openSelected}
+              onChange={(e: any) => setOpenSelected(e)}
+              options={OPEN_STATUS}
+              noOptionsMessage={"상태가 없습니다."}
+              placeholder="공개여부"
             />
           </div>
         </div>
 
-        <div style={{ display: "flex", marginTop: 8 }}>
-          <div
-            style={{
-              flex: 1,
-              margin: "0 4px",
-              height: 32,
-              width: "100%",
-              display: "flex",
-            }}
-          >
+        <div className="flex mt-8" style={{ display: "flex", marginTop: 8 }}>
+          <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}>
+            <InputR size="full" placeholer="상품명" innerStyle={{ margin: 0 }} />
+          </div>
+          <div style={{ flex: 1, margin: "0 4px", height: 32 }}>
             <InputR size="full" placeholer="작성자 ID" innerStyle={{ margin: 0 }} />
           </div>
           <div style={{ flex: 1, margin: "0 4px", height: 32 }}>
-            <InputR size="full" placeholer="이메일" innerStyle={{ margin: 0 }} />
-          </div>
-          <div style={{ flex: 1, margin: "0 4px", height: 32 }}>
             <InputR size="full" placeholer="내용" innerStyle={{ margin: 0 }} />
-          </div>
-        </div>
-
-        <div style={{ display: "flex", marginTop: 8 }}>
-          <div className="flex1 flex ml-4 mr-4 w100p" style={{ height: 32 }}></div>
-          <div className="flex1 ml-4 mr-4" style={{ height: 32 }}></div>
-          <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
-            <button className="btn-add-b w50p border-none mr-4 h100p" style={{}}>
-              검색
-            </button>
-            <button className="w50p bg-white border-black h100p ml-4">초기화</button>
           </div>
         </div>
       </div>
@@ -142,7 +159,11 @@ export default function CustomerInquiry(): JSX.Element {
           <p>카테고리</p>
         </div>
 
-        <div className="w45p pl-10 pr-10">
+        <div className="w20p pl-10 pr-10">
+          <p>상품명</p>
+        </div>
+
+        <div className="w25p pl-10 pr-10">
           <p>상담내용</p>
         </div>
 
@@ -168,7 +189,11 @@ export default function CustomerInquiry(): JSX.Element {
               <p>{item.category}</p>
             </div>
 
-            <div className="w45p pl-10 pr-10">
+            <div className="w20p pl-10 pr-10">
+              <p className="text-line">{item.content}</p>
+            </div>
+
+            <div className="w25p pl-10 pr-10">
               <p className="text-line">{item.content}</p>
             </div>
 
@@ -184,12 +209,20 @@ export default function CustomerInquiry(): JSX.Element {
               {item.status === "unresolved" && <p>미답변</p>}
             </div>
 
-            <div className="w10p text-center">
+            <div className="w10p text-center flex justify-c">
               <ButtonR
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/customer/inquiry/${item._id}`)}
+                onClick={() => navigate(`/customer/productinquiry/${item._id}`)}
+              />
+              <ButtonR
+                name="삭제"
+                color="white"
+                onClick={async () => {
+                  await deleteItem("productQna", item._id, "문의");
+                  init();
+                }}
               />
             </div>
           </div>

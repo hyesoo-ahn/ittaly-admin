@@ -358,8 +358,14 @@ h1 {
   color: #ff0000;
 }
 
+.font-blue {
+  color: blue;
+}
+
 .font-gray {
   color: #101828 !important;
+}
+.text-underline {
 }
 
 .font-category {

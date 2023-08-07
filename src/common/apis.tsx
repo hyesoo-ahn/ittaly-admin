@@ -111,6 +111,34 @@ export const getDatas = async (body: any): Promise<boolean | object> => {
   }
 };
 
+export const getAdminLookup = async (body: any): Promise<boolean | object> => {
+  try {
+    const collection = body.collection;
+    const find = body.find ? JSON.stringify(body.find) : JSON.stringify({});
+    const sort = body.sort ? body.sort : {};
+    const start = body.start ? body.start : 0;
+    const limit = body.limit ? body.limit : 100;
+    const end = body.end ? body.end : 0;
+    const lookupFrom = body.lookupFrom;
+    const addField = body.addField;
+    const as = body.as;
+
+    const { data }: any = await axios.get(
+      `${URI}/admin/lookup?collection=${collection}&lookupFrom=${lookupFrom}&limit=100&addField=${addField}&as=${as}&find=${find}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${ADMIN_TOKEN}`,
+        },
+      }
+    );
+
+    return data;
+  } catch (error) {
+    return false;
+  }
+};
+
 // 데이터 수정 (개별)
 export const putUpdateData = async (_body: any): Promise<boolean> => {
   try {

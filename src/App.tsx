@@ -56,6 +56,9 @@ import Notice from "./pages/Notice";
 import Referrals from "./pages/Referrals";
 import CustomerInquiry from "./pages/CustomerInquiry";
 import CustomerInquiryDetail from "./pages/CustomerInquiryDetail";
+import ProductInquiry from "./pages/ProductInquiry";
+import { ProductInquiryDetail } from "./pages/ProductInquiryDetail";
+import ProductReviews from "./pages/ProductReview";
 
 function App() {
   useEffect(() => {
@@ -158,6 +161,14 @@ function App() {
             {/* 1:1 문의 */}
             <Route path="/customer/inquiry" element={<CustomerInquiry />} />
             <Route path="/customer/inquiry/:inquiryId" element={<CustomerInquiryDetail />} />
+
+            {/* 상품 문의 */}
+            <Route path="/customer/productinquiry" element={<ProductInquiry />} />
+            <Route
+              path="/customer/productinquiry/:productinquiryId"
+              element={<ProductInquiryDetail />}
+            />
+            <Route path="/customer/reviews" element={<ProductReviews />} />
           </Route>
 
           <Route path="*" element={<ErrorPage />} />

@@ -2,21 +2,32 @@ import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { getAdminLookup, getDatas, getUsers } from "../common/apis";
+// import { ObjectId } from "mongodb";
 
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
-import { timeFormat1, timeFormat2 } from "../common/utils";
+import { deleteItem, timeFormat1, timeFormat2 } from "../common/utils";
+import { ObjectID } from "mongodb";
 
-const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
+const SELECT_STATUS = [
+  { value: "전체", label: "전체" },
+  { value: "상품문의", label: "상품문의" },
+  { value: "배송문의", label: "배송문의" },
+  { value: "교환/환불/취소 문의", label: "교환/환불/취소 문의" },
+  { value: "기타 문의", label: "기타 문의" },
 ];
 
-export default function CustomerInquiry(): JSX.Element {
+const OPEN_STATUS = [
+  { value: "전체", label: "전체" },
+  { value: "Y", label: "Y" },
+  { value: "N", label: "N" },
+];
+
+export default function ProductInquiry(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
+  const [openSelected, setOpenSelected] = useState<any>("");
   const [rewardsPopup, setRewardsPopup] = useState<boolean>(false);
   const [rewards, setRewards] = useState<string>("");
   const [rewardType, setRewardType] = useState<string>("지급");
@@ -32,11 +43,23 @@ export default function CustomerInquiry(): JSX.Element {
   const init = async () => {
     const { data }: any = await getAdminLookup({
       collection: "productQna",
-
       lookupFrom: "users",
       addField: "userId",
       as: "userInfo",
     });
+
+    const productIds = [];
+    for (let i in data) {
+      productIds.push(new ObjectID(data[i].targetId));
+    }
+
+    console.log(productIds);
+    const productData = await getDatas({
+      collection: "products",
+      find: { _id: { $in: productIds } },
+    });
+
+    console.log(productData);
 
     setData(data);
   };
@@ -58,7 +81,7 @@ export default function CustomerInquiry(): JSX.Element {
   return (
     <div>
       <div className="flex justify-sb align-c">
-        <p className="page-title">1:1 문의 관리</p>
+        <p className="page-title">상품문의 관리</p>
       </div>
 
       <div className="w100p filter-container" style={{ flex: 1 }}>
@@ -84,7 +107,7 @@ export default function CustomerInquiry(): JSX.Element {
               containerStyles={{ width: "100%" }}
               value={selected}
               onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
+              options={SELECT_STATUS}
               noOptionsMessage={"상태가 없습니다."}
               placeholder="상태"
             />
@@ -92,9 +115,9 @@ export default function CustomerInquiry(): JSX.Element {
           <div style={{ flex: 1, margin: "0 4px" }}>
             <SelectBox
               containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
+              value={openSelected}
+              onChange={(e: any) => setOpenSelected(e)}
+              options={OPEN_STATUS}
               noOptionsMessage={"상태가 없습니다."}
               placeholder="카테고리"
             />
@@ -142,7 +165,11 @@ export default function CustomerInquiry(): JSX.Element {
           <p>카테고리</p>
         </div>
 
-        <div className="w45p pl-10 pr-10">
+        <div className="w20p pl-10 pr-10">
+          <p>상품명</p>
+        </div>
+
+        <div className="w25p pl-10 pr-10">
           <p>상담내용</p>
         </div>
 
@@ -168,7 +195,11 @@ export default function CustomerInquiry(): JSX.Element {
               <p>{item.category}</p>
             </div>
 
-            <div className="w45p pl-10 pr-10">
+            <div className="w20p pl-10 pr-10">
+              <p className="text-line">{item.content}</p>
+            </div>
+
+            <div className="w25p pl-10 pr-10">
               <p className="text-line">{item.content}</p>
             </div>
 
@@ -184,12 +215,20 @@ export default function CustomerInquiry(): JSX.Element {
               {item.status === "unresolved" && <p>미답변</p>}
             </div>
 
-            <div className="w10p text-center">
+            <div className="w10p text-center flex justify-c">
               <ButtonR
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/customer/inquiry/${item._id}`)}
+                onClick={() => navigate(`/customer/productinquiry/${item._id}`)}
+              />
+              <ButtonR
+                name="삭제"
+                color="white"
+                onClick={async () => {
+                  await deleteItem("productQna", item._id, "문의");
+                  init();
+                }}
               />
             </div>
           </div>
