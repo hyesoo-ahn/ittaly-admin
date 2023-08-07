@@ -1669,8 +1669,8 @@ export default function AddProduct(): JSX.Element {
                       />
                     </div>
                   </div>
-                  <div className="flex align-c mt-10 w10p">
-                    <div className="font-14 font-bold">설명</div>
+                  <div className="flex align-c mt-10">
+                    <div className="font-14 w10p font-bold">설명</div>
                     <div style={{ width: "80%" }}>
                       <textarea
                         value={pointForm?.desc}

@@ -81,7 +81,7 @@ export default function Coupon(): JSX.Element {
           </div>
         </div>
 
-        <div className="flex1 ml-4 mr-4">
+        <div className="flex flex1 mt-8">
           <div
             style={{
               flex: 1,
