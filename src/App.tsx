@@ -59,6 +59,8 @@ import CustomerInquiryDetail from "./pages/CustomerInquiryDetail";
 import ProductInquiry from "./pages/ProductInquiry";
 import { ProductInquiryDetail } from "./pages/ProductInquiryDetail";
 import ProductReviews from "./pages/ProductReview";
+import AddNotice from "./pages/AddNotice";
+import NoticeDetail from "./pages/NoticeDetail";
 
 function App() {
   useEffect(() => {
@@ -141,6 +143,8 @@ function App() {
             <Route path="/site/coupon/add" element={<AddCoupon />} />
             <Route path="/site/terms/privacy" element={<TermsOfPrivacy />} />
             <Route path="/site/notice" element={<Notice />} />
+            <Route path="/site/notice/add" element={<AddNotice />} />
+            <Route path="/site/notice/:noticeId" element={<NoticeDetail />} />
 
             {/* 고객 */}
             {/* 유저 */}

@@ -20,7 +20,7 @@ interface ISearchForm {
   salesStatus: {
     value: string;
     label: string;
-  };
+  } | null;
   category: {
     value: string;
     label: string;
@@ -37,10 +37,7 @@ export default function ProductManagement(): JSX.Element {
     brandName: "",
     productCode: "",
     category: null,
-    salesStatus: {
-      value: "",
-      label: "",
-    },
+    salesStatus: null,
   });
   const [categories, setCategories] = useState<any>([]);
 
@@ -76,8 +73,8 @@ export default function ProductManagement(): JSX.Element {
     if (searchForm.productNameK !== "") find.productNameK = searchForm.productNameK;
     if (searchForm.brandName !== "") find.brand = searchForm.brandName;
     if (searchForm.productCode !== "") find.productCode = searchForm.productCode;
-    if (searchForm.category!.value) find.category1 = searchForm.category!.value;
-    if (searchForm.salesStatus!.value) find.saleStatus = searchForm.salesStatus!.value;
+    if (searchForm.category?.value) find.category1 = searchForm.category!.value;
+    if (searchForm.salesStatus?.value) find.saleStatus = searchForm.salesStatus!.value;
 
     const { data }: any = await getDatas({
       collection: "products",
@@ -93,10 +90,7 @@ export default function ProductManagement(): JSX.Element {
       brandName: "",
       productCode: "",
       category: null,
-      salesStatus: {
-        value: "",
-        label: "",
-      },
+      salesStatus: null
     });
 
     init();

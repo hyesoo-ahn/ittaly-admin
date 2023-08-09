@@ -8,7 +8,6 @@ import up_b from "../images/up_b.png";
 import down_b from "../images/down_b.png";
 import close from "../images/close.png";
 import sample from "../images/sample_img.png";
-import { useFileUpload } from "../hooks/useFileUpload";
 import Modal from "../components/Modal";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { currency, moveValue } from "../common/utils";

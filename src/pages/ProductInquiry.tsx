@@ -59,7 +59,6 @@ export default function ProductInquiry(): JSX.Element {
     for (let i = 0; i < qna.length; i++) {
       qna[i].userInfo = users[i].userInfo;
     }
-    console.log(qna);
 
     setData(qna);
   };
@@ -102,7 +101,7 @@ export default function ProductInquiry(): JSX.Element {
               aria-required="true"
             />
           </div>
-          <div style={{ flex: 1, margin: "0 4px" }}>
+          <div className="flex1 ml-4 mr-4">
             <SelectBox
               containerStyles={{ width: "100%" }}
               value={selected}
@@ -112,19 +111,19 @@ export default function ProductInquiry(): JSX.Element {
               placeholder="상태"
             />
           </div>
-          <div style={{ flex: 1, margin: "0 4px" }}>
+          <div className="flex1 ml-4 mr-4">
             <SelectBox
               containerStyles={{ width: "100%" }}
               value={openSelected}
               onChange={(e: any) => setOpenSelected(e)}
               options={OPEN_STATUS}
               noOptionsMessage={"상태가 없습니다."}
-              placeholder="카테고리"
+              placeholder="공개여부"
             />
           </div>
         </div>
 
-        <div style={{ display: "flex", marginTop: 8 }}>
+        <div className="flex mt-8">
           <div
             style={{
               flex: 1,
@@ -144,7 +143,7 @@ export default function ProductInquiry(): JSX.Element {
           </div>
         </div>
 
-        <div style={{ display: "flex", marginTop: 8 }}>
+        <div className="flex mt-8">
           <div className="flex1 flex ml-4 mr-4 w100p" style={{ height: 32 }}></div>
           <div className="flex1 ml-4 mr-4" style={{ height: 32 }}></div>
           <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
@@ -196,7 +195,13 @@ export default function ProductInquiry(): JSX.Element {
             </div>
 
             <div className="w20p pl-10 pr-10">
-              <p className="text-line">{item.productInfo[0]?.productNameK}</p>
+              <a
+                className="font-blue text-underline"
+                target="blank"
+                href={`/product/productmanage/${item.productInfo[0]?._id}`}
+              >
+                <p className="text-line">{item.productInfo[0]?.productNameK}</p>
+              </a>
             </div>
 
             <div className="w25p pl-10 pr-10">
@@ -235,72 +240,21 @@ export default function ProductInquiry(): JSX.Element {
         ))}
       </div>
 
-      {/* {events?.map((eventItem: any, i: number) => (
-        <div key={i} className={`list-content pl-18 pr-18 ${i === 0 && "bg-blue border-radius-8"}`}>
-          <div className={`flex align-c mt-8 mb-8`}>
-            <div className="w5p">
-              <input type="checkbox" />
-            </div>
-
-            <div className="w10p">
-              {eventItem.eventType === "normal" && <p>일반</p>}
-              {eventItem.eventType === "luckydraw" && <p>럭키드로우</p>}
-              {eventItem.eventType === "recommend" && <p>추천인</p>}
-            </div>
-
-            <div className="w25p">
-              <p>{eventItem.title}</p>
-            </div>
-
-            <div className="w30p">
-              <p>
-                {timeFormat1(eventItem.term[0])} ~ {timeFormat1(eventItem.term[1])}
-              </p>
-            </div>
-
-            <div className="w10p text-center">
-              <p> {eventItem.term[1] > Date.now() ? "진행중" : "종료"}</p>
-            </div>
-
-            <div className="w10p"></div>
-
-            <div className="w5p text-center">
-              <p>Y</p>
-            </div>
-
-            <div className="text-center w15p flex justify-c">
-              <ButtonR
-                name="상세"
-                color="white"
-                styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/site/event/${eventItem._id}`)}
-              />
-              <ButtonR
-                name="삭제"
-                color="white"
-                styles={{ marginRight: 4 }}
-                onClick={async () => {}}
-              />
-            </div>
-          </div>
-        </div>
-      ))} */}
-
-      <div className="mt-20 flex justify-fe align-c flex-wrap">
-        {/* <div className="flex">
+      <div className="mt-20 flex justify-sb align-c flex-wrap">
+        <div className="flex">
           <ButtonR
-            name="적립금 수동 처리"
+            name="공개"
             color="white"
             onClick={() => setRewardsPopup(true)}
             styles={{ marginRight: 4 }}
           />
           <ButtonR
-            name="쿠폰 수동 처리"
+            name="비공개"
             color="white"
             onClick={() => setCouponPopup(true)}
             styles={{ marginRight: 4 }}
           />
-        </div> */}
+        </div>
 
         <div className="flex pagination">
           <p className="font-lightgray">{"<"}</p>

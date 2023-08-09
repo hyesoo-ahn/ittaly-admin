@@ -1,7 +1,7 @@
 import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { getDatas, getUsers } from "../common/apis";
+import { getDatas, getUsers, putUpdateDataBulk } from "../common/apis";
 import { currency, timeFormat1, timeFormat2 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
@@ -9,48 +9,92 @@ import SelectBox from "../components/SelectBox";
 import Modal from "../components/Modal";
 import close from "../images/close.png";
 
-const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
+const OPEN_STATUS = [
+  { value: "Y", label: "Y" },
+  { value: "N", label: "N" },
+];
+
+const CATEGORY_TYPE = [
+  { value: "전체", label: "전체" },
+  { value: "공지", label: "공지" },
+  { value: "시스템", label: "시스템" },
+  { value: "이벤트", label: "이벤트" },
 ];
 
 export default function Notice(): JSX.Element {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<any>("");
-  const [rewardsPopup, setRewardsPopup] = useState<boolean>(false);
-  const [rewards, setRewards] = useState<string>("");
-  const [rewardType, setRewardType] = useState<string>("지급");
-
-  const [couponPopup, setCouponPopup] = useState<boolean>(false);
-
-  const [users, setUsers] = useState<any[]>([]);
+  const [noticeData, setNoticeData] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  const [selectedOpenStatus, setSelectedOpenStatus] = useState<any>(null);
+  const [title, setTitle] = useState<string>("");
 
   useEffect(() => {
     init();
   }, []);
 
   const init = async () => {
-    const { data }: any = await getUsers({
-      // sort: { sort: -1 },
+    const { data }: any = await getDatas({
+      collection: "notice",
+      sort: { sort: 1 },
     });
 
-    console.log(data);
-    setUsers(data);
+    setNoticeData(data);
   };
 
-  const handleOnChangeRewards = (e: any) => {
-    let value: string = e.target.value;
-    const numCheck: boolean = /^[0-9,]/.test(value);
+  const handleSearchData = async () => {
+    let find: any = {};
+    if (selectedCategory) find.category = selectedCategory.value;
+    if (selectedOpenStatus) find.openStatus = selectedOpenStatus.value === "Y" ? true : false;
+    if (title !== "") find.title = title;
 
-    if (!numCheck && value) return;
+    const { data }: any = await getDatas({
+      collection: "notice",
+      find: find,
+    });
 
-    if (numCheck) {
-      const numValue = value.replaceAll(",", "");
-      value = numValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    setNoticeData(data);
+  };
+
+  const handlecheckItem = (item: any) => {
+    const findIdx = noticeData.findIndex((aNotice) => aNotice === item);
+
+    const temp = [...noticeData];
+    temp[findIdx].checked = !temp[findIdx].checked;
+    setNoticeData(temp);
+  };
+
+  const handleNoticeUpdate = async (status: boolean) => {
+    const filterData = noticeData.filter((el) => el.checked);
+    let updateData: any = [];
+    switch (status) {
+      case true:
+        for (let i in filterData) {
+          updateData.push({
+            _id: filterData[i]._id,
+            setData: {
+              openStatus: true,
+            },
+          });
+        }
+        break;
+
+      case false:
+        for (let i in filterData) {
+          updateData.push({
+            _id: filterData[i]._id,
+            setData: {
+              openStatus: false,
+            },
+          });
+        }
+        break;
     }
 
-    setRewards(value);
+    const updateResult: any = await putUpdateDataBulk({ collection: "notice", updateData });
+    if (updateResult.status === 200) {
+      alert("공지사항 변경이 완료되었습니다.");
+    }
+    init();
   };
 
   return (
@@ -67,20 +111,20 @@ export default function Notice(): JSX.Element {
             {/* <InputR size="full" placeholer="닉네임/ID" innerStyle={{ margin: 0 }} /> */}
             <SelectBox
               containerStyles={{ width: "100%" }}
-              onChange={() => {}}
+              onChange={(e: any) => setSelectedCategory(e)}
               placeholder="카테고리"
-              value={null}
-              options={Cateogyoptions1}
+              value={selectedCategory}
+              options={CATEGORY_TYPE}
               noOptionsMessage="옵션이 없습니다"
             />
           </div>
           <div className="flex ml-4 mr-4 flex1" style={{ height: 32 }}>
             <SelectBox
               containerStyles={{ width: "100%" }}
-              onChange={() => {}}
-              placeholder="카테고리"
-              value={null}
-              options={Cateogyoptions1}
+              onChange={(e: any) => setSelectedOpenStatus(e)}
+              placeholder="공개여부"
+              value={selectedOpenStatus}
+              options={OPEN_STATUS}
               noOptionsMessage="옵션이 없습니다"
             />
           </div>
@@ -89,12 +133,18 @@ export default function Notice(): JSX.Element {
 
         <div className="flex mt-8">
           <div className="flex mr-4 ml-4" style={{ height: 32, flex: 2 }}>
-            <InputR size="full" innerStyle={{ marginRight: 0 }} />
-            {/* <InputR size="full" placeholer="닉네임/ID" innerStyle={{ margin: 0 }} /> */}
+            <InputR
+              value={title}
+              onChange={(e: any) => setTitle(e.target.value)}
+              size="full"
+              placeholer="제목"
+              innerStyle={{ marginRight: 0 }}
+            />
           </div>
 
           <div className="flex flex1 ml-4 align-c">
             <button
+              onClick={handleSearchData}
               className="btn-add-b mr-4"
               style={{
                 width: "50%",
@@ -104,6 +154,12 @@ export default function Notice(): JSX.Element {
               검색
             </button>
             <button
+              onClick={() => {
+                init();
+                setSelectedCategory(null);
+                setSelectedOpenStatus(null);
+                setTitle("");
+              }}
               className="ml-4"
               style={{
                 width: "50%",
@@ -121,6 +177,7 @@ export default function Notice(): JSX.Element {
 
       <div className="mt-34 flex justify-sb align-c">
         <p>총 0건</p>
+        <ButtonR name="공지사항 등록" onClick={() => navigate("/site/notice/add")} />
       </div>
 
       <div className="list-header mt-10 pl-18 pr-18">
@@ -129,143 +186,81 @@ export default function Notice(): JSX.Element {
         </div>
 
         <div className="w10p text-center">
-          <p>가입일</p>
+          <p>카테고리</p>
+        </div>
+
+        <div className="w35p text-center">
+          <p>질문</p>
+        </div>
+        <div className="w10p text-center">
+          <p>조회수</p>
         </div>
 
         <div className="w10p text-center">
-          <p>닉네임/ID</p>
-        </div>
-        <div className="w15p text-center">
-          <p>이메일</p>
-        </div>
-
-        <div className="w10p text-center">
-          <p>가입 SNS</p>
+          <p>등록일</p>
         </div>
         <div className="w10p text-center">
-          <p>회원등급</p>
+          <p>공개여부</p>
         </div>
-        <div className="w10p text-center">
-          <p>적립금</p>
-        </div>
-        <div className="w10p text-center">
-          <p>총 실결제금액</p>
-        </div>
-        <div className="w10p text-center">
-          <p>총 주문건수</p>
-        </div>
-        <div className="w10p text-center">
+        <div className="w20p text-center">
           <p>기능</p>
         </div>
       </div>
 
       <div className={`list-content pl-18 pr-18`}>
-        {users.map((user: any, i: number) => (
+        {noticeData.map((aNotice: any, i: number) => (
           <div key={i} className={`flex align-c mt-8 mb-8`}>
             <div className="w5p">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={aNotice.checked}
+                onChange={(e: any) => handlecheckItem(aNotice)}
+              />
             </div>
             <div className="w10p text-center">
-              <p>{timeFormat2(user.created)}</p>
+              <p>{aNotice.category}</p>
+            </div>
+            <div className="w35p text-center">
+              <p className="text-line">{aNotice.title}</p>
             </div>
             <div className="w10p text-center">
-              <p>{user.nickname}</p>
-              <p>(ewsd24s)</p>
-            </div>
-            <div className="w15p text-center">
-              <p>{user.email}</p>
+              <p>{aNotice.viewCount}</p>
             </div>
 
             <div className="w10p text-center">
-              <p>카카오</p>
+              <p>{timeFormat1(aNotice.created)}</p>
             </div>
             <div className="w10p text-center">
-              <p>{user.membership}</p>
+              <p>{aNotice.openStatus ? "Y" : "N"}</p>
             </div>
-            <div className="w10p text-center">
-              <p>1,234,567</p>
-            </div>
-            <div className="w10p text-center">
-              <p>1,234,000</p>
-            </div>
-            <div className="w10p text-center">
-              <p>24</p>
-            </div>
-            <div className="w10p text-center">
-              <ButtonR
-                name="상세"
-                color="white"
-                styles={{ marginRight: 4 }}
-                onClick={() => navigate("/customer/users/active/1234/tab1")}
-              />
+
+            <div className="w20p text-center">
+              <div className="flex justify-c">
+                <ButtonR
+                  name="상세"
+                  color="white"
+                  styles={{ marginRight: 4 }}
+                  onClick={() => navigate(`/site/notice/${aNotice._id}`)}
+                />
+                <ButtonR name="삭제" color="white" styles={{ marginRight: 4 }} onClick={() => {}} />
+              </div>
             </div>
           </div>
         ))}
       </div>
-
-      {/* {events?.map((eventItem: any, i: number) => (
-        <div key={i} className={`list-content pl-18 pr-18 ${i === 0 && "bg-blue border-radius-8"}`}>
-          <div className={`flex align-c mt-8 mb-8`}>
-            <div className="w5p">
-              <input type="checkbox" />
-            </div>
-
-            <div className="w10p">
-              {eventItem.eventType === "normal" && <p>일반</p>}
-              {eventItem.eventType === "luckydraw" && <p>럭키드로우</p>}
-              {eventItem.eventType === "recommend" && <p>추천인</p>}
-            </div>
-
-            <div className="w25p">
-              <p>{eventItem.title}</p>
-            </div>
-
-            <div className="w30p">
-              <p>
-                {timeFormat1(eventItem.term[0])} ~ {timeFormat1(eventItem.term[1])}
-              </p>
-            </div>
-
-            <div className="w10p text-center">
-              <p> {eventItem.term[1] > Date.now() ? "진행중" : "종료"}</p>
-            </div>
-
-            <div className="w10p"></div>
-
-            <div className="w5p text-center">
-              <p>Y</p>
-            </div>
-
-            <div className="text-center w15p flex justify-c">
-              <ButtonR
-                name="상세"
-                color="white"
-                styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/site/event/${eventItem._id}`)}
-              />
-              <ButtonR
-                name="삭제"
-                color="white"
-                styles={{ marginRight: 4 }}
-                onClick={async () => {}}
-              />
-            </div>
-          </div>
-        </div>
-      ))} */}
 
       <div className="mt-20 flex justify-sb align-c flex-wrap">
         <div className="flex">
           <ButtonR
             name="공개"
             color="white"
-            onClick={() => setRewardsPopup(true)}
+            onClick={() => handleNoticeUpdate(true)}
             styles={{ marginRight: 4 }}
           />
           <ButtonR
             name="비공개"
             color="white"
-            onClick={() => setCouponPopup(true)}
+            onClick={() => handleNoticeUpdate(false)}
             styles={{ marginRight: 4 }}
           />
         </div>

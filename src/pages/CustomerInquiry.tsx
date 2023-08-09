@@ -31,7 +31,7 @@ export default function CustomerInquiry(): JSX.Element {
 
   const init = async () => {
     const { data }: any = await getAdminLookup({
-      collection: "productQna",
+      collection: "customerQna",
 
       lookupFrom: "users",
       addField: "userId",
@@ -39,20 +39,6 @@ export default function CustomerInquiry(): JSX.Element {
     });
 
     setData(data);
-  };
-
-  const handleOnChangeRewards = (e: any) => {
-    let value: string = e.target.value;
-    const numCheck: boolean = /^[0-9,]/.test(value);
-
-    if (!numCheck && value) return;
-
-    if (numCheck) {
-      const numValue = value.replaceAll(",", "");
-      value = numValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
-
-    setRewards(value);
   };
 
   return (

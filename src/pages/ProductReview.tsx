@@ -39,20 +39,27 @@ export default function ProductReviews(): JSX.Element {
   }, []);
 
   const init = async () => {
-    // const { data }: any = await getDatas({
-    //   collection: "productQna",
-    // });
-    // // console.log(data);
-    // setData(data);
-    const { data }: any = await getAdminLookup({
-      collection: "productQna",
+    let reviews: any = await getAdminLookup({
+      collection: "reviews",
+      lookupFrom: "products",
+      addField: "targetId",
+      as: "productInfo",
+    });
+    reviews = reviews.data;
 
+    let users: any = await getAdminLookup({
+      collection: "reviews",
       lookupFrom: "users",
       addField: "userId",
       as: "userInfo",
     });
+    users = users.data;
 
-    setData(data);
+    for (let i = 0; i < reviews.length; i++) {
+      reviews[i].userInfo = users[i].userInfo;
+    }
+
+    setData(reviews);
   };
 
   const handleOnChangeRewards = (e: any) => {
@@ -155,27 +162,31 @@ export default function ProductReviews(): JSX.Element {
       </div>
 
       <div className="list-header mt-10 pl-18 pr-18">
-        <div className="w15p">
-          <p>카테고리</p>
-        </div>
+        <div className="w10p">{/* <p>카테고리</p> */}</div>
 
         <div className="w20p pl-10 pr-10">
           <p>상품명</p>
         </div>
 
-        <div className="w25p pl-10 pr-10">
-          <p>상담내용</p>
+        <div className="w10p pl-10 pr-10">
+          <p>작성자</p>
         </div>
 
         <div className="w10p text-center">
-          <p>작성자</p>
+          <p>조회수</p>
+        </div>
+        <div className="w10p text-center">
+          <p>공개여부</p>
         </div>
 
         <div className="w10p text-center">
           <p>작성일자</p>
         </div>
         <div className="w10p text-center">
-          <p>상태</p>
+          <p>유형</p>
+        </div>
+        <div className="w10p text-center">
+          <p>적립금 지급여부</p>
         </div>
         <div className="w10p text-center">
           <p>기능</p>
@@ -185,28 +196,36 @@ export default function ProductReviews(): JSX.Element {
       <div className={`list-content pl-18 pr-18`}>
         {data?.map((item: any, i: number) => (
           <div key={i} className={`flex align-c mt-8 mb-8`}>
-            <div className="w15p">
-              <p>{item.category}</p>
+            <div className="w10p">
+              <input type="checkbox" />
             </div>
 
             <div className="w20p pl-10 pr-10">
-              <p className="text-line">{item.content}</p>
+              <p className="text-line">{item.productInfo[0]?.productNameK}</p>
             </div>
 
-            <div className="w25p pl-10 pr-10">
-              <p className="text-line">{item.content}</p>
+            <div className="w10p pl-10 pr-10">
+              <p className="text-line">{item.userInfo ? item.userInfo[0]?.nickname : ""}</p>
             </div>
 
             <div className="w10p text-center">
-              <p>{item.userInfo[0]?.nickname}</p>
+              <p>1,234</p>
             </div>
 
+            <div className="w10p text-center">
+              <p>{item.openStatus ? "Y" : "N"}</p>
+            </div>
+            <div className="w10p text-center">
+              <p>
+                텍스트 <br />
+                (50자 미만)
+              </p>
+            </div>
             <div className="w10p text-center">
               <p>{timeFormat2(item.created)}</p>
             </div>
             <div className="w10p text-center">
-              {item.status === "resolved" && <p>답변 완료</p>}
-              {item.status === "unresolved" && <p>미답변</p>}
+              <p>N</p>
             </div>
 
             <div className="w10p text-center flex justify-c">
@@ -280,21 +299,21 @@ export default function ProductReviews(): JSX.Element {
         </div>
       ))} */}
 
-      <div className="mt-20 flex justify-fe align-c flex-wrap">
-        {/* <div className="flex">
+      <div className="mt-20 flex justify-sb align-c flex-wrap">
+        <div className="flex">
           <ButtonR
-            name="적립금 수동 처리"
+            name="공개"
             color="white"
             onClick={() => setRewardsPopup(true)}
             styles={{ marginRight: 4 }}
           />
           <ButtonR
-            name="쿠폰 수동 처리"
+            name="비공개"
             color="white"
             onClick={() => setCouponPopup(true)}
             styles={{ marginRight: 4 }}
           />
-        </div> */}
+        </div>
 
         <div className="flex pagination">
           <p className="font-lightgray">{"<"}</p>
