@@ -61,6 +61,8 @@ import { ProductInquiryDetail } from "./pages/ProductInquiryDetail";
 import ProductReviews from "./pages/ProductReview";
 import AddNotice from "./pages/AddNotice";
 import NoticeDetail from "./pages/NoticeDetail";
+import ProductReviewDetail from "./pages/ProductReviewDetail";
+import CouponDetail from "./pages/CouponDetail";
 
 function App() {
   useEffect(() => {
@@ -141,6 +143,7 @@ function App() {
             <Route path="/site/deposit" element={<Deposit />} />
             <Route path="/site/coupon" element={<Coupon />} />
             <Route path="/site/coupon/add" element={<AddCoupon />} />
+            <Route path="/site/coupon/:couponId" element={<CouponDetail />} />
             <Route path="/site/terms/privacy" element={<TermsOfPrivacy />} />
             <Route path="/site/notice" element={<Notice />} />
             <Route path="/site/notice/add" element={<AddNotice />} />
@@ -173,6 +176,7 @@ function App() {
               element={<ProductInquiryDetail />}
             />
             <Route path="/customer/reviews" element={<ProductReviews />} />
+            <Route path="/customer/reviews/:reviewId" element={<ProductReviewDetail />} />
           </Route>
 
           <Route path="*" element={<ErrorPage />} />

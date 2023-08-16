@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { getDatas } from "../common/apis";
-import { currency, timeFormat1 } from "../common/utils";
+import { getDatas, putUpdateDataBulk } from "../common/apis";
+import { currency, deleteItem, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
@@ -28,8 +28,50 @@ export default function Coupon(): JSX.Element {
       sort: { sort: -1 },
     });
 
-    console.log(data);
     setCoupons(data);
+  };
+
+  const handleCheckCoupon = (item: any) => {
+    let temp = [...coupons];
+    const findIdx = temp.findIndex((el) => el === item);
+    temp[findIdx].checked = !temp[findIdx].checked;
+    setCoupons(temp);
+  };
+
+  const handleCouponStatusChange = async (state: boolean) => {
+    const filtered = coupons.filter((el) => el.checked);
+    const updateData = [];
+
+    switch (state) {
+      case true:
+        for (let i in filtered) {
+          updateData.push({
+            _id: filtered[i]._id,
+            setData: {
+              status: true,
+            },
+          });
+        }
+        break;
+
+      case false:
+        for (let i in filtered) {
+          updateData.push({
+            _id: filtered[i]._id,
+            setData: {
+              status: false,
+            },
+          });
+        }
+        break;
+    }
+
+    const updateResult: any = await putUpdateDataBulk({ collection: "coupons", updateData });
+
+    if (updateResult.status === 200) {
+      alert("쿠폰 변경이 완료되었습니다.");
+    }
+    init();
   };
 
   return (
@@ -108,104 +150,6 @@ export default function Coupon(): JSX.Element {
             <button className="w50p bg-white h100p ml-4 border-black">초기화</button>
           </div>
         </div>
-        {/* <SelectBox
-          value={selected}
-          onChange={(e: any) => setSelected(e)}
-          options={Cateogyoptions1}
-          noOptionsMessage={"상태가 없습니다."}
-          placeholder="진행상태"
-        /> */}
-        {/* <div className="flex" style={{ flex: 1, width: "100%" }}ㄴ>
-          <div style={{ width: "33.333%" }} className="mr-10 flex flex-wrap">
-            <div className="mr-10 flex1">
-              <input
-                type="date"
-                className="main-event-date-input"
-                data-placeholder="시작일(~부터)"
-                required
-                aria-required="true"
-              />
-            </div>
-            <div className="flex1">
-              <input
-                type="date"
-                className="main-event-date-input"
-                data-placeholder="종료일(~까지)"
-                required
-                aria-required="true"
-              />
-            </div>
-          </div>
-          <div style={{ width: "33.333%" }} className="mr-10">
-            <InputR size="full" placeholer="쿠폰명 입력" />
-          </div>
-
-          <div style={{ width: "33.33333%" }}>
-            <SelectBox
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
-              noOptionsMessage={"상태가 없습니다."}
-              placeholder="진행상태"
-            />
-          </div>
-        </div> */}
-
-        {/* <div className="flex">
-          <div
-            style={{
-              width: "33.333%",
-            }}
-          >
-            <SelectBox
-              containerStyles={{ paddingRight: 8, marginTop: 8 }}
-              placeholder={"이벤트 유형"}
-              options={Cateogyoptions1}
-              noOptionsMessage={"등록된 유형이 없습니다."}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-            />
-          </div>
-          <div style={{ width: "33.333%" }}>
-            <SelectBox
-              containerStyles={{ paddingRight: 7, marginTop: 8 }}
-              placeholder={"공개 여부"}
-              options={Cateogyoptions1}
-              noOptionsMessage={"등록된 유형이 없습니다."}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-            />
-          </div>
-          <div
-            style={{ width: "33.333%", flex: 1, marginTop: 8, height: 32 }}
-            className="flex align-c justify-c"
-          >
-            <button
-              className="btn-add-b"
-              style={{
-                width: "50%",
-                marginRight: 2,
-                // backgroundColor: "blue",
-                // marginRight: 10,
-                height: "100%",
-                border: "none",
-              }}
-            >
-              검색
-            </button>
-            <button
-              style={{
-                width: "50%",
-                backgroundColor: "#fff",
-                height: "100%",
-                marginLeft: 2,
-                border: "1px solid black",
-              }}
-            >
-              초기화
-            </button>
-          </div>
-        </div> */}
       </div>
 
       <div className="mt-34 flex justify-sb align-c">
@@ -264,11 +208,15 @@ export default function Coupon(): JSX.Element {
         <div key={i} className={`list-content pl-18 pr-18`}>
           <div className={`flex align-c mt-8 mb-8`}>
             <div className="w5p">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={couponItem.checked || ""}
+                onChange={(e: any) => handleCheckCoupon(couponItem)}
+              />
             </div>
 
             <div className="w10p">
-              <p>1234567890</p>
+              <p>{couponItem._id.substr(6, 8)}</p>
             </div>
 
             <div className="w10p text-center">
@@ -314,15 +262,15 @@ export default function Coupon(): JSX.Element {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/site/event/${couponItem._id}`)}
+                onClick={() => navigate(`/site/coupon/${couponItem._id}`)}
               />
               <ButtonR
                 name="삭제"
                 color="white"
                 styles={{ marginRight: 4 }}
                 onClick={async () => {
-                  // await deleteItem("banners", aBanner._id, "배너");
-                  // await init();
+                  await deleteItem("coupons", couponItem._id, "쿠폰");
+                  await init();
                 }}
               />
             </div>
@@ -332,8 +280,18 @@ export default function Coupon(): JSX.Element {
 
       <div className="mt-20 flex justify-sb align-c flex-wrap">
         <div className="flex">
-          <ButtonR name="사용가능" color="white" styleClass="mr-4" onClick={() => {}} />
-          <ButtonR name="사용불가" color="white" styleClass="mr-4" onClick={() => {}} />
+          <ButtonR
+            name="사용가능"
+            color="white"
+            styleClass="mr-4"
+            onClick={() => handleCouponStatusChange(true)}
+          />
+          <ButtonR
+            name="사용불가"
+            color="white"
+            styleClass="mr-4"
+            onClick={() => handleCouponStatusChange(false)}
+          />
         </div>
 
         <div className="flex pagination">

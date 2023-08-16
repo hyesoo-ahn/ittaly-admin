@@ -388,57 +388,6 @@ export default function Users(): JSX.Element {
         ))}
       </div>
 
-      {/* {events?.map((eventItem: any, i: number) => (
-        <div key={i} className={`list-content pl-18 pr-18 ${i === 0 && "bg-blue border-radius-8"}`}>
-          <div className={`flex align-c mt-8 mb-8`}>
-            <div className="w5p">
-              <input type="checkbox" />
-            </div>
-
-            <div className="w10p">
-              {eventItem.eventType === "normal" && <p>일반</p>}
-              {eventItem.eventType === "luckydraw" && <p>럭키드로우</p>}
-              {eventItem.eventType === "recommend" && <p>추천인</p>}
-            </div>
-
-            <div className="w25p">
-              <p>{eventItem.title}</p>
-            </div>
-
-            <div className="w30p">
-              <p>
-                {timeFormat1(eventItem.term[0])} ~ {timeFormat1(eventItem.term[1])}
-              </p>
-            </div>
-
-            <div className="w10p text-center">
-              <p> {eventItem.term[1] > Date.now() ? "진행중" : "종료"}</p>
-            </div>
-
-            <div className="w10p"></div>
-
-            <div className="w5p text-center">
-              <p>Y</p>
-            </div>
-
-            <div className="text-center w15p flex justify-c">
-              <ButtonR
-                name="상세"
-                color="white"
-                styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/site/event/${eventItem._id}`)}
-              />
-              <ButtonR
-                name="삭제"
-                color="white"
-                styles={{ marginRight: 4 }}
-                onClick={async () => {}}
-              />
-            </div>
-          </div>
-        </div>
-      ))} */}
-
       <div className="mt-20 flex justify-sb align-c flex-wrap">
         <div className="flex">
           <ButtonR

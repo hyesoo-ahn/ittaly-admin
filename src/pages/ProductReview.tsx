@@ -1,7 +1,7 @@
 import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { getAdminLookup, getDatas, getUsers } from "../common/apis";
+import { getAdminLookup, getDatas, getUsers, putUpdateDataBulk } from "../common/apis";
 
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
@@ -10,7 +10,7 @@ import { deleteItem, timeFormat1, timeFormat2 } from "../common/utils";
 
 const SELECT_STATUS = [
   { value: "전체", label: "전체" },
-  { value: "상품문의", label: "상품문의" },
+  { value: "텍스트(50자 미만)", label: "상품문의" },
   { value: "배송문의", label: "배송문의" },
   { value: "교환/환불/취소 문의", label: "교환/환불/취소 문의" },
   { value: "기타 문의", label: "기타 문의" },
@@ -26,12 +26,6 @@ export default function ProductReviews(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
   const [openSelected, setOpenSelected] = useState<any>("");
-  const [rewardsPopup, setRewardsPopup] = useState<boolean>(false);
-  const [rewards, setRewards] = useState<string>("");
-  const [rewardType, setRewardType] = useState<string>("지급");
-
-  const [couponPopup, setCouponPopup] = useState<boolean>(false);
-
   const [data, setData] = useState<any[]>([]);
 
   useEffect(() => {
@@ -62,24 +56,64 @@ export default function ProductReviews(): JSX.Element {
     setData(reviews);
   };
 
-  const handleOnChangeRewards = (e: any) => {
-    let value: string = e.target.value;
-    const numCheck: boolean = /^[0-9,]/.test(value);
+  const reviewType = (element: any) => {
+    let reviewType = "";
+    if (element?.files && element?.files.length !== 0) {
+      return (reviewType = "포토");
+    }
+    if (element?.content?.length >= 50) {
+      return (reviewType = "텍스트 \n(50자 이상)");
+    }
+    if (element?.content?.length < 50) {
+      return (reviewType = "텍스트 \n(50자 미만)");
+    }
+  };
 
-    if (!numCheck && value) return;
+  const handleChangeCheck = (item: any) => {
+    const targetIdx = data.findIndex((el: any) => el === item);
+    const temp = [...data];
+    temp[targetIdx].checked = !temp[targetIdx].checked;
 
-    if (numCheck) {
-      const numValue = value.replaceAll(",", "");
-      value = numValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    setData(temp);
+  };
+
+  const handleChangeOpenStatus = async (type: boolean) => {
+    const filterData = data.filter((el) => el.checked);
+
+    let updateData: any[] = [];
+    if (type) {
+      for (let i in filterData) {
+        updateData.push({
+          _id: filterData[i]._id,
+          setData: {
+            openStatus: true,
+          },
+        });
+      }
+    } else {
+      for (let i in filterData) {
+        updateData.push({
+          _id: filterData[i]._id,
+          setData: {
+            openStatus: false,
+          },
+        });
+      }
     }
 
-    setRewards(value);
+    const updateResult: any = await putUpdateDataBulk({ collection: "reviews", updateData });
+
+    if (updateResult.status === 200) {
+      alert(`${type ? "공개 설정" : "비공개 설정"}이 완료되었습니다.`);
+    }
+
+    init();
   };
 
   return (
     <div>
       <div className="flex justify-sb align-c">
-        <p className="page-title">상품문의 관리</p>
+        <p className="page-title">상품리뷰 관리</p>
       </div>
 
       <div className="w100p filter-container" style={{ flex: 1 }}>
@@ -118,8 +152,8 @@ export default function ProductReviews(): JSX.Element {
               value={openSelected}
               onChange={(e: any) => setOpenSelected(e)}
               options={SELECT_STATUS}
-              noOptionsMessage={"상태가 없습니다."}
-              placeholder="유형"
+              noOptionsMessage={""}
+              placeholder="카테고리"
             />
           </div>
           <div className="flex1 mr-4 ml-4">
@@ -168,7 +202,7 @@ export default function ProductReviews(): JSX.Element {
           <p>상품명</p>
         </div>
 
-        <div className="w10p pl-10 pr-10">
+        <div className="w10p pl-10 pr-10 text-center">
           <p>작성자</p>
         </div>
 
@@ -197,15 +231,30 @@ export default function ProductReviews(): JSX.Element {
         {data?.map((item: any, i: number) => (
           <div key={i} className={`flex align-c mt-8 mb-8`}>
             <div className="w10p">
-              <input type="checkbox" />
+              <input
+                checked={item.checked}
+                onChange={(e: any) => handleChangeCheck(item)}
+                type="checkbox"
+              />
             </div>
 
             <div className="w20p pl-10 pr-10">
-              <p className="text-line">{item.productInfo[0]?.productNameK}</p>
+              <a
+                className="font-blue text-underline"
+                target="blank"
+                href={`/product/productmanage/${item.productInfo[0]?._id}`}
+              >
+                <p className="text-line">{item.productInfo[0]?.productNameK}</p>
+              </a>
             </div>
 
-            <div className="w10p pl-10 pr-10">
-              <p className="text-line">{item.userInfo ? item.userInfo[0]?.nickname : ""}</p>
+            <div className="w10p pl-10 pr-10 text-center">
+              <p className="text-line">
+                {item.userInfo[0]?.nickname ? `${item.userInfo[0]?.nickname}` : ""}
+              </p>
+              <p className="text-line">
+                {item.userInfo[0]?.kakaoId ? `(${item.userInfo[0]?.kakaoId})` : ""}
+              </p>
             </div>
 
             <div className="w10p text-center">
@@ -217,15 +266,27 @@ export default function ProductReviews(): JSX.Element {
             </div>
             <div className="w10p text-center">
               <p>
+                {reviewType(item)
+                  ?.split("\n")
+                  .map((line: any) => {
+                    return (
+                      <span>
+                        {line}
+                        <br />
+                      </span>
+                    );
+                  })}
+              </p>
+              {/* <p>
                 텍스트 <br />
                 (50자 미만)
-              </p>
+              </p> */}
             </div>
             <div className="w10p text-center">
               <p>{timeFormat2(item.created)}</p>
             </div>
             <div className="w10p text-center">
-              <p>N</p>
+              <p>{item.rewardStatus ? "Y" : "N"}</p>
             </div>
 
             <div className="w10p text-center flex justify-c">
@@ -233,7 +294,7 @@ export default function ProductReviews(): JSX.Element {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/customer/productinquiry/${item._id}`)}
+                onClick={() => navigate(`/customer/reviews/${item._id}`)}
               />
               <ButtonR
                 name="삭제"
@@ -304,13 +365,13 @@ export default function ProductReviews(): JSX.Element {
           <ButtonR
             name="공개"
             color="white"
-            onClick={() => setRewardsPopup(true)}
+            onClick={() => handleChangeOpenStatus(true)}
             styles={{ marginRight: 4 }}
           />
           <ButtonR
             name="비공개"
             color="white"
-            onClick={() => setCouponPopup(true)}
+            onClick={() => handleChangeOpenStatus(false)}
             styles={{ marginRight: 4 }}
           />
         </div>

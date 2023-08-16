@@ -1,5 +1,5 @@
 import axios from "axios";
-import { URI, ADMIN_TOKEN } from "./config";
+import { URI, ADMIN_TOKEN, FILE_URI } from "./config";
 
 export const getSignin = async (body: any): Promise<any> => {
   try {
@@ -33,6 +33,7 @@ export const postUploadImage = async (_file: object): Promise<string | boolean> 
         Authorization: `Bearer ${ADMIN_TOKEN}`,
       },
     });
+
     return data;
   } catch (error) {
     return false;

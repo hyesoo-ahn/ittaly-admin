@@ -13,12 +13,6 @@ interface IFile {
   url: string;
 }
 
-const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
-];
-
 const AddBannerTop: React.FC = () => {
   const navigate = useNavigate();
   const [headline, setHeadline] = useState<string>("");
@@ -60,9 +54,18 @@ const AddBannerTop: React.FC = () => {
     }
 
     setOrderSelect(tempSelect);
-    // setOrderSelect(brandData.data);
   };
 
+  const handleValidForm = () => {
+    const isValid = true;
+
+    if (headline === "") return false;
+    if (subcopy === "") return false;
+    if (path === "") return false;
+    if (!file.file) return false;
+
+    return isValid;
+  };
   // 이미지 첨부 핸들러
   const handleFileChange = (evt: any) => {
     const file = evt.target.files?.[0];
@@ -75,6 +78,9 @@ const AddBannerTop: React.FC = () => {
 
   // 배너 등록
   const handleAddBanner = async () => {
+    const isValid = handleValidForm();
+    if (!isValid) return alert("필수 항목을 입력해 주세요.");
+
     const startingDate = new Date(openingStamp);
     const timeStamp = startingDate.getTime();
 
@@ -178,7 +184,7 @@ const AddBannerTop: React.FC = () => {
             <p className="font-desc">이미지 1장, 1080px x 1080px</p>
           </div>
 
-          {file.url && <img src={file.url} style={{ width: 136, height: "auto" }} />}
+          {file.url && <img src={file.url} style={{ width: 278, height: "auto" }} />}
 
           {file.url && (
             <div className="flex mt-10 mb-16">
@@ -261,7 +267,7 @@ const AddBannerTop: React.FC = () => {
         </div>
       </div>
 
-      <div className="product-field-wrapper mt-2 w100p">
+      {/* <div className="product-field-wrapper mt-2 w100p">
         <div className="product-field mr-20">
           <p>
             노출순서<span className="font-red">*</span>
@@ -278,7 +284,7 @@ const AddBannerTop: React.FC = () => {
             className="react-select-container"
           />
         </div>
-      </div>
+      </div> */}
 
       <div className="product-field-wrapper mt-2 w100p">
         <div className="product-field mr-20">

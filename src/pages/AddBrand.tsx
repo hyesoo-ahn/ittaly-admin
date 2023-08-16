@@ -23,9 +23,20 @@ const AddBrand = () => {
   const [openStatus, setOpenStatus] = useState<boolean>(true);
 
   const onChangeHandler = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    if (e.target.value.length > 100) return;
     setDesc(e.target.value);
     setTxtLength(e.target.value.length);
   }, []);
+
+  const handleValidForm = () => {
+    const isValid = true;
+
+    if (brandName === "") return false;
+    if (desc === "") return false;
+    if (!file.file) return false;
+
+    return isValid;
+  };
 
   // 이미지 첨부 핸들러
   const handleFileChange = (evt: any) => {
@@ -39,6 +50,9 @@ const AddBrand = () => {
 
   // 브랜드 등록
   const handleAddBrand = async () => {
+    const isValid = handleValidForm();
+    if (!isValid) return alert("필수 항목을 입력해 주세요.");
+
     const formData = new FormData();
     formData.append("file", file.file as File);
     const getUrl: any = await postUploadImage(formData);
@@ -131,13 +145,16 @@ const AddBrand = () => {
                 onChange={(e) => handleFileChange(e)}
                 type="file"
               />
-              <ButtonR onClick={() => fileRef?.current?.click()} name={`이미지 추가 0/1`} />
+              <ButtonR
+                onClick={() => fileRef?.current?.click()}
+                name={`이미지 추가 ${file.url ? 1 : 0}/1`}
+              />
             </div>
 
             <p className="font-desc">이미지 1장, 1080px x 1080px</p>
           </div>
 
-          {file.url && <img src={file.url} style={{ width: 136, height: "auto" }} />}
+          {file.url && <img src={file.url} style={{ width: 278, height: "auto" }} />}
 
           {file.url && (
             <div className="flex mt-10 mb-16">

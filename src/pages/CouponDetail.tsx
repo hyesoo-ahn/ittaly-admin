@@ -1,11 +1,17 @@
 import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getDatas, postAddBrand, postCollection, postUploadImage } from "../common/apis";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  getDatas,
+  postAddBrand,
+  postCollection,
+  postUploadImage,
+  putUpdateData,
+} from "../common/apis";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import forward from "../images/Forward.png";
 import Select from "react-select";
-import { moveValue } from "../common/utils";
+import { currency, moveValue, timeFormat1, timeFormat2, timeFormat3 } from "../common/utils";
 import SelectBox from "../components/SelectBox";
 
 interface IFile {
@@ -41,6 +47,7 @@ const membershipLevel = [
 
 const AddMainEvent: React.FC = () => {
   const navigate = useNavigate();
+  const { couponId } = useParams();
   const [title, setTitle] = useState<string>("");
   // 혜택 구분
   const [couponType, setCouponType] = useState<string>("할인율");
@@ -86,10 +93,8 @@ const AddMainEvent: React.FC = () => {
     openingDate: "",
     winnerAnnouncementDate: "",
   });
-  const [eventType, setEventType] = useState<string>("normal");
-  const [selectedCoupon, setSelectedCoupon] = useState<any>({});
-  // 동일인 재발급 가능 여부
 
+  // 동일인 재발급 가능 여부
   const [reissuanceNum, setReissuanceNum] = useState<string>("0");
   const [reissuanceNum2, setReissuanceNum2] = useState<string>("-1");
 
@@ -98,7 +103,7 @@ const AddMainEvent: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (eventType === "normal" && selectedCategory && relatedProducts.type === "category") {
+    if (selectedCategory && relatedProducts.type === "category") {
       const targetIdx = categories.findIndex((el: any, i: number) => el === selectedCategory);
 
       let tempCategories: any = [];
@@ -123,52 +128,119 @@ const AddMainEvent: React.FC = () => {
     if (selectedSubCategory) {
       selectedProducts();
     }
-
-    if (eventType === "luckydraw") {
-      selectedProducts();
-      setRelatedProducts((prev: any) => {
-        return {
-          ...prev,
-          type: "category",
-          products: [],
-        };
-      });
-      setSelectedCoupon({});
-    }
-  }, [selectedSubCategory, eventType]);
+  }, [selectedSubCategory]);
 
   const init = async () => {
     // 카테고리 불러오기
-    const getCategories: any = await getDatas({
-      collection: "categories",
+
+    const { data }: any = await getDatas({
+      collection: "coupons",
+      find: { _id: couponId },
     });
 
     let tempcategories = [];
-    for (let i = 0; i < getCategories?.data?.length; i++) {
-      tempcategories.push({
-        value: getCategories?.data[i]?.name,
-        label: getCategories?.data[i]?.name,
-        subCategories: getCategories?.data[i]?.subCategories,
-        _id: getCategories?.data[i]?._id,
+    if (data[0]?.eligibleProd.type === "category") {
+      const getCategories: any = await getDatas({
+        collection: "categories",
       });
+
+      const { data } = getCategories;
+
+      for (let i = 0; i < data?.length; i++) {
+        tempcategories.push({
+          value: data[i]?.name,
+          label: data[i]?.name,
+          subCategories: data[i]?.subCategories,
+          _id: data[i]?._id,
+        });
+      }
+    }
+
+    if (data[0]?.eligibleProd.type === "brand") {
+      const getBrands: any = await getDatas({
+        collection: "brands",
+      });
+
+      const { data } = getBrands;
+
+      for (let i = 0; i < data?.length; i++) {
+        tempcategories.push({
+          value: data[i]?.brandName,
+          label: data[i]?.brandName,
+          _id: data[i]?._id,
+        });
+      }
     }
 
     setCategories(tempcategories);
+    setTitle(data[0]?.title);
+    if (data[0]?.discountRatio !== 0) {
+      setCouponType("할인율");
+    }
+    if (data[0]?.discountPrice !== 0) {
+      setCouponType("할인금액");
+    }
+    if (data[0]?.freeshipping) {
+      setCouponType("무료배송");
+    }
+    setCouponBenefit({
+      discountRatio: currency(data[0]?.discountRatio),
+      discountPrice: currency(data[0]?.discountPrice),
+      freeshipping: data[0]?.freeshipping,
+    });
+    setDistributionMethod({
+      targetMember: data[0]?.targetMember,
+      downloadMemberType: {
+        value: data[0]?.downloadMemberType,
+        label: data[0]?.downloadMemberType,
+      },
+    });
+    setReissuanceNum(
+      currency(
+        data[0]?.reissuanceEligibilityForSamePerson
+          ? data[0]?.reissuanceEligibilityForSamePerson
+          : "0"
+      )
+    );
+    setReissuanceNum2(currency(data[0]?.issuanceLimit ? data[0]?.issuanceLimit : "-1"));
+    setIssuanceDate({
+      issuanceDate: data[0]?.issuanceDate,
+      issuanceTimestamp: timeFormat2(data[0]?.issuanceTimestamp),
+    });
+    setDates({
+      startingDate: data[0]?.startingDate ? timeFormat2(data[0]?.startingDate) : "",
+      endingDate: data[0]?.endingDate ? timeFormat2(data[0]?.endingDate) : "",
+      openingDate: data[0]?.openingDate ? timeFormat2(data[0]?.openingDate) : "",
+      winnerAnnouncementDate: data[0]?.openingDate ? timeFormat2(data[0]?.openingDate) : "",
+    });
+    setApplicationScope(data[0]?.applicationScope);
+
+    let useType = "";
+    if (data[0]?.maxDiscountAmount !== 0) {
+      useType = "maxDiscountAmount";
+    } else if (data[0]?.minAmount !== 0) {
+      useType = "minAmount";
+    } else {
+      useType = "unlimit";
+    }
+    setTermsOfUse({
+      type: useType,
+      maxDiscountAmount: currency(data[0]?.maxDiscountAmount),
+      minAmount: currency(data[0]?.minAmount),
+    });
+    setStatus(data[0]?.status);
+    setRelatedProducts(data[0]?.eligibleProd);
   };
 
   const selectedProducts = async () => {
     let find: any = {};
-    if (eventType === "normal" && relatedProducts.type === "category") {
+    if (relatedProducts.type === "category") {
       find.categoryId = selectedSubCategory.categoryId;
       find.category2 = selectedSubCategory.value;
     }
 
-    if (eventType === "normal" && relatedProducts.type === "brand") {
+    if (relatedProducts.type === "brand") {
       find.brandId = selectedCategory._id;
-    }
-
-    if (eventType === "luckydraw") {
-      find.luckyDraw = true;
     }
 
     const selectProducts: any = await getDatas({
@@ -228,6 +300,7 @@ const AddMainEvent: React.FC = () => {
 
     const _body = {
       collection: "coupons",
+      _id: couponId,
       title,
       discountRatio: Number(couponBenefit.discountRatio.replace(/,/gi, "")),
       discountPrice: Number(couponBenefit.discountPrice.replace(/,/gi, "")),
@@ -253,9 +326,9 @@ const AddMainEvent: React.FC = () => {
         : null,
     };
 
-    const addResult: any = await postCollection(_body);
-    if (addResult.result && addResult.status === 200) {
-      alert("쿠폰 등록이 완료되었습니다.");
+    const updateResult: any = await putUpdateData(_body);
+    if (updateResult.result && updateResult.status === 200) {
+      alert("쿠폰 수정이 완료되었습니다.");
     }
     navigate(-1);
   };
@@ -284,8 +357,6 @@ const AddMainEvent: React.FC = () => {
     setSelectedProduct(null);
     setSelectedCategory(null);
     setSelectedSubCategory(null);
-    // setSubCategories([]);
-    // setProducts([]);
   };
 
   const handleDeleteRelatedProd = (_id: string) => {
@@ -388,7 +459,7 @@ const AddMainEvent: React.FC = () => {
       <div className="flex align-c justify-sb pb-30">
         <div className="flex alicn-c">
           <img onClick={() => navigate(-1)} className="img-close cursor mr-4" src={forward} />
-          <p className="page-title mt-3">쿠폰 등록</p>
+          <p className="page-title mt-3">쿠폰 상세</p>
         </div>
 
         <p className="font-desc">

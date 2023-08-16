@@ -9,12 +9,14 @@ interface IProps {
   innerStyle?: any;
   type?: string;
   onKeyDown?: any;
+  disable?: boolean;
 }
 
 const InputR = (props: IProps) => {
   return (
     // <div>
     <input
+      disabled={props.disable}
       onKeyDown={props.onKeyDown}
       type={props.type ? props.type : ""}
       style={{ ...props.innerStyle }}

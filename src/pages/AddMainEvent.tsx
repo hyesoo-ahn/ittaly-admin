@@ -58,6 +58,7 @@ const AddMainEvent: React.FC = () => {
   const [eventType, setEventType] = useState<string>("normal");
   const [eventFeature, setEventFeature] = useState<string>("coupon");
   const [coupons, setCoupons] = useState<any[]>([]);
+
   const [selectedCoupon, setSelectedCoupon] = useState<any>({});
   const [links, setLinks] = useState<any>({
     btnName: "",
@@ -113,6 +114,11 @@ const AddMainEvent: React.FC = () => {
     const getCategories: any = await getDatas({
       collection: "categories",
     });
+    const getCoupons: any = await getDatas({
+      collection: "coupons",
+    });
+
+    console.log(getCoupons);
 
     let tempcategories = [];
     for (let i = 0; i < getCategories?.data?.length; i++) {
@@ -124,6 +130,16 @@ const AddMainEvent: React.FC = () => {
       });
     }
 
+    let tempCoupons = [];
+    for (let i = 0; i < getCoupons?.data?.length; i++) {
+      tempCoupons.push({
+        value: getCoupons?.data[i]?.title,
+        label: getCoupons?.data[i]?.title,
+        _id: getCoupons?.data[i]?._id,
+      });
+    }
+
+    setCoupons(tempCoupons);
     setCategories(tempcategories);
   };
 
@@ -209,7 +225,8 @@ const AddMainEvent: React.FC = () => {
       detailUrl: imgArrResult[1]?.url,
       winnerAnnouncementTimeStamp: winnerAnnouncementDateStamp, // eventType==="normal"일때 있으면 안됨.
       eventFeature, // eventType==="luckydraw"일때 있으면 안됨
-      coupon: selectedCoupon,
+      coupon: selectedCoupon.title,
+      couponId: selectedCoupon._id,
       links,
       cautions,
       relatedProd,
@@ -618,8 +635,8 @@ const AddMainEvent: React.FC = () => {
                 <SelectBox
                   placeholder={"쿠폰 선택"}
                   defaultValue={null}
-                  onChange={(e: any) => setSelectedCategory(e)}
-                  options={categories}
+                  onChange={(e: any) => setSelectedCoupon(e)}
+                  options={coupons}
                   noOptionsMessage={"쿠폰이 없습니다."}
                 />
               </div>

@@ -5,7 +5,7 @@ import Modal from "../components/Modal";
 import SelectBox from "../components/SelectBox";
 import close from "../images/close.png";
 import { getDatas, getUsers, postCollection, putUpdateData } from "../common/apis";
-import { timeFormat1 } from "../common/utils";
+import { timeFormat1, timeFormat2 } from "../common/utils";
 
 const MEMBERSHIP_LEVEL = [
   {
@@ -59,6 +59,7 @@ export default function UserDetail(): JSX.Element {
   const [selectedTab, setSelectedTab] = useState<string>("tab1");
   const [user, setUser] = useState<any>({});
   const [memos, setMemos] = useState<any>([]);
+  const [rewards, setRewards] = useState<any>([]);
 
   useEffect(() => {
     const { pathname } = location;
@@ -68,18 +69,33 @@ export default function UserDetail(): JSX.Element {
     setSelectedTab(tab[5]);
   }, []);
 
+  useEffect(() => {
+    if (selectedTab === "tab4") {
+      initReward();
+    }
+  }, [selectedTab]);
+
+  const initReward = async () => {
+    const { data }: any = await getDatas({
+      collection: "userRewards",
+      find: { targetUserId: userId },
+    });
+
+    setRewards(data);
+  };
+
   const init = async () => {
     const { data }: any = await getUsers({
       collection: "users",
       find: { _id: userId },
     });
 
-    const momoData: any = await getDatas({
+    const memoData: any = await getDatas({
       collection: "customerMemos",
       find: { targetUserId: userId },
     });
 
-    setMemos(momoData?.data);
+    setMemos(memoData?.data);
     setUser(data[0] ? data[0] : {});
   };
 
@@ -96,7 +112,7 @@ export default function UserDetail(): JSX.Element {
             key={i}
             onClick={() => {
               setSelectedTab(tabItem.label);
-              navigate(`/customer/users/active/1234/${tabItem.label}`);
+              navigate(`/customer/users/active/${userId}/${tabItem.label}`);
             }}
             className={`tab-item 
             ${i === 4 && "border-right-black"}
@@ -116,7 +132,7 @@ export default function UserDetail(): JSX.Element {
         )}
         {selectedTab === "tab2" && <Tab2 />}
         {selectedTab === "tab3" && <Tab3 />}
-        {selectedTab === "tab4" && <Tab4 />}
+        {selectedTab === "tab4" && <Tab4 rewards={rewards} />}
         {selectedTab === "tab5" && <Tab5 />}
       </div>
     </div>
@@ -785,7 +801,7 @@ const Tab3 = () => {
   );
 };
 
-const Tab4 = () => {
+const Tab4 = ({ rewards }: any) => {
   return (
     <div>
       <div className="mt-40">
@@ -820,33 +836,35 @@ const Tab4 = () => {
           </div>
         </div>
 
-        <div className="list-content pl-18 pr-18">
-          <div className="flex align-c mt-12 mb-12 text-center">
-            <div className="w10p pl-6 pr-6">
-              <p>2023.01.01</p>
-            </div>
+        {rewards.map((el: any, i: number) => (
+          <div key={i} className="list-content pl-18 pr-18">
+            <div className="flex align-c mt-12 mb-12 text-center">
+              <div className="w10p pl-6 pr-6">
+                <p>{timeFormat2(el.created)}</p>
+              </div>
 
-            <div className="w30p pl-6 pr-6">
-              <p>[구매적립] 주문(12345678) 1% 적립</p>
-            </div>
+              <div className="w30p pl-6 pr-6">
+                <p>{el.detail}</p>
+              </div>
 
-            <div className="w10p pl-6 pr-6">
-              <p>100</p>
-            </div>
+              <div className="w10p pl-6 pr-6">
+                <p>{el.rewards}</p>
+              </div>
 
-            <div className="w10p pl-6 pr-6">
-              <p>1,500</p>
-            </div>
+              <div className="w10p pl-6 pr-6">
+                <p>잔액기재</p>
+              </div>
 
-            <div className="w30p pl-6 pr-6">
-              <p>2023.01.01 23:59:59</p>
-            </div>
+              <div className="w30p pl-6 pr-6">
+                <p>유효기간 추후기재</p>
+              </div>
 
-            <div className="w10p pl-6 pr-6">
-              <p>지급</p>
+              <div className="w10p pl-6 pr-6">
+                <p>지급</p>
+              </div>
             </div>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );

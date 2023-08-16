@@ -46,9 +46,11 @@ export const deleteItem = async (collection: string, _id: string, type: string) 
     case "live like ittaly":
       typeSubject = "live like ittaly를";
       break;
-
     case "문의":
       typeSubject = "문의를";
+      break;
+    case "쿠폰":
+      typeSubject = "쿠폰을";
       break;
   }
 
