@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { getDatas } from "../common/apis";
+import { getDatas, putUpdateDataBulk } from "../common/apis";
 import { currency, deleteItem, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
@@ -25,7 +25,6 @@ export default function LiveLikeIttaly(): JSX.Element {
     const { data }: any = await getDatas({
       collection: "liveLikeIttaly",
     });
-
     setProducts(data);
   };
 
@@ -57,6 +56,46 @@ export default function LiveLikeIttaly(): JSX.Element {
   const handleInit = async () => {
     await init();
     setSelected(null);
+  };
+
+  const handleCheck = (item: any) => {
+    const targetIdx = products.findIndex((el) => el === item);
+    let temp = [...products];
+    temp[targetIdx] = !temp[targetIdx];
+    setProducts(temp);
+  };
+
+  const handleUpdateStatus = async (type: boolean) => {
+    const filterData = products.filter((el) => el.checked);
+
+    let updateData: any[] = [];
+    if (type) {
+      for (let i in filterData) {
+        updateData.push({
+          _id: filterData[i]._id,
+          setData: {
+            openStatus: true,
+          },
+        });
+      }
+    } else {
+      for (let i in filterData) {
+        updateData.push({
+          _id: filterData[i]._id,
+          setData: {
+            openStatus: false,
+          },
+        });
+      }
+    }
+
+    const updateResult: any = await putUpdateDataBulk({ collection: "reviews", updateData });
+
+    if (updateResult.status === 200) {
+      alert(`${type ? "공개 설정" : "비공개 설정"}이 완료되었습니다.`);
+    }
+
+    init();
   };
 
   return (
@@ -160,14 +199,18 @@ export default function LiveLikeIttaly(): JSX.Element {
           <div key={i} className="list-content pl-18 pr-18">
             <div className="flex align-c mt-8 mb-8 text-center">
               <div className="w5p">
-                <input type="checkbox" />
+                <input
+                  checked={productItem.checked}
+                  onChange={(e: any) => handleCheck(productItem)}
+                  type="checkbox"
+                />
               </div>
 
               <div className="w10p">
                 <img src={productItem.imgUrl} style={{ width: 60, height: "auto" }} />
               </div>
 
-              <div className="w10p">{productItem.relatedProd.length === 0 ? "N" : "Y"}</div>
+              <div className="w10p">{productItem?.relatedProd?.length === 0 ? "N" : "Y"}</div>
 
               <div className="w35p">
                 <p>{productItem.relatedProd[0]?.productNameK}</p>
@@ -204,8 +247,18 @@ export default function LiveLikeIttaly(): JSX.Element {
 
       <div className="mt-20 flex justify-sb align-c flex-wrap">
         <div className="flex">
-          <ButtonR name="공개" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
-          <ButtonR name="비공개" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
+          <ButtonR
+            name="공개"
+            color="white"
+            onClick={() => handleUpdateStatus(true)}
+            styles={{ marginRight: 4 }}
+          />
+          <ButtonR
+            name="비공개"
+            color="white"
+            onClick={() => handleUpdateStatus(false)}
+            styles={{ marginRight: 4 }}
+          />
         </div>
 
         <div className="flex pagination">
