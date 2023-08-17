@@ -97,6 +97,13 @@
 .w80p {
   width: 80%;
 }
+.w85p {
+  width: 85%;
+}
+
+.w90p {
+  width: 90%;
+}
 
 .input-desc {
   border: 1px solid #cccccc;

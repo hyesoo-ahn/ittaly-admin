@@ -52,7 +52,17 @@ const AddCategory = () => {
     setSubCategories([...newArr]);
   };
 
-  const handleAddCategory = async (): Promise<void> => {
+  const handleValidForm = () => {
+    let isValid = true;
+    if (name === "") return false;
+    if (url === "") return false;
+
+    return isValid;
+  };
+
+  const handleAddCategory = async (): Promise<any> => {
+    const isValid = handleValidForm();
+    if (!isValid) return alert("필수 입력 사항을 확인해 주세요.");
     const _body: any = {
       collection: "categories",
       name,
@@ -60,7 +70,6 @@ const AddCategory = () => {
       openStatus,
       subCategories,
     };
-
     const postResult = await postAddCategory(_body);
     if (postResult.result && postResult.status === 200) {
       alert("카테고리 등록이 완료되었습니다.");

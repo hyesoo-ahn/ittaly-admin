@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { deleteData, getDatas, putUpdateDataBulk } from "../common/apis";
+import { deleteData, deleteProduct, getDatas, putUpdateDataBulk } from "../common/apis";
 import { currency, deleteItem, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
@@ -48,7 +48,7 @@ export default function ProductManagement(): JSX.Element {
   const init = async () => {
     const productData: any = await getDatas({
       collection: "products",
-      // limit: 2,
+      find: { delete: { $ne: true } },
     });
     const getCategories: any = await getDatas({
       collection: "categories",
@@ -78,7 +78,7 @@ export default function ProductManagement(): JSX.Element {
 
     const { data }: any = await getDatas({
       collection: "products",
-      find: find,
+      find: { ...find, delete: { $ne: true } },
     });
 
     setProducts(data);
@@ -90,7 +90,7 @@ export default function ProductManagement(): JSX.Element {
       brandName: "",
       productCode: "",
       category: null,
-      salesStatus: null
+      salesStatus: null,
     });
 
     init();
@@ -145,7 +145,7 @@ export default function ProductManagement(): JSX.Element {
       updateData,
     });
     alert("수정되었습니다.");
-    init();
+    handleSearchInit();
   };
 
   const handleAllCheck = (check: boolean) => {
@@ -161,6 +161,15 @@ export default function ProductManagement(): JSX.Element {
     }
     setProducts(temp);
     setAllCheck((prev: boolean) => !prev);
+  };
+
+  const handleDeleteProduct = async (_id: string) => {
+    const _body = {
+      _id,
+    };
+
+    const result: any = await deleteProduct(_body);
+    console.log(result);
   };
 
   return (
@@ -352,10 +361,11 @@ export default function ProductManagement(): JSX.Element {
                 name="삭제"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={async () => {
-                  await deleteItem("products", productItem._id, "상품");
-                  await init();
-                }}
+                onClick={() => handleDeleteProduct(productItem._id)}
+                // onClick={async () => {
+                //   await deleteItem("products", productItem._id, "상품");
+                //   await init();
+                // }}
               />
             </div>
           </div>

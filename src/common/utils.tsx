@@ -79,6 +79,10 @@ export const getLocation = (path: string) => {
   if (split[1]?.includes("product")) {
     selected = "상품";
   }
+  if (split[1]?.includes("order")) {
+    selected = "주문배송";
+  }
+
   if (split[1]?.includes("site")) {
     selected = "사이트관리";
   }

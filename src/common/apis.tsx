@@ -1,5 +1,5 @@
 import axios from "axios";
-import { URI, ADMIN_TOKEN, FILE_URI } from "./config";
+import { URI, ADMIN_TOKEN } from "./config";
 
 export const getSignin = async (body: any): Promise<any> => {
   try {
@@ -64,6 +64,7 @@ export const postAddCategory = async (body: any): Promise<any> => {
       },
     });
 
+    console.log(data);
     return data;
   } catch (error) {
     return false;
@@ -160,6 +161,24 @@ export const putUpdateData = async (_body: any): Promise<boolean> => {
 export const deleteData = async (_body: object): Promise<boolean> => {
   try {
     const { data } = await axios.delete(`${URI}/admin/data`, {
+      data: {
+        ..._body,
+      },
+      headers: {
+        Authorization: `Bearer ${ADMIN_TOKEN}`,
+      },
+    });
+
+    return data;
+  } catch (error) {
+    return false;
+  }
+};
+
+// 상품삭제
+export const deleteProduct = async (_body: object): Promise<boolean> => {
+  try {
+    const { data } = await axios.delete(`${URI}/admin/product/delete`, {
       data: {
         ..._body,
       },

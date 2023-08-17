@@ -188,7 +188,7 @@ export default function AddProduct(): JSX.Element {
 
     const selectProducts: any = await getDatas({
       collection: "products",
-      find: find,
+      find: { ...find, delete: { $ne: true } },
     });
 
     const { data } = selectProducts;
@@ -267,7 +267,10 @@ export default function AddProduct(): JSX.Element {
           ],
         };
       });
-    } else {
+    }
+
+    if (type === "additionalImg") {
+      if (files.additionalImg.length >= 4) return alert("이미지 최대개수를 초과하셨습니다.");
       setFiles((prev: any) => {
         return {
           ...prev,
@@ -287,6 +290,7 @@ export default function AddProduct(): JSX.Element {
     const file = evt.target.files?.[0];
     const imgUrl: any = URL.createObjectURL(file);
     let imgArr = type === "pointForm" ? [...pointForm.imgUrls] : [...productItemForm.imgUrls];
+    if (imgArr.length >= 5) return alert("이미지 개수를 초과하셨습니다.");
     imgArr.push({
       file: file,
       imgUrl: imgUrl,
@@ -371,6 +375,7 @@ export default function AddProduct(): JSX.Element {
       err.push("상품포인트");
     }
 
+    // console.log(err);
     return isValid;
   };
 
@@ -724,6 +729,7 @@ export default function AddProduct(): JSX.Element {
 
     if (productAddResult.result) {
       alert("상품 등록이 완료되었습니다.");
+      navigate(-1);
     }
 
     setLoading(false);
@@ -1700,7 +1706,7 @@ export default function AddProduct(): JSX.Element {
                         />
                         <ButtonR
                           onClick={() => handleUploadClick(2)}
-                          name="이미지 추가 0/5"
+                          name={`이미지 추가 ${pointForm?.imgUrls?.length}/5`}
                           styles={{ marginRight: 12 }}
                         />
 
@@ -1912,7 +1918,7 @@ export default function AddProduct(): JSX.Element {
                         />
                         <ButtonR
                           onClick={() => handleUploadClick(3)}
-                          name="이미지 추가 0/5"
+                          name={`이미지 추가 ${productItemForm.imgUrls.length}/5`}
                           styles={{ marginRight: 12 }}
                         />
 

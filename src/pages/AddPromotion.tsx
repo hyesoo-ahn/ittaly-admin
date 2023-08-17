@@ -113,7 +113,7 @@ const AddPromotion: React.FC = () => {
 
     const selectProducts: any = await getDatas({
       collection: "products",
-      find: find,
+      find: { ...find, delete: { $ne: true } },
     });
 
     const { data } = selectProducts;

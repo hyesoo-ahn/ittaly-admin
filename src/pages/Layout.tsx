@@ -24,6 +24,18 @@ const NAV_DATA = [
     ],
   },
   {
+    title: "주문배송",
+    path: "",
+    navArr1: [
+      { title: "주문 전체검색", path: "/order/payments" },
+      { title: "출고요청 리스트", path: "/order/shippingrequest" },
+      { title: "미출고 리스트", path: "/order/pendingshipment" },
+      { title: "출고운송장 입력", path: "/order/invoice" },
+      { title: "배송상태 조회", path: "/order/deliverystatus" },
+      { title: "취소/반품/교환", path: "/order/cancellation" },
+    ],
+  },
+  {
     title: "사이트관리",
     path: "",
     navArr1: [

@@ -63,6 +63,8 @@ import AddNotice from "./pages/AddNotice";
 import NoticeDetail from "./pages/NoticeDetail";
 import ProductReviewDetail from "./pages/ProductReviewDetail";
 import CouponDetail from "./pages/CouponDetail";
+import Payments from "./pages/Payments";
+import PaymentDetail from "./pages/PaymentDetail";
 
 function App() {
   useEffect(() => {
@@ -113,6 +115,7 @@ function App() {
             <Route path="/product/brand/:brandId" element={<BrandDetail />} />
             <Route path="/product/brand/addbrand" element={<AddBrand />} />
             <Route path="/product/category" element={<Category />} />
+            <Route path="/product/category/add" element={<AddCategory />} />
             <Route path="/product/category/:categoryId" element={<CategoryDetail />} />
             <Route path="/site/main/bannertop" element={<BannerTop />} />
             <Route path="/site/main/bannertop/addbanner" element={<AddBannerTop />} />
@@ -148,6 +151,10 @@ function App() {
             <Route path="/site/notice" element={<Notice />} />
             <Route path="/site/notice/add" element={<AddNotice />} />
             <Route path="/site/notice/:noticeId" element={<NoticeDetail />} />
+
+            {/* 주문배송 */}
+            <Route path="/order/payments" element={<Payments />} />
+            <Route path="/order/payments/:paymentId" element={<PaymentDetail />} />
 
             {/* 고객 */}
             {/* 유저 */}

@@ -691,3 +691,8 @@ input {
   width: 158px;
   height: auto;
 }
+
+/* line-height */
+.line-height-21 {
+  line-height: 21px;
+}

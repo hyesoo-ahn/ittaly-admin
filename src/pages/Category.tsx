@@ -49,14 +49,23 @@ const Category = () => {
   const handleDelteCategory = async (id: string) => {
     //카테고리 삭제시 등록된 상품도 같이 삭제..?
 
-    const deleteResult: any = await deleteData({
-      collection: "categories",
-      _id: id,
+    const { data }: any = await getDatas({
+      collection: "products",
+      find: { categoryId: id, delete: { $ne: true } },
     });
 
-    if (deleteResult.deletedCount) {
-      alert("해당 카테고리가 삭제되었습니다.");
-      init();
+    if (data.length !== 0) {
+      alert("해당 카테고리에 등록되어 있는 상품이 있습니다. 모두 삭제후 진행해 주세요.");
+    } else {
+      const deleteResult: any = await deleteData({
+        collection: "categories",
+        _id: id,
+      });
+
+      if (deleteResult.deletedCount) {
+        alert("해당 카테고리가 삭제되었습니다.");
+        init();
+      }
     }
   };
 
@@ -70,18 +79,18 @@ const Category = () => {
         <p>총 {categories?.length}건</p>
         <ButtonR
           onClick={() => {
-            navigate("/product/category/addcategory");
+            navigate("/product/category/add");
           }}
           name="카테고리 등록"
         />
       </div>
 
       <div className="list-header mt-10 pl-18 pr-18">
-        <div className="w10p">
+        {/* <div className="w10p">
           <input type="checkbox" />
-        </div>
+        </div> */}
 
-        <div className="w15p">
+        <div className="w25p">
           <p>순서</p>
         </div>
 
@@ -100,11 +109,11 @@ const Category = () => {
       {categories?.map((aCategory: any, i: number) => (
         <div key={i} className="list-content pl-18 pr-18">
           <div className="flex align-c mt-8 mb-8">
-            <div className="w10p">
+            {/* <div className="w10p">
               <input type="checkbox" />
-            </div>
+            </div> */}
 
-            <div className="w15p">
+            <div className="w25p">
               <img
                 onClick={() => handleMoveOrder(categories, i, i - 1)}
                 src={i === 0 ? up_g : up_b}

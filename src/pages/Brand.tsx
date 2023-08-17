@@ -21,6 +21,22 @@ const Brand = () => {
     setBrandData(brandData.data);
   };
 
+  const handleDeleteBrand = async (item: any) => {
+    const { data }: any = await getDatas({
+      collection: "products",
+      find: { brandId: item?._id, delete: { $ne: true } },
+    });
+
+    if (data.length === 0) {
+      await deleteItem("brands", item._id, "브랜드");
+      await init();
+    } else {
+      alert(
+        `해당 브랜드에 포함된 상품이 남아있습니다. \n해당 브랜드의 모든 상품 삭제 후 진행해 주세요.`
+      );
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-sb align-c">
@@ -38,15 +54,15 @@ const Brand = () => {
       </div>
 
       <div className="list-header mt-10 pl-18 pr-18">
-        <div className="w10p">
+        {/* <div className="w10p">
           <input type="checkbox" />
-        </div>
+        </div> */}
 
         <div className="w60p">
           <p>브랜드명</p>
         </div>
 
-        <div className="w10p">
+        <div className="w20p">
           <p>공개여부</p>
         </div>
 
@@ -58,15 +74,15 @@ const Brand = () => {
       {brandData?.map((aBrand, i) => (
         <div key={i} className="list-content pl-18 pr-18">
           <div className="flex align-c mt-8 mb-8">
-            <div className="w10p">
+            {/* <div className="w10p">
               <input type="checkbox" />
-            </div>
+            </div> */}
 
             <div className="w60p">
               <p>{aBrand.brandName}</p>
             </div>
 
-            <div className="w10p">
+            <div className="w20p">
               <p>{aBrand.openStatus ? "공개" : "비공개"}</p>
             </div>
 
@@ -81,10 +97,11 @@ const Brand = () => {
                 name="삭제"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={async () => {
-                  await deleteItem("brands", aBrand._id, "브랜드");
-                  await init();
-                }}
+                onClick={() => handleDeleteBrand(aBrand)}
+                // onClick={async () => {
+                //   await deleteItem("brands", aBrand._id, "브랜드");
+                //   await init();
+                // }}
               />
             </div>
           </div>
