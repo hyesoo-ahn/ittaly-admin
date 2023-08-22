@@ -670,6 +670,8 @@ export default function AddProduct(): JSX.Element {
       relatedProd,
     };
 
+    // console.log(_body);
+
     // 대표이미지(썸네일)
     const formData = new FormData();
     formData.append("file", files.thumbnail[0]?.file);

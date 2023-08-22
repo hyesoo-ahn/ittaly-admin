@@ -362,6 +362,10 @@ h1 {
   color: blue;
 }
 
+.font-green {
+  color: #27ae60;
+}
+
 .font-gray {
   color: #101828 !important;
 }

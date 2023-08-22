@@ -560,9 +560,11 @@ export default function AddMagazine(): JSX.Element {
                     </p>
                   </div>
                   <div className="flex align-c">
-                    <div className="font-14 text-center font-bold flex align-c justify-c">요약</div>
+                    <div className="font-14 text-center font-bold flex align-c justify-c w10p">
+                      요약
+                    </div>
 
-                    <div style={{ width: "80%" }}>
+                    <div className="w80p">
                       <input
                         value={contentForm?.title}
                         onChange={(e) => {

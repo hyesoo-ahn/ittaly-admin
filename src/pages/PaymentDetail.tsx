@@ -54,6 +54,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
   const [memoContents, setMemoContents] = useState<string>("");
   const [editMemoId, setEditMemoId] = useState<string>("");
   const [personalCustomCodePopup, setPersonalCustomCode] = useState<boolean>(false);
+  const [editAddressPopup, setEditAddressPopup] = useState<boolean>(false);
   const [openPostcode, setOpenPostcode] = React.useState<boolean>(false);
   const [address, setAddress] = useState<any>({
     zonecode: "30098",
@@ -205,7 +206,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
           </div>
         </Modal>
       )}
-      {personalCustomCodePopup && (
+      {editAddressPopup && (
         <Modal
           innerStyle={{
             display: "flex",
@@ -218,7 +219,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
           <div className="flex justify-sb align-c relative">
             <h2 className="margin-0">배송지 수정</h2>
             <img
-              onClick={() => setPersonalCustomCode(false)}
+              onClick={() => setEditAddressPopup(false)}
               src={close}
               style={{ width: 24, top: -10, right: -10 }}
               className="cursor absolute"
@@ -291,6 +292,64 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
               />
             </div>
           )}
+
+          <div className="flex justify-fe mt-20">
+            <ButtonR
+              color={"white"}
+              name="취소"
+              onClick={() => setEditAddressPopup(false)}
+              styleClass="mr-4"
+            />
+            <ButtonR name="저장" onClick={() => {}} />
+          </div>
+        </Modal>
+      )}
+      {personalCustomCodePopup && (
+        <Modal
+          innerStyle={{
+            display: "flex",
+            flexDirection: "column",
+            width: "30%",
+            minHeight: "20vh",
+            padding: 30,
+          }}
+        >
+          <div className="flex justify-sb align-c relative">
+            <h2 className="margin-0">개인통관고유부호 수정</h2>
+            <img
+              onClick={() => setPersonalCustomCode(false)}
+              src={close}
+              style={{ width: 24, top: -10, right: -10 }}
+              className="cursor absolute"
+            />
+          </div>
+
+          <div className="flex1 flex mt-20">
+            <div className="flex1">
+              <p>이름</p>
+            </div>
+            <div style={{ flex: 2 }}>
+              <p>김모노</p>
+            </div>
+          </div>
+          <div className="flex1 flex mt-10">
+            <div className="flex1">
+              <p>연락처</p>
+            </div>
+            <div style={{ flex: 2 }}>
+              <p>010-1234-5678</p>
+            </div>
+          </div>
+          <div className="flex1 flex mt-10">
+            <div className="flex1">
+              <p>개인통관고유부호</p>
+            </div>
+            <div style={{ flex: 2 }}>
+              <InputR value={"P1234567890123"} size={"full"} />
+              <div className="mt-4"></div>
+              <p className="font-12 font-green">올바른 개인통관고유부호입니다</p>
+            </div>
+          </div>
 
           <div className="flex justify-fe mt-20">
             <ButtonR
@@ -420,7 +479,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
                   <p>
                     배송지
                     <span
-                      onClick={() => setPersonalCustomCode(true)}
+                      onClick={() => setEditAddressPopup(true)}
                       className="ml-4 font-blue text-underline cursor"
                     >
                       수정
