@@ -11,11 +11,14 @@ import sample from "../images/sample_img.png";
 import { useFileUpload } from "../hooks/useFileUpload";
 import Modal from "../components/Modal";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
-import { currency, moveValue } from "../common/utils";
+import { csvToJSON, currency, moveValue } from "../common/utils";
 import CheckboxS from "../components/CheckboxS";
 import { getDatas, postAddProduct, postUploadImage } from "../common/apis";
 import { useNavigate } from "react-router-dom";
 import SelectBox from "../components/SelectBox";
+import { CSVLink, CSVDownload } from "react-csv";
+import CSVSelector from "../components/CSVSelector";
+import { json } from "stream/consumers";
 
 interface IPoint {
   summary: string;
@@ -127,7 +130,10 @@ export default function AddProduct(): JSX.Element {
 
   const [loading, setLoading] = useState<boolean>(false);
 
+  const [optionCsvPopup, setOptionCsvPopup] = useState<boolean>(false);
   const [productOptionPopup, setProductOptionPopup] = useState<boolean>(false);
+  const [jsonData, setJsonData] = useState<any>([]);
+  const csvRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     init();
@@ -967,6 +973,26 @@ export default function AddProduct(): JSX.Element {
     setProductOptionPopup(false);
   };
 
+  const handleFixCsvOptions = () => {
+    let tempArr = [];
+    for (let i = 0; i < jsonData?.length; i++) {
+      if (i !== 0) {
+        tempArr.push({
+          optionValue: `${jsonData[i]?.[Object.keys(jsonData[0])[0]]} ${
+            jsonData[i]?.[Object.keys(jsonData[0])[1]] ? "/" : ""
+          } ${jsonData[i]?.[Object.keys(jsonData[0])[1]]}  ${
+            jsonData[i]?.[Object.keys(jsonData[0])[2]] ? "/" : ""
+          } ${jsonData[i]?.[Object.keys(jsonData[0])[2]]}`,
+          additionalPrice: jsonData[i].추가금액,
+          checked: true,
+        });
+      }
+    }
+
+    setOptionsArr(tempArr);
+    setOptionCsvPopup(false);
+  };
+
   return (
     <>
       {productOptionPopup && (
@@ -1322,6 +1348,150 @@ export default function AddProduct(): JSX.Element {
           </div>
         </Modal>
       )}
+      {optionCsvPopup && (
+        <Modal innerStyle={{ minHeight: 0 }}>
+          <div className="padding-24">
+            <div className="flex justify-sb">
+              <h2 className="margin-0 mb-20">옵션 엑셀 등록하기</h2>
+
+              <div>
+                <img
+                  onClick={() => {
+                    handleInitProductOption();
+                    setOptionCsvPopup(false);
+                  }}
+                  src={close}
+                  className="img-close cursor"
+                  alt="close"
+                />
+              </div>
+            </div>
+
+            <div className="text-center">
+              <CSVSelector ref={csvRef} onChange={(_data: any) => setJsonData(_data)} />
+
+              <ButtonR
+                name={"CSV 업로드"}
+                styles={{ backgroundColor: "#f1f1f1", paddingLeft: 25, paddingRight: 25 }}
+                color={"white"}
+                onClick={() => csvRef?.current?.click()}
+              />
+              <div className="mt-20 mb-20">
+                <p>CSV 양식을 내려받아 옵션 입력 후 업로드해주세요.</p>
+                <p className="mt-4">
+                  옵션 개수 및 양식과 다르게 입력된 경우 옵션이 등록되지 않습니다.
+                </p>
+              </div>
+
+              <CSVLink
+                data={[
+                  {
+                    option1: "A1 옵션명 수정 가능, 열 삭제 불가",
+                    option2: "B1 옵션명 수정 가능, 열 삭제 가능",
+                    option3: "C1 옵션명 수정 가능, 열 삭제 가능",
+                    additionalPrice: "D1 타이틀 수정 및 열 삭제 불가, 추가금액 없을 시 0 표기",
+                  },
+                  { option1: "블랙", option2: "L", option3: "", additionalPrice: "500" },
+                  { option1: "블랙", option2: "M", option3: "", additionalPrice: "0" },
+                  { option1: "블랙", option2: "S", option3: "", additionalPrice: "0" },
+                  { option1: "화이트", option2: "L", option3: "", additionalPrice: "500" },
+                  { option1: "화이트", option2: "M", option3: "", additionalPrice: "0" },
+                  { option1: "화이트", option2: "S", option3: "", additionalPrice: "0" },
+                ]}
+                headers={[
+                  { label: "옵션1", key: "option1" },
+                  { label: "옵션2", key: "option2" },
+                  { label: "옵션3", key: "option3" },
+                  { label: "추가금액", key: "additionalPrice" },
+                ]}
+                // confirm 창에서 '확인'을 눌렀을 때만 csv 파일 다운로드
+                onClick={() => {
+                  if (window.confirm("csv파일을 다운로드 받겠습니까?")) {
+                    return true;
+                  } else {
+                    return false;
+                  }
+                }}
+                filename={`옵션 시트`}
+              >
+                <p>CSV 양식 내려받기</p>
+              </CSVLink>
+            </div>
+
+            {jsonData.length !== 0 && (
+              <div className="list-header mt-30 pl-18 pr-18">
+                <div className="w20p">
+                  <p>{jsonData[0]?.[Object.keys(jsonData[0])[0]]}</p>
+                </div>
+
+                <div className="w20p">
+                  {jsonData[0]?.[Object.keys(jsonData[0])[1]] && (
+                    <p>{jsonData[0]?.[Object.keys(jsonData[0])[1]]}</p>
+                  )}
+                </div>
+
+                <div className="w20p">
+                  {jsonData[0]?.[Object.keys(jsonData[0])[2]] && (
+                    <p>{jsonData[0]?.[Object.keys(jsonData[0])[2]]}</p>
+                  )}
+                </div>
+
+                <div className="w20p">
+                  <p>추가금액</p>
+                </div>
+
+                <div className="w20p">
+                  <p>결과</p>
+                </div>
+              </div>
+            )}
+
+            {jsonData?.length !== 0 &&
+              jsonData?.map((el: any, i: number) => (
+                <div key={i}>
+                  {i !== 0 && (
+                    <div key={i} className="list-content pl-18 pr-18">
+                      <div className="flex align-c mt-8 mb-8">
+                        <div className="w20p">
+                          <p>{jsonData[i]?.[Object.keys(jsonData[0])[0]]}</p>
+                        </div>
+
+                        <div className="w20p">
+                          <p>{jsonData[i]?.[Object.keys(jsonData[0])[1]]}</p>
+                        </div>
+
+                        <div className="w20p">
+                          <p>{jsonData[i]?.[Object.keys(jsonData[0])[2]]}</p>
+                        </div>
+
+                        <div className="w20p">
+                          <p>{jsonData[i]?.추가금액}</p>
+                        </div>
+
+                        <div className="w20p">
+                          <p>dddd</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+            <div className="flex justify-fe">
+              <ButtonR
+                name={"취소"}
+                onClick={() => {
+                  handleInitProductOption();
+                  setOptionCsvPopup(false);
+                }}
+                styleClass="mr-10"
+                color={"white"}
+              />
+              <ButtonR name={"등록하기"} onClick={handleFixCsvOptions} styleClass="mr-12" />
+            </div>
+          </div>
+        </Modal>
+      )}
       <div>
         <div className="flex justify-sb align-c pb-30">
           <p className="page-title">상품등록/상세</p>
@@ -1620,8 +1790,18 @@ export default function AddProduct(): JSX.Element {
               </div>
 
               <div className="align-c flex1 pt-10 pb-10">
-                <ButtonR name={"옵션 추가하기"} onClick={() => setProductOptionPopup(true)} />
-
+                <div className="flex align-c">
+                  <ButtonR
+                    name={"옵션 추가하기"}
+                    styleClass="mr-10"
+                    onClick={() => setProductOptionPopup(true)}
+                  />
+                  <ButtonR
+                    color={"white"}
+                    name={"옵션 엑셀 등록"}
+                    onClick={() => setOptionCsvPopup(true)}
+                  />
+                </div>
                 <div className={`${optionsArr.length !== 0 ? "mt-10" : ""}`}>
                   {optionsArr.map((aOption: any, i: number) => (
                     <div key={i} className="border-bottom-gray pt-10 pb-10">

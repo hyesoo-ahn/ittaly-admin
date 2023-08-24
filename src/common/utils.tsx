@@ -245,3 +245,36 @@ export const timeFormat3 = (timestamp: number): string => {
 
   return `${year}. ${month}. ${date} ${_dayKr}요일`;
 };
+
+export const csvToJSON = (csv_string: string) => {
+  // 1. 문자열을 줄바꿈으로 구분 => 배열에 저장
+  // console.log(csv_string);
+  let rows = csv_string.split("\n");
+
+  // 2. 빈 배열 생성: CSV의 각 행을 담을 JSON 객체임
+  const jsonArray: any = [];
+
+  // 3. 제목 행 추출 후, 콤마로 구분 => 배열에 저장
+  const header: any = rows[0]?.split(",");
+
+  // 4. 내용 행 전체를 객체로 만들어, jsonArray에 담겨
+  for (let i = 1; i < rows?.length; i++) {
+    // 빈 객체 생성: 각 내용 행을 객체로 만들어 담아둘 오브젝트임
+    let obj: any = {};
+
+    // // 각 내용 행을 콤마로 구분
+    let row = rows[i]?.split(",");
+
+    // // 각 내용행을 {제목1:내용1, 제목2:내용2, ...} 형태의 객체로 생성
+    for (let j = 0; j < header?.length; j++) {
+      obj[header[j].replace(/\"/gi, "").replace(/\r/gi, "")] = row[j]
+        .replace(/\"/gi, "")
+        .replace(/\r/gi, "");
+    }
+
+    // // 각 내용 행의 객체를 jsonArray배열에 담기
+    jsonArray.push(obj);
+  }
+
+  return jsonArray;
+};
