@@ -60,7 +60,10 @@ export default function ProductDetail(): JSX.Element {
     discounted: "",
   });
   const [productOptions, setProductOptions] = useState<any>({});
+  const [optionsArr, setOptionsArr] = useState<any>([]);
+  const [optionsArr2, setOptionsArr2] = useState<any>([]);
   const [productItemOptions, setProductItemOptions] = useState<any>([]);
+  const [productOptionPopup, setProductOptionPopup] = useState<boolean>(false);
 
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState<any>(null);
@@ -311,6 +314,8 @@ export default function ProductDetail(): JSX.Element {
       });
     }
 
+    initProductOptions(detailData?.productOptionsDetail);
+    setOptionsArr2(detailData?.productOptionsDetail);
     setPoints(tempPoints);
     setProductItemOptions(tempProductOptions);
     setProductInfos(detailData?.productInfos);
@@ -323,6 +328,20 @@ export default function ProductDetail(): JSX.Element {
       products: detailData?.relatedProd,
     });
   };
+
+  const initProductOptions = (data: any) => {
+    let tempOptionsArr = [];
+    for (let i in data) {
+      tempOptionsArr.push({
+        checked: true,
+        optionValue: data[i]?.option,
+        additionalPrice: currency(data[i]?.additionalPrice),
+      });
+    }
+
+    setOptionsArr(tempOptionsArr);
+  };
+
   const onChangeForm = (type: string, value: string | object | boolean) => {
     setForm((prev: any) => {
       return {
@@ -580,41 +599,83 @@ export default function ProductDetail(): JSX.Element {
 
   const handleChangeOption = (value: string) => {
     if (value === "1개") {
-      setProductOptions({
-        option1: {
-          optionName: "",
-          options: [{}],
-        },
+      setProductOptions((prev: any) => {
+        return {
+          option1: {
+            optionName: prev.option1?.optionName,
+            options: prev.option1?.options
+              ? prev.option1?.options
+              : [
+                  {
+                    optionValue: "",
+                  },
+                ],
+          },
+        };
       });
     }
 
     if (value === "2개") {
-      setProductOptions({
-        option1: {
-          optionName: "",
-          options: [{}],
-        },
-        option2: {
-          optionName: "",
-          options: [{}],
-        },
+      setProductOptions((prev: any) => {
+        return {
+          option1: {
+            optionName: prev.option1?.optionName,
+            options: prev.option1?.options
+              ? prev.option1?.options
+              : [
+                  {
+                    optionValue: "",
+                  },
+                ],
+          },
+          option2: {
+            optionName: prev.option2?.optionName,
+            options: prev.option2?.options
+              ? prev.option2?.options
+              : [
+                  {
+                    optionValue: "",
+                  },
+                ],
+          },
+        };
       });
     }
 
     if (value === "3개") {
-      setProductOptions({
-        option1: {
-          optionName: "",
-          options: [{}],
-        },
-        option2: {
-          optionName: "",
-          options: [{}],
-        },
-        option3: {
-          optionName: "",
-          options: [{}],
-        },
+      setProductOptions((prev: any) => {
+        return {
+          option1: {
+            optionName: prev.option1?.optionName,
+            options: prev.option1?.options
+              ? prev.option1?.options
+              : [
+                  {
+                    optionValue: "",
+                  },
+                ],
+          },
+          option2: {
+            optionName: prev.option2?.optionName,
+            options: prev.option2?.options
+              ? prev.option2?.options
+              : [
+                  {
+                    optionValue: "",
+                  },
+                ],
+          },
+          option3: {
+            optionName: prev.option3?.optionName,
+            options: prev.option3?.options
+              ? prev.option3?.options
+              : [
+                  {
+                    optionValue: "",
+                  },
+                ],
+          },
+        };
       });
     }
   };
@@ -635,7 +696,13 @@ export default function ProductDetail(): JSX.Element {
   };
 
   const handleAddOption = (option: any) => {
-    const tempOptions = [{}, ...productOptions[option].options];
+    if (productOptions[option].options[0]?.optionValue === "") return;
+    const tempOptions = [
+      {
+        optionValue: "",
+      },
+      ...productOptions[option].options,
+    ];
     setProductOptions((prev: any) => {
       return {
         ...prev,
@@ -701,6 +768,15 @@ export default function ProductDetail(): JSX.Element {
       });
     }
 
+    let tempOptionsArr: any = [];
+    for (let i = 0; i < optionsArr.length; i++) {
+      const num = parseInt(optionsArr[i].additionalPrice.replace(/,/gi, ""));
+      tempOptionsArr.push({
+        option: optionsArr[i].optionValue,
+        additionalPrice: isNaN(num) ? 0 : num,
+      });
+    }
+
     let _body = {
       ...tempForm,
       category1: form.category1.value,
@@ -717,6 +793,7 @@ export default function ProductDetail(): JSX.Element {
       best: form.productSetting.best,
       luckyDraw: form.productSetting.luckyDraw,
       productOptions,
+      productOptionsDetail: tempOptionsArr,
       productInfos,
       saleStatus,
       relatedProd,
@@ -852,8 +929,309 @@ export default function ProductDetail(): JSX.Element {
     setProducts([]);
   };
 
+  const handleDeleteFormImage = (type: string, i: number) => {
+    let tempOb: any = {};
+
+    switch (type) {
+      case "pointForm":
+        tempOb = { ...pointForm };
+        tempOb.imgUrls.splice(i, 1);
+        setPointForm(tempOb);
+        break;
+
+      case "productItemForm":
+        tempOb = { ...productItemForm };
+        tempOb.imgUrls.splice(i, 1);
+        setProductItemForm(tempOb);
+        break;
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    handleGetOptions();
+  }, [productOptions]);
+
+  const handleGetOptions = () => {
+    let totalArr: any = [];
+    let arr1: any = [];
+    let arr2: any = [];
+    let arr3: any = [];
+
+    for (let i = 0; i < productOptions.option1?.options?.length; i++) {
+      if (productOptions.option1.options[i].optionValue !== "") {
+        arr1.push(productOptions.option1.options[i].optionValue);
+      }
+    }
+
+    for (let i = 0; i < productOptions.option2?.options?.length; i++) {
+      if (productOptions.option2.options[i].optionValue !== "") {
+        arr2.push(productOptions.option2.options[i].optionValue);
+      }
+    }
+
+    for (let i = 0; i < productOptions.option3?.options?.length; i++) {
+      if (productOptions.option3?.options[i]?.optionValue !== "") {
+        arr3.push(productOptions.option3.options[i].optionValue);
+      }
+    }
+
+    for (let i = 0; i < arr1.length; i++) {
+      if (arr2.length !== 0) {
+        for (let k = 0; k < arr2?.length; k++) {
+          if (arr3.length !== 0) {
+            for (let h = 0; h < arr3?.length; h++) {
+              totalArr.push({
+                optionValue: `${arr1[i]} / ${arr2[k]} / ${arr3[h]}`,
+                additionalPrice: "",
+                checked: true,
+              });
+            }
+          } else {
+            totalArr.push({
+              optionValue: `${arr1[i]} / ${arr2[k]}`,
+              additionalPrice: "",
+              checked: true,
+            });
+          }
+        }
+      } else {
+        totalArr.push({
+          optionValue: `${arr1[i]}`,
+          additionalPrice: "",
+          checked: true,
+        });
+      }
+    }
+
+    for (let i in totalArr) {
+      if (optionsArr[i].additionalPrice !== "") {
+        totalArr[i].additionalPrice = optionsArr[i].additionalPrice;
+      }
+    }
+
+    setOptionsArr(totalArr);
+    // return totalArr;
+  };
+
+  const handleChangePrice = (e: any, i: number) => {
+    let value: string = e.target.value;
+    const numCheck: boolean = /^[0-9,]/.test(value);
+
+    if (!numCheck && value) return;
+
+    if (numCheck) {
+      const numValue = value.replaceAll(",", "");
+      value = numValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    let temp = [...optionsArr];
+    temp[i].additionalPrice = value;
+    setOptionsArr(temp);
+  };
+
+  const handleInitProductOption = () => {
+    setProductOptions({});
+    setOptionsArr([]);
+    setProductOptionPopup(false);
+  };
+
+  const handleCheckOption = (el: any, i: number) => {
+    const findIdx = optionsArr.findIndex((item: any) => item === el);
+
+    let temp = [...optionsArr];
+    temp[findIdx].checked = !temp[findIdx].checked;
+    setOptionsArr(temp);
+  };
+
+  const handleFixOptions = () => {
+    const filterData = optionsArr.filter((el: any) => el.checked);
+
+    setOptionsArr(filterData);
+    setProductOptionPopup(false);
+  };
+
   return (
     <>
+      {productOptionPopup && (
+        <Modal>
+          <div className="padding-24">
+            <div className="flex justify-sb">
+              <h2 className="margin-0 mb-20">옵션 추가하기</h2>
+
+              <div>
+                <img
+                  onClick={() => {
+                    initProductOptions(optionsArr2);
+                    setProductOptionPopup(false);
+                  }}
+                  src={close}
+                  className="img-close cursor"
+                  alt="close"
+                />
+              </div>
+            </div>
+            {Object.keys(productOptions).length !== 0 && (
+              <div className="product-field-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>옵션 개수</p>
+                </div>
+
+                <Select
+                  classNamePrefix="react-select"
+                  placeholder={"옵션 개수"}
+                  defaultValue={{
+                    value: "1개",
+                    label: "1개",
+                  }}
+                  onChange={(e: any) => handleChangeOption(e.value)}
+                  options={[
+                    {
+                      value: "1개",
+                      label: "1개",
+                    },
+                    {
+                      value: "2개",
+                      label: "2개",
+                    },
+                    {
+                      value: "3개",
+                      label: "3개",
+                    },
+                  ]}
+                  className="react-select-container"
+                />
+              </div>
+            )}
+
+            {Object.keys(productOptions).length !== 0 && (
+              <div className="mt-2 field-list-wrapper">
+                <div className="product-field mr-20">
+                  <p>
+                    옵션 입력
+                    <span className="font-red">*</span>
+                  </p>
+                </div>
+
+                <div style={{ flex: 1 }} className="mt-10 mb-10">
+                  <div className="list-header">
+                    <div className="text-center w33p">옵션명</div>
+                    <div className="text-center w33p">옵션값</div>
+
+                    <div className="text-center w33p">삭제/추가</div>
+                  </div>
+
+                  {Object.keys(productOptions)?.map((aOption: any, i: number) => (
+                    <div key={i} className="list-header-content">
+                      <div className="w33p text-center">
+                        <InputR
+                          size={"small"}
+                          onChange={(e: any) => {
+                            setProductOptions((prev: any) => {
+                              return {
+                                ...prev,
+                                [aOption]: {
+                                  ...prev[aOption],
+                                  optionName: e.target.value,
+                                },
+                              };
+                            });
+                          }}
+                          value={productOptions[aOption].optionName}
+                        />
+                      </div>
+
+                      <div style={{ width: "66%" }}>
+                        {productOptions[aOption]?.options?.map((optionItem: any, index: number) => (
+                          <div className="flex w100p text-center">
+                            <div className="w50p text-center">
+                              <InputR
+                                innerStyle={{ marginTop: 4 }}
+                                value={optionItem.optionValue ? optionItem.optionValue : ""}
+                                onChange={(e: any) =>
+                                  onChangeOptions(aOption, index, e, "optionValue")
+                                }
+                              />
+                            </div>
+
+                            <div className="w50p text-center mt-4">
+                              <div className="flex justify-c">
+                                {index !== 0 && (
+                                  <button
+                                    onClick={() => handleDeleteOption(aOption, index)}
+                                    className="btn-add"
+                                  >
+                                    삭제
+                                  </button>
+                                )}
+                                {index === 0 && (
+                                  <button
+                                    onClick={() => handleAddOption(aOption)}
+                                    className="btn-add-b"
+                                  >
+                                    추가
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* <div>{JSON.stringify(handleGetOptions())}</div> */}
+
+            <div className="mt-20">
+              <div className="flex flex-wrap flex1">
+                <div className="flex1">
+                  <p className="font-bold font-14 mb-10">항목</p>
+                </div>
+                <div className="flex1">
+                  <p className="font-bold font-14">추가금액</p>
+                </div>
+              </div>
+
+              {optionsArr?.map((el: any, i: number) => (
+                <div key={i} className="flex flex-wrap flex1">
+                  <div className="flex1">
+                    <div className="option-item flex align-c">
+                      <div onClick={() => handleCheckOption(el, i)} className="option-check">
+                        {el.checked && <p className="font-12 option-checked">✔</p>}
+                      </div>
+                      <p className="font-14">{el.optionValue}</p>
+                    </div>
+                  </div>
+                  <div className="flex1 flex align-c">
+                    <input
+                      value={el.additionalPrice}
+                      onChange={(e: any) => handleChangePrice(e, i)}
+                      className="option-item-input"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-fe">
+              <ButtonR
+                name={"취소"}
+                onClick={() => {
+                  initProductOptions(optionsArr2);
+                  setProductOptionPopup(false);
+                }}
+                styleClass="mr-10"
+                color={"white"}
+              />
+              <ButtonR name={"등록하기"} onClick={handleFixOptions} styleClass="mr-12" />
+            </div>
+          </div>
+        </Modal>
+      )}
       {isOpen && (
         <Modal>
           <div style={{ flex: 1 }} className="padding-24">
@@ -1300,7 +1678,11 @@ export default function ProductDetail(): JSX.Element {
                 setProductOptions({
                   option1: {
                     optionName: "",
-                    options: [],
+                    options: [
+                      {
+                        optionValue: "",
+                      },
+                    ],
                   },
                 })
               }
@@ -1315,7 +1697,11 @@ export default function ProductDetail(): JSX.Element {
                 setProductOptions({
                   option1: {
                     optionName: "",
-                    options: [{}],
+                    options: [
+                      {
+                        optionValue: "",
+                      },
+                    ],
                   },
                 })
               }
@@ -1326,121 +1712,26 @@ export default function ProductDetail(): JSX.Element {
           </div>
 
           {Object.keys(productOptions).length !== 0 && (
-            <div className="product-field-wrapper mt-2">
-              <div className="product-field mr-20">
-                <p>옵션 개수</p>
-              </div>
-
-              <Select
-                classNamePrefix="react-select"
-                placeholder={"옵션 개수"}
-                defaultValue={{
-                  value: "1개",
-                  label: "1개",
-                }}
-                onChange={(e: any) => handleChangeOption(e.value)}
-                options={[
-                  {
-                    value: "1개",
-                    label: "1개",
-                  },
-                  {
-                    value: "2개",
-                    label: "2개",
-                  },
-                  {
-                    value: "3개",
-                    label: "3개",
-                  },
-                ]}
-                className="react-select-container"
-              />
-            </div>
-          )}
-
-          {Object.keys(productOptions).length !== 0 && (
             <div className="mt-2 field-list-wrapper">
               <div className="product-field mr-20">
-                <p>
-                  옵션 입력
-                  <span className="font-red">*</span>
-                </p>
+                <p>옵션 입력</p>
               </div>
 
-              <div style={{ flex: 1 }} className="mt-10 mb-10">
-                <div className="list-header">
-                  <div className="text-center w25p">옵션명</div>
-                  <div className="text-center w25p">옵션값</div>
-                  <div className="text-center w25p">추가금액</div>
-                  <div className="text-center w25p">삭제/추가</div>
+              <div className="align-c flex1 pt-10 pb-10">
+                <ButtonR name={"옵션 추가하기"} onClick={() => setProductOptionPopup(true)} />
+
+                <div className={`${optionsArr.length !== 0 ? "mt-10" : ""}`}>
+                  {optionsArr.map((aOption: any, i: number) => (
+                    <div key={i} className="border-bottom-gray pt-10 pb-10">
+                      <p>
+                        {aOption.optionValue}{" "}
+                        {aOption.additionalPrice && aOption.additionalPrice !== ""
+                          ? `(+${aOption.additionalPrice})`
+                          : ""}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-
-                {Object.keys(productOptions).map((aOption: any, i: number) => (
-                  <div key={i} className="list-header-content">
-                    <div className="w25p text-center">
-                      <InputR
-                        size={"small"}
-                        onChange={(e: any) => {
-                          setProductOptions((prev: any) => {
-                            return {
-                              ...prev,
-                              [aOption]: {
-                                ...prev[aOption],
-                                optionName: e.target.value,
-                              },
-                            };
-                          });
-                        }}
-                        value={productOptions[aOption].optionName}
-                      />
-                    </div>
-
-                    <div style={{ width: "75%" }}>
-                      {productOptions[aOption].options.map((optionItem: any, index: number) => (
-                        <div className="flex w100p text-center">
-                          <div className="w33p text-center">
-                            <InputR
-                              innerStyle={{ marginTop: 4 }}
-                              value={optionItem.optionValue ? optionItem.optionValue : ""}
-                              onChange={(e: any) =>
-                                onChangeOptions(aOption, index, e, "optionValue")
-                              }
-                            />
-                          </div>
-
-                          <div className="w33p text-center">
-                            <InputR
-                              innerStyle={{ marginTop: 4 }}
-                              value={optionItem.price ? optionItem.price : ""}
-                              onChange={(e: any) => onChangeOptions(aOption, index, e, "price")}
-                            />
-                          </div>
-
-                          <div className="w33p text-center mt-4">
-                            <div className="flex justify-c">
-                              {index !== 0 && (
-                                <button
-                                  onClick={() => handleDeleteOption(aOption, index)}
-                                  className="btn-add"
-                                >
-                                  삭제
-                                </button>
-                              )}
-                              {index === 0 && (
-                                <button
-                                  onClick={() => handleAddOption(aOption)}
-                                  className="btn-add-b"
-                                >
-                                  추가
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           )}
@@ -1786,7 +2077,7 @@ export default function ProductDetail(): JSX.Element {
                                 <ButtonR
                                   name={`삭제`}
                                   color={"white"}
-                                  onClick={() => {}}
+                                  onClick={() => handleDeleteFormImage("pointForm", i)}
                                   // handleDeleteFile(
                                   //   "additionalImg",
                                   //   files?.additionalImg[i]?.fileUrl
@@ -2025,12 +2316,7 @@ export default function ProductDetail(): JSX.Element {
                                 <ButtonR
                                   name={`삭제`}
                                   color={"white"}
-                                  onClick={() =>
-                                    handleDeleteFile(
-                                      "additionalImg",
-                                      files?.additionalImg[i]?.fileUrl
-                                    )
-                                  }
+                                  onClick={() => handleDeleteFormImage("productItemForm", i)}
                                 />
                               </div>
                             </div>

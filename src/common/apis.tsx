@@ -36,7 +36,7 @@ export const postUploadImage = async (_file: object): Promise<string | boolean> 
 
     return data;
   } catch (error) {
-    return false;
+    return "";
   }
 };
 
