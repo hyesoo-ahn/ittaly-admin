@@ -188,6 +188,7 @@ const AddMainEvent: React.FC = () => {
       discountPrice: currency(data[0]?.discountPrice),
       freeshipping: data[0]?.freeshipping,
     });
+    console.log(data[0]?.downloadMemberType);
     setDistributionMethod({
       targetMember: data[0]?.targetMember,
       downloadMemberType: {
