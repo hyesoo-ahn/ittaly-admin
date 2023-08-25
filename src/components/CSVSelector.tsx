@@ -29,7 +29,16 @@ const CSVSelector = forwardRef((props: Props, ref: any) => {
 
         // 6. call the onChange event
         // console.log(_data);
-        props.onChange(_data);
+
+        let temp: any = [];
+        for (let i in _data) {
+          if (!isNaN(parseInt(_data[i].추가금액.replace(/,/gi, "")))) {
+            temp.push({ ..._data[i], status: true });
+          } else {
+            temp.push({ ..._data[i], status: false });
+          }
+        }
+        props.onChange(temp);
       } catch (error) {
         console.error(error);
       }

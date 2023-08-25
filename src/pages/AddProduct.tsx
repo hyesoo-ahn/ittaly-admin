@@ -976,7 +976,7 @@ export default function AddProduct(): JSX.Element {
   const handleFixCsvOptions = () => {
     let tempArr = [];
     for (let i = 0; i < jsonData?.length; i++) {
-      if (i !== 0) {
+      if (i !== 0 && jsonData[i].status) {
         tempArr.push({
           optionValue: `${jsonData[i]?.[Object.keys(jsonData[0])[0]]} ${
             jsonData[i]?.[Object.keys(jsonData[0])[1]] ? "/" : ""
@@ -1465,11 +1465,13 @@ export default function AddProduct(): JSX.Element {
                         </div>
 
                         <div className="w20p">
-                          <p>{jsonData[i]?.추가금액}</p>
+                          {el.status && <p>{jsonData[i]?.추가금액}</p>}
+                          {!el.status && <p className="font-red">{jsonData[i]?.추가금액}</p>}
                         </div>
 
                         <div className="w20p">
-                          <p>dddd</p>
+                          {el.status && <p>성공</p>}
+                          {!el.status && <p className="font-red">실패</p>}
                         </div>
                       </div>
                     </div>
