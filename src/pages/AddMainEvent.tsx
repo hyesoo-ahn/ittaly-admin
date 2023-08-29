@@ -36,7 +36,7 @@ const AddMainEvent: React.FC = () => {
   const [selectedSubCategory, setSelectedSubCategory] = useState<any>(null);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [relatedProducts, setRelatedProducts] = useState<any>({
-    type: "category",
+    type: "none",
     products: [],
   });
   const [categories, setCategories] = useState<any[]>([]);
@@ -164,7 +164,6 @@ const AddMainEvent: React.FC = () => {
     });
 
     const { data } = selectProducts;
-    console.log("DATA", data);
 
     let tempProductSelect: any = [];
     for (let i = 0; i < data?.length; i++) {
@@ -768,6 +767,14 @@ const AddMainEvent: React.FC = () => {
           {eventType === "normal" && (
             <div style={{ flex: 1 }} className="mt-16 mb-16">
               <div className="flex align-c">
+                <div className="checkbox-c mr-4">
+                  {relatedProducts.type === "none" && <div className="checkbox-c-filled" />}
+                </div>
+
+                <p onClick={() => handleRelatedProdType("none")} className="cursor font-desc mr-20">
+                  없음
+                </p>
+
                 <div className="checkbox-c mr-4">
                   {relatedProducts.type === "category" && <div className="checkbox-c-filled" />}
                 </div>
