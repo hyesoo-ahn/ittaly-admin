@@ -1,7 +1,7 @@
 import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { getDatas, getUsers } from "../common/apis";
+import { getDatas, getUsers, postCollection } from "../common/apis";
 import { currency, timeFormat1, timeFormat2 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
@@ -93,6 +93,29 @@ export default function Users(): JSX.Element {
     }
   }, [rewardsPopup, couponPopup]);
 
+  const handlePostRewards = async () => {
+    // rewardType, rewards
+    for (let i in filteredUsers) {
+      const _body = {
+        collection: "userRewards",
+        targetCollection: "",
+        targetUserId: filteredUsers[i]._id,
+        detail: `[관리자 권한] 적립금 ${rewardType === "지급" ? "지급" : "차감"}`,
+        rewards:
+          rewardType === "지급"
+            ? parseInt(rewards.replace(/,/gi, ""))
+            : -parseInt(rewards.replace(/,/gi, "")),
+      };
+
+      await postCollection({
+        ..._body,
+      });
+    }
+
+    setRewardsPopup(false);
+    init();
+  };
+
   return (
     <div>
       {rewardsPopup && (
@@ -147,19 +170,36 @@ export default function Users(): JSX.Element {
               </div>
 
               <div className="mt-15">
-                <div className="flex justify-sb align-c">
-                  <p>행복한 물개(ewsd24s)</p>
-                  <p>500원</p>
-                </div>
-
-                <div className="flex justify-sb align-c mt-4">
-                  <p>행복한 물개(ewsd24s2)</p>
-                  <p>2,000원</p>
-                </div>
+                {filteredUsers.map((aUser: any, i: number) => (
+                  <div key={i} className="flex justify-sb align-c mt-8">
+                    <p>
+                      {aUser.nickname}({aUser.kakao})
+                    </p>
+                    <p>
+                      {currency(aUser.rewards ? aUser.rewards : 0)} <span>{">"}</span>{" "}
+                      <span>
+                        {isNaN(
+                          parseInt(aUser.rewards ? aUser.rewards : 0) +
+                            parseInt(rewards.replace(",", ""))
+                        )
+                          ? 0
+                          : rewardType === "지급"
+                          ? currency(
+                              parseInt(aUser.rewards ? aUser.rewards : 0) +
+                                parseInt(rewards.replace(",", ""))
+                            )
+                          : currency(
+                              parseInt(aUser.rewards ? aUser.rewards : 0) -
+                                parseInt(rewards.replace(",", ""))
+                            )}
+                      </span>
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <p className="text-center mt-15">선택한 2명에게 적용됩니다.</p>
+            <p className="text-center mt-15">선택한 {filteredUsers.length}명에게 적용됩니다.</p>
 
             <div className="flex justify-fe mt-20">
               <ButtonR
@@ -173,7 +213,7 @@ export default function Users(): JSX.Element {
                 styleClass={"mr-8"}
               />
 
-              <ButtonR name={"설정"} onClick={() => {}} />
+              <ButtonR name={"설정"} onClick={handlePostRewards} />
             </div>
           </div>
         </Modal>
@@ -384,7 +424,7 @@ export default function Users(): JSX.Element {
       </div>
 
       <div className={`list-content pl-18 pr-18`}>
-        {users.map((user: any, i: number) => (
+        {users?.map((user: any, i: number) => (
           <div key={i} className={`flex align-c mt-8 mb-8`}>
             <div className="w5p">
               <input

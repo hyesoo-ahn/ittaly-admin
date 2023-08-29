@@ -239,7 +239,13 @@ const Deposit: React.FC = () => {
       </div>
 
       <p className="font-category mt-40">개별 지급</p>
-      <ButtonR name={"개별 지급하러 가기"} styleClass="mt-13" color="white" onClick={() => {}} />
+      <ButtonR
+        name={"개별 지급하러 가기"}
+        styleClass="mt-13"
+        color="white"
+        // onClick={() => {}}
+        onClick={() => navigate("/customer/users/active")}
+      />
 
       <p className="font-category mt-40">자동 지급</p>
 
