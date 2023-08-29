@@ -23,129 +23,129 @@ const NAV_DATA = [
       { title: "카테고리 관리", path: "product/category" },
     ],
   },
-  // {
-  //   title: "주문배송",
-  //   path: "",
-  //   navArr1: [
-  //     { title: "주문 전체검색", path: "/order/payments" },
-  //     { title: "출고요청 리스트", path: "/order/shippingrequest" },
-  //     { title: "미출고 리스트", path: "/order/pendingshipment" },
-  //     { title: "출고운송장 입력", path: "/order/invoice" },
-  //     { title: "배송상태 조회", path: "/order/deliverystatus" },
-  //     { title: "취소/반품/교환", path: "/order/cancellation" },
-  //   ],
-  // },
-  // {
-  //   title: "사이트관리",
-  //   path: "",
-  //   navArr1: [
-  //     {
-  //       title: "첫 화면 관리",
-  //       path: "",
-  //       navArr2: [
-  //         {
-  //           title: "상단배너",
-  //           path: "/site/main/bannertop",
-  //         },
-  //         {
-  //           title: "기획전",
-  //           path: "/site/main/promotion",
-  //         },
-  //         {
-  //           title: "브랜드",
-  //           path: "/site/main/brand",
-  //         },
-  //         {
-  //           title: "매거진",
-  //           path: "/site/main/magazine",
-  //         },
-  //         {
-  //           title: "#Live like ittaly",
-  //           path: "/site/main/livelikeittaly",
-  //         },
-  //       ],
-  //     },
-  //     { title: "라이브 관리", path: "/error" },
-  //     { title: "팝업 관리", path: "/site/popup" },
-  //     {
-  //       title: "배너 관리",
-  //       path: "",
-  //       navArr2: [
-  //         {
-  //           title: "홈 띠배너",
-  //           path: "/site/banner/hbanner",
-  //         },
-  //         {
-  //           title: "마이잇태리 띠배너",
-  //           path: "/site/banner/myittalybanner",
-  //         },
-  //       ],
-  //     },
-  //     { title: "이벤트 관리", path: "/site/event" },
-  //     { title: "적립금 관리", path: "/site/deposit" },
-  //     { title: "쿠폰 관리", path: "/site/coupon" },
-  //     { title: "공지사항", path: "/site/notice" },
-  //     { title: "FAQ", path: "faq" },
-  //     {
-  //       title: "약관",
-  //       path: "",
-  //       navArr2: [
-  //         {
-  //           title: "개인정보처리방침",
-  //           path: "/site/terms/privacy",
-  //         },
-  //         {
-  //           title: "이용약관",
-  //           path: "/site/terms/service",
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
+  {
+    title: "주문배송",
+    path: "",
+    navArr1: [
+      { title: "주문 전체검색", path: "/order/payments" },
+      { title: "출고요청 리스트", path: "/order/shippingrequest" },
+      { title: "미출고 리스트", path: "/order/pendingshipment" },
+      { title: "출고운송장 입력", path: "/order/invoice" },
+      { title: "배송상태 조회", path: "/order/deliverystatus" },
+      { title: "취소/반품/교환", path: "/order/cancellation" },
+    ],
+  },
+  {
+    title: "사이트관리",
+    path: "",
+    navArr1: [
+      {
+        title: "첫 화면 관리",
+        path: "",
+        navArr2: [
+          {
+            title: "상단배너",
+            path: "/site/main/bannertop",
+          },
+          {
+            title: "기획전",
+            path: "/site/main/promotion",
+          },
+          {
+            title: "브랜드",
+            path: "/site/main/brand",
+          },
+          {
+            title: "매거진",
+            path: "/site/main/magazine",
+          },
+          {
+            title: "#Live like ittaly",
+            path: "/site/main/livelikeittaly",
+          },
+        ],
+      },
+      { title: "라이브 관리", path: "/error" },
+      { title: "팝업 관리", path: "/site/popup" },
+      {
+        title: "배너 관리",
+        path: "",
+        navArr2: [
+          {
+            title: "홈 띠배너",
+            path: "/site/banner/hbanner",
+          },
+          {
+            title: "마이잇태리 띠배너",
+            path: "/site/banner/myittalybanner",
+          },
+        ],
+      },
+      { title: "이벤트 관리", path: "/site/event" },
+      { title: "적립금 관리", path: "/site/deposit" },
+      { title: "쿠폰 관리", path: "/site/coupon" },
+      { title: "공지사항", path: "/site/notice" },
+      { title: "FAQ", path: "faq" },
+      {
+        title: "약관",
+        path: "",
+        navArr2: [
+          {
+            title: "개인정보처리방침",
+            path: "/site/terms/privacy",
+          },
+          {
+            title: "이용약관",
+            path: "/site/terms/service",
+          },
+        ],
+      },
+    ],
+  },
 
-  // {
-  //   title: "고객",
-  //   path: "",
-  //   navArr1: [
-  //     {
-  //       title: "회원 관리",
-  //       path: "",
-  //       navArr2: [
-  //         {
-  //           title: "회원정보 조회",
-  //           path: "/customer/users/active",
-  //         },
-  //         {
-  //           title: "휴면회원 관리",
-  //           path: "/customer/users/inactive",
-  //         },
-  //         {
-  //           title: "탈퇴회원 관리",
-  //           path: "/customer/users/withdrawn",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "추천인 프로그램",
-  //       path: "",
-  //       navArr2: [
-  //         {
-  //           title: "추천인 적립금 지급관리",
-  //           path: "/customer/referral/rewards",
-  //         },
-  //         {
-  //           title: "추천인 관리",
-  //           path: "/customer/referral/managing",
-  //         },
-  //       ],
-  //     },
-  //     { title: "1:1 문의 관리", path: "/customer/inquiry" },
-  //     { title: "상품 문의 관리", path: "/customer/productinquiry" },
-  //     { title: "상품 후기 관리", path: "/customer/reviews" },
-  //     { title: "입고 요청 관리", path: "/error" },
-  //     { title: "푸시 발송 관리", path: "/error" },
-  //   ],
-  // },
+  {
+    title: "고객",
+    path: "",
+    navArr1: [
+      {
+        title: "회원 관리",
+        path: "",
+        navArr2: [
+          {
+            title: "회원정보 조회",
+            path: "/customer/users/active",
+          },
+          {
+            title: "휴면회원 관리",
+            path: "/customer/users/inactive",
+          },
+          {
+            title: "탈퇴회원 관리",
+            path: "/customer/users/withdrawn",
+          },
+        ],
+      },
+      {
+        title: "추천인 프로그램",
+        path: "",
+        navArr2: [
+          {
+            title: "추천인 적립금 지급관리",
+            path: "/customer/referral/rewards",
+          },
+          {
+            title: "추천인 관리",
+            path: "/customer/referral/managing",
+          },
+        ],
+      },
+      { title: "1:1 문의 관리", path: "/customer/inquiry" },
+      { title: "상품 문의 관리", path: "/customer/productinquiry" },
+      { title: "상품 후기 관리", path: "/customer/reviews" },
+      { title: "입고 요청 관리", path: "/error" },
+      { title: "푸시 발송 관리", path: "/error" },
+    ],
+  },
 ];
 
 function Layout(): JSX.Element {
