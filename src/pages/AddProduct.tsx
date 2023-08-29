@@ -800,7 +800,7 @@ export default function AddProduct(): JSX.Element {
 
     if (productAddResult.result) {
       alert("상품 등록이 완료되었습니다.");
-      navigate(-1);
+      navigate("/product/productmanage");
     }
 
     setLoading(false);

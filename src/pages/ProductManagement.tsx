@@ -168,8 +168,15 @@ export default function ProductManagement(): JSX.Element {
       _id,
     };
 
-    const result: any = await deleteProduct(_body);
-    console.log(result);
+    const confirm = window.confirm("해당 상품을 삭제하시겠습니까?");
+    if (confirm) {
+      const result: any = await deleteProduct(_body);
+      if (result.status === 200) {
+        alert("상품이 삭제되었습니다.");
+      }
+    }
+
+    init();
   };
 
   return (
