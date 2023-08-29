@@ -21,10 +21,13 @@ export default function Users(): JSX.Element {
   const [rewardsPopup, setRewardsPopup] = useState<boolean>(false);
   const [rewards, setRewards] = useState<string>("");
   const [rewardType, setRewardType] = useState<string>("지급");
+  const [couponData, setCouponData] = useState<any>([]);
+  const [selectedCoupon, setSelectedCoupon] = useState<any>(null);
 
   const [couponPopup, setCouponPopup] = useState<boolean>(false);
 
   const [users, setUsers] = useState<any[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<any>([]);
 
   useEffect(() => {
     init();
@@ -35,7 +38,25 @@ export default function Users(): JSX.Element {
       // sort: { sort: -1 },
     });
 
-    console.log(data);
+    const couponData: any = await getDatas({
+      collection: "coupons",
+      find: { targetMember: true },
+    });
+
+    let coupons = couponData?.data;
+
+    let tempCoupons = [];
+    for (let i = 0; i < coupons?.length; i++) {
+      tempCoupons.push({
+        label: coupons[i].title,
+        value: coupons[i].title,
+        ...coupons[i],
+      });
+    }
+
+    // console.log(coupons);
+    console.log("USERDATA", data);
+    setCouponData(tempCoupons);
     setUsers(data);
   };
 
@@ -52,6 +73,25 @@ export default function Users(): JSX.Element {
 
     setRewards(value);
   };
+
+  const handleCheckUsers = (user: any) => {
+    let tempUsers = [...users];
+    const tIdx = tempUsers.findIndex((el: any) => el === user);
+
+    tempUsers[tIdx].checked = !tempUsers[tIdx].checked;
+    setUsers(tempUsers);
+  };
+
+  const handleFileterUsers = () => {
+    const filteredUsers = users.filter((aUser) => aUser.checked);
+    setFilteredUsers(filteredUsers);
+  };
+
+  useEffect(() => {
+    if (rewardsPopup || couponPopup) {
+      handleFileterUsers();
+    }
+  }, [rewardsPopup, couponPopup]);
 
   return (
     <div>
@@ -159,25 +199,26 @@ export default function Users(): JSX.Element {
             <div className="pt-15 pb-15 border-bottom-gray">
               <SelectBox
                 containerStyles={{ width: "100%" }}
-                onChange={() => {}}
-                options={Cateogyoptions1}
-                value={null}
+                onChange={(e: any) => {
+                  setSelectedCoupon(e);
+                }}
+                options={couponData}
+                value={selectedCoupon}
                 noOptionsMessage=""
                 placeholder="쿠폰 선택"
               />
               <div className="mt-15">
-                <div className="flex justify-sb align-c">
-                  <p>행복한 물개(ewsd24s)</p>
-                  <p>500원</p>
-                </div>
-                <div className="flex justify-sb align-c mt-4">
-                  <p>행복한 물개(ewsd24s2)</p>
-                  <p>2,000원</p>
-                </div>
+                {filteredUsers.map((aUser: any) => (
+                  <div className="flex justify-sb align-c mt-8">
+                    <p>
+                      {aUser.nickname}({aUser.kakao})
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <p className="text-center mt-15">선택한 2명에게 적용됩니다.</p>
+            <p className="text-center mt-15">선택한 {filteredUsers.length}명에게 적용됩니다.</p>
 
             <div className="flex justify-fe mt-20">
               <ButtonR
@@ -309,9 +350,7 @@ export default function Users(): JSX.Element {
       </div>
 
       <div className="list-header mt-10 pl-18 pr-18">
-        <div className="w5p">
-          <input type="checkbox" />
-        </div>
+        <div className="w5p">{/* <input type="checkbox" /> */}</div>
 
         <div className="w10p text-center">
           <p>가입일</p>
@@ -348,7 +387,11 @@ export default function Users(): JSX.Element {
         {users.map((user: any, i: number) => (
           <div key={i} className={`flex align-c mt-8 mb-8`}>
             <div className="w5p">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                onChange={() => handleCheckUsers(user)}
+                checked={user.checked || ""}
+              />
             </div>
             <div className="w10p text-center">
               <p>{timeFormat2(user.created)}</p>

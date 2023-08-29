@@ -188,13 +188,15 @@ const AddMainEvent: React.FC = () => {
       discountPrice: currency(data[0]?.discountPrice),
       freeshipping: data[0]?.freeshipping,
     });
-    console.log(data[0]?.downloadMemberType);
+    console.log(data[0]);
     setDistributionMethod({
       targetMember: data[0]?.targetMember,
-      downloadMemberType: {
-        value: data[0]?.downloadMemberType,
-        label: data[0]?.downloadMemberType,
-      },
+      downloadMemberType: data[0]?.downloadMemberType
+        ? {
+            label: data[0]?.downloadMemberType,
+            value: data[0]?.downloadMemberType,
+          }
+        : null,
     });
     setReissuanceNum(
       currency(
