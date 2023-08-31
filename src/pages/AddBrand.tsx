@@ -151,7 +151,7 @@ const AddBrand = () => {
               />
             </div>
 
-            <p className="font-desc">이미지 1장, 1080px x 1080px</p>
+            <p className="font-desc">이미지 1장, 1080px x 600px</p>
           </div>
 
           {file.url && <img src={file.url} style={{ width: 278, height: "auto" }} />}

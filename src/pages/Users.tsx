@@ -10,9 +10,26 @@ import Modal from "../components/Modal";
 import close from "../images/close.png";
 
 const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
+  {
+    value: "Top Class",
+    label: "Top Class",
+  },
+  {
+    value: "Platinum",
+    label: "Platinum",
+  },
+  {
+    value: "Gold",
+    label: "Gold",
+  },
+  {
+    value: "Silver",
+    label: "Silver",
+  },
+  {
+    value: "Family",
+    label: "Family",
+  },
 ];
 
 export default function Users(): JSX.Element {
@@ -55,7 +72,7 @@ export default function Users(): JSX.Element {
     }
 
     // console.log(coupons);
-    console.log("USERDATA", data);
+    // console.log("USERDATA", data);
     setCouponData(tempCoupons);
     setUsers(data);
   };
@@ -114,6 +131,14 @@ export default function Users(): JSX.Element {
 
     setRewardsPopup(false);
     init();
+  };
+
+  const handleFilter = async () => {
+    let filterUsers = await getUsers({
+      find: { created: { $gte: 1690365012518, $lte: 1690365308013 } },
+    });
+
+    // console.log("filterDATA", filterUsers);
   };
 
   return (
@@ -358,6 +383,7 @@ export default function Users(): JSX.Element {
           </div>
           <div className="flex" style={{ flex: 1, margin: "0 4px", height: 32 }}>
             <button
+              onClick={handleFilter}
               className="btn-add-b"
               style={{
                 width: "50%",
