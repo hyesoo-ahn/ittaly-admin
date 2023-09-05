@@ -85,7 +85,7 @@ const NAV_DATA = [
       { title: "적립금 관리", path: "/site/deposit" },
       { title: "쿠폰 관리", path: "/site/coupon" },
       { title: "공지사항", path: "/site/notice" },
-      { title: "FAQ", path: "faq" },
+      { title: "FAQ", path: "/site/faq" },
       {
         title: "약관",
         path: "",

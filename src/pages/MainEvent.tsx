@@ -25,8 +25,8 @@ const EVENT_STATUS = [
 ];
 
 const EVENT_OPEN_STATUS = [
-  { value: "공개", label: "공개" },
-  { value: "비공개", label: "비공개" },
+  { value: true, label: "공개" },
+  { value: false, label: "비공개" },
 ];
 
 export default function MainEvent(): JSX.Element {
@@ -34,13 +34,15 @@ export default function MainEvent(): JSX.Element {
   const [selected, setSelected] = useState<any>("");
   const [events, setEvents] = useState<any[]>([]);
   const [filterOb, setFilterOb] = useState<any>({
-    startingDate: null,
-    endingDate: null,
-    eventType: "",
+    startingDate: "",
+    endingDate: "",
+    eventType: null,
     eventStatus: "",
     title: "",
-    openStatus: false,
+    openStatus: null,
   });
+  const [filterStartingDate, setFilterStartingDate] = useState<string | null>(null);
+  const [filterEndingDate, setFilterEndingDate] = useState<string | null>(null);
 
   useEffect(() => {
     init();
@@ -55,7 +57,49 @@ export default function MainEvent(): JSX.Element {
     setEvents(data);
   };
 
-  const handleFilterEvent = () => {};
+  const initialFilter = () => {
+    setFilterOb({
+      startingDate: "",
+      endingDate: "",
+      eventType: null,
+      eventStatus: "",
+      title: "",
+      openStatus: null,
+    });
+    init();
+  };
+
+  const handleFilterEvent = async () => {
+    let find: any = {};
+    let findTimeStamp: any = {};
+    if (filterOb.startingDate !== "")
+      findTimeStamp.startingDate = { $gte: new Date(filterOb.startingDate).getTime() };
+    if (filterOb.endingDate !== "")
+      findTimeStamp.endingDate = { $lte: new Date(filterOb.endingDate).getTime() };
+    if (filterOb.eventType) find.eventType = filterOb.eventType.value;
+    if (filterOb.title !== "") find.title = filterOb.title;
+    if (filterOb.openStatus) find.openStatus = filterOb.openStatus.value;
+
+    const { data }: any = await getDatas({
+      collection: "events",
+      find: {
+        ...findTimeStamp,
+        ...find,
+      },
+    });
+
+    const timeStamp = Date.now();
+
+    let tempFilterArr = data;
+    if (filterOb.eventStatus === "종료") {
+      tempFilterArr = data.filter((el: any) => el.endingDate < timeStamp);
+    }
+    if (filterOb.eventStatus === "진행중") {
+      tempFilterArr = data.filter((el: any) => el.endingDate > timeStamp);
+    }
+
+    setEvents(tempFilterArr);
+  };
 
   const handleCheckData = (element: any) => {
     let tempArr = [...events];
@@ -133,6 +177,15 @@ export default function MainEvent(): JSX.Element {
         <div className="flex">
           <div className="flex1 ml-4 mr-4 flex">
             <input
+              value={filterOb.startingDate}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    startingDate: e.target.value,
+                  };
+                });
+              }}
               type="date"
               className="main-event-date-input mr-4"
               data-placeholder="시작일(~부터)"
@@ -140,6 +193,15 @@ export default function MainEvent(): JSX.Element {
               aria-required="true"
             />
             <input
+              value={filterOb.endingDate}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    endingDate: e.target.value,
+                  };
+                });
+              }}
               type="date"
               className="main-event-date-input ml-4"
               data-placeholder="종료일(~까지)"
@@ -150,8 +212,15 @@ export default function MainEvent(): JSX.Element {
           <div className="flex1 ml-4 mr-4">
             <SelectBox
               containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
+              value={filterOb.eventType}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    eventType: e,
+                  };
+                });
+              }}
               options={EVENT_TYPE}
               noOptionsMessage={"상태가 없습니다."}
               placeholder="이벤트 유형"
@@ -160,8 +229,15 @@ export default function MainEvent(): JSX.Element {
           <div className="flex1 ml-4 mr-4">
             <SelectBox
               containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
+              value={filterOb.status}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    eventStatus: e.value,
+                  };
+                });
+              }}
               options={EVENT_STATUS}
               noOptionsMessage={"상태가 없습니다."}
               placeholder="진행상태"
@@ -171,21 +247,45 @@ export default function MainEvent(): JSX.Element {
 
         <div className="flex mt-8">
           <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}>
-            <InputR size="full" placeholer="쿠폰명" innerStyle={{ margin: 0 }} />
+            <InputR
+              size="full"
+              placeholer="쿠폰명"
+              value={filterOb.title}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    title: e.target.value,
+                  };
+                });
+              }}
+              innerStyle={{ margin: 0 }}
+            />
           </div>
           <div style={{ flex: 1, margin: "0 4px", height: 32 }}>
             <SelectBox
               containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
+              value={filterOb.openStatus}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    openStatus: e,
+                  };
+                });
+              }}
               options={EVENT_OPEN_STATUS}
               noOptionsMessage={"상태가 없습니다."}
               placeholder="공개여부"
             />
           </div>
           <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
-            <button className="btn-add-b w50p mr-4 h100p border-none">검색</button>
-            <button className="w50p bg-white h100p ml-4 border-black">초기화</button>
+            <button onClick={handleFilterEvent} className="btn-add-b w50p mr-4 h100p border-none">
+              검색
+            </button>
+            <button onClick={initialFilter} className="w50p bg-white h100p ml-4 border-black">
+              초기화
+            </button>
           </div>
         </div>
       </div>

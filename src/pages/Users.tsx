@@ -40,6 +40,8 @@ export default function Users(): JSX.Element {
   const [rewardType, setRewardType] = useState<string>("지급");
   const [couponData, setCouponData] = useState<any>([]);
   const [selectedCoupon, setSelectedCoupon] = useState<any>(null);
+  const [filterStarting, setFilterStarting] = useState<any>(null);
+  const [filterEnding, setFilterEnding] = useState<any>(null);
 
   const [couponPopup, setCouponPopup] = useState<boolean>(false);
 
@@ -134,10 +136,14 @@ export default function Users(): JSX.Element {
   };
 
   const handleFilter = async () => {
+    const startingTimeStamp = new Date(filterStarting).getTime();
+    const endingTimeStamp = new Date(filterEnding).getTime();
+
     let filterUsers = await getUsers({
-      find: { created: { $gte: 1690365012518, $lte: 1690365308013 } },
+      find: { created: { $gte: startingTimeStamp, $lte: endingTimeStamp } },
     });
 
+    // console.log(filterStarting, filterEnding);
     // console.log("filterDATA", filterUsers);
   };
 
@@ -309,6 +315,8 @@ export default function Users(): JSX.Element {
         <div className="flex">
           <div className="flex1 ml-4 mr-4 flex">
             <input
+              value={filterStarting}
+              onChange={(e: any) => setFilterStarting(e.target.value)}
               type="date"
               className="main-event-date-input mr-4"
               data-placeholder="가입일(~부터)"
@@ -316,6 +324,8 @@ export default function Users(): JSX.Element {
               aria-required="true"
             />
             <input
+              value={filterEnding}
+              onChange={(e: any) => setFilterEnding(e.target.value)}
               type="date"
               className="main-event-date-input ml-4"
               data-placeholder="가입일(~까지)"

@@ -65,6 +65,8 @@ import ProductReviewDetail from "./pages/ProductReviewDetail";
 import CouponDetail from "./pages/CouponDetail";
 import Payments from "./pages/Payments";
 import PaymentDetail from "./pages/PaymentDetail";
+import FAQ from "./pages/FAQ";
+import AddFAQ from "./pages/AddFAQ";
 
 function App() {
   useEffect(() => {
@@ -151,6 +153,8 @@ function App() {
             <Route path="/site/notice" element={<Notice />} />
             <Route path="/site/notice/add" element={<AddNotice />} />
             <Route path="/site/notice/:noticeId" element={<NoticeDetail />} />
+            <Route path="/site/faq" element={<FAQ />} />
+            <Route path="/site/faq/add" element={<AddFAQ />} />
 
             {/* 주문배송 */}
             <Route path="/order/payments" element={<Payments />} />
