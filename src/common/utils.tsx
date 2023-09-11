@@ -1,4 +1,4 @@
-import { deleteData } from "./apis";
+import { deleteData, getDatas } from "./apis";
 
 export const moveValue = (array: any[], fromIndex: number, toIndex: number) => {
   let temp = array;
@@ -51,6 +51,9 @@ export const deleteItem = async (collection: string, _id: string, type: string) 
       break;
     case "쿠폰":
       typeSubject = "쿠폰을";
+      break;
+    case "FAQ":
+      typeSubject = "FAQ를";
       break;
   }
 
@@ -277,4 +280,21 @@ export const csvToJSON = (csv_string: string) => {
   }
 
   return jsonArray;
+};
+
+// 브랜드 삭제
+export const handleDeleteBrand = async (item: any, init: any) => {
+  const { data }: any = await getDatas({
+    collection: "products",
+    find: { brandId: item?._id, delete: { $ne: true } },
+  });
+
+  if (data.length === 0) {
+    await deleteItem("brands", item._id, "브랜드");
+    await init();
+  } else {
+    alert(
+      `해당 브랜드에 포함된 상품이 남아있습니다. \n해당 브랜드의 모든 상품 삭제 후 진행해 주세요.`
+    );
+  }
 };

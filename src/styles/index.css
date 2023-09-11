@@ -756,3 +756,52 @@ input {
   left: 1px;
   top: -1px;
 }
+
+.postcode-zonecode {
+  border: 1px solid #979797;
+  background-color: #e8e8e8;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 14px;
+  flex: none;
+}
+
+/* select box custom */
+.selectbox-custom-wrapper {
+  width: 280px;
+  border: 1px solid #cccccc;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.selectbox-custom-wrapper:active {
+  transform: scale(0.98) !important;
+}
+
+.selectbox-custom-list {
+  position: fixed;
+  width: 280px;
+  border: 1px solid #cccccc;
+  background-color: #fff;
+  z-index: 1;
+}
+
+.selectbox-custom-list > div {
+  padding: 8px 12px;
+}
+
+.selectbox-custom-list > div:hover {
+  background-color: #dfe9f7;
+  cursor: pointer;
+}
+
+.selectbox-custom-selected {
+  background-color: #2684ff;
+}
+
+.font-gray {
+  color: #cccccc !important;
+}

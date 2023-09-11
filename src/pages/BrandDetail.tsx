@@ -4,6 +4,7 @@ import { getDatas, postAddBrand, postUploadImage, putUpdateData } from "../commo
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import forward from "../images/Forward.png";
+import { handleDeleteBrand } from "../common/utils";
 
 interface IFile {
   file: File | null;
@@ -23,6 +24,7 @@ const BrandDetail = () => {
   });
   const fileRef = useRef<any>(null);
   const [openStatus, setOpenStatus] = useState<boolean>(true);
+  const [item, setItem] = useState<any>([]);
 
   useEffect(() => {
     init();
@@ -43,6 +45,7 @@ const BrandDetail = () => {
         url: getBrandDetail.data[0]?.imgUrl,
       });
       setOpenStatus(getBrandDetail.data[0]?.openStatus);
+      setItem(getBrandDetail.data);
     }
   };
 
@@ -56,7 +59,7 @@ const BrandDetail = () => {
 
     if (brandName === "") return false;
     if (desc === "") return false;
-    if (!file.file) return false;
+    if (file.url === "") return false;
 
     return isValid;
   };
@@ -219,7 +222,7 @@ const BrandDetail = () => {
 
       <div className="flex justify-sb mt-10">
         <div>
-          <ButtonR name={"삭제"} onClick={() => {}} color={"white"} />
+          <ButtonR name={"삭제"} onClick={() => handleDeleteBrand(item, init)} color={"white"} />
         </div>
         <div className="flex">
           <ButtonR name={"취소"} onClick={() => navigate(-1)} styleClass={"mr-4"} color={"white"} />

@@ -222,9 +222,7 @@ export default function FAQ(): JSX.Element {
       </div>
 
       <div className="list-header mt-10 pl-18 pr-18">
-        <div className="w5p">
-          <input type="checkbox" />
-        </div>
+        <div className="w5p">{/* <input type="checkbox" /> */}</div>
 
         <div className="w20p">
           <p>카테고리</p>
@@ -262,7 +260,12 @@ export default function FAQ(): JSX.Element {
             </div>
 
             <div className="w55p">
-              <p className="text-underline font-blue cursor">{element.question}</p>
+              <p
+                onClick={() => navigate(`/site/faq/${element._id}`)}
+                className="text-underline font-blue cursor"
+              >
+                {element.question}
+              </p>
             </div>
 
             <div className="w10p text-center">
@@ -275,14 +278,14 @@ export default function FAQ(): JSX.Element {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/site/coupon/${element._id}`)}
+                onClick={() => navigate(`/site/faq/${element._id}`)}
               />
               <ButtonR
                 name="삭제"
                 color="white"
                 styles={{ marginRight: 4 }}
                 onClick={async () => {
-                  await deleteItem("coupons", element._id, "쿠폰");
+                  await deleteItem("faq", element._id, "FAQ");
                   await init();
                 }}
               />

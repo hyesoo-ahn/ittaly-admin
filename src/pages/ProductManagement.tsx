@@ -168,7 +168,9 @@ export default function ProductManagement(): JSX.Element {
       _id,
     };
 
-    const confirm = window.confirm("해당 상품을 삭제하시겠습니까?");
+    const confirm = window.confirm(
+      "해당 상품을 삭제하시겠습니까?\n해당 상품을 연관상품으로 등록한 모든 콘텐츠에서 해당 상품이 사라집니다."
+    );
     if (confirm) {
       const result: any = await deleteProduct(_body);
       if (result.status === 200) {

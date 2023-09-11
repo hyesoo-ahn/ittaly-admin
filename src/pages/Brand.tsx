@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDatas } from "../common/apis";
 import { IBrandData } from "../common/interfacs";
-import { deleteItem } from "../common/utils";
+import { deleteItem, handleDeleteBrand } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 
 const Brand = () => {
@@ -21,21 +21,21 @@ const Brand = () => {
     setBrandData(brandData.data);
   };
 
-  const handleDeleteBrand = async (item: any) => {
-    const { data }: any = await getDatas({
-      collection: "products",
-      find: { brandId: item?._id, delete: { $ne: true } },
-    });
+  // const handleDeleteBrand = async (item: any) => {
+  //   const { data }: any = await getDatas({
+  //     collection: "products",
+  //     find: { brandId: item?._id, delete: { $ne: true } },
+  //   });
 
-    if (data.length === 0) {
-      await deleteItem("brands", item._id, "브랜드");
-      await init();
-    } else {
-      alert(
-        `해당 브랜드에 포함된 상품이 남아있습니다. \n해당 브랜드의 모든 상품 삭제 후 진행해 주세요.`
-      );
-    }
-  };
+  //   if (data.length === 0) {
+  //     await deleteItem("brands", item._id, "브랜드");
+  //     await init();
+  //   } else {
+  //     alert(
+  //       `해당 브랜드에 포함된 상품이 남아있습니다. \n해당 브랜드의 모든 상품 삭제 후 진행해 주세요.`
+  //     );
+  //   }
+  // };
 
   return (
     <div>
@@ -97,7 +97,7 @@ const Brand = () => {
                 name="삭제"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => handleDeleteBrand(aBrand)}
+                onClick={() => handleDeleteBrand(aBrand, init)}
                 // onClick={async () => {
                 //   await deleteItem("brands", aBrand._id, "브랜드");
                 //   await init();

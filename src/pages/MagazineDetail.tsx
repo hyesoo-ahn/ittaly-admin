@@ -438,6 +438,10 @@ export default function MagazineDetail(): JSX.Element {
     });
   };
 
+  const handleDeleteMagazine = async () => {
+    await deleteItem("magazines", magazineId!, "매거진");
+  };
+
   return (
     <>
       <div>
@@ -714,10 +718,7 @@ export default function MagazineDetail(): JSX.Element {
                                   name={`삭제`}
                                   color={"white"}
                                   onClick={() => {}}
-                                  // handleDeleteFile(
-                                  //   "additionalImg",
-                                  //   files?.additionalImg[i]?.fileUrl
-                                  // )
+                                  // onClick={() => handleDeleteMagazine(el._id)}
                                 />
                               </div>
                             </div>
@@ -937,13 +938,7 @@ export default function MagazineDetail(): JSX.Element {
         </div>
 
         <div className="flex justify-sb align-c mt-34">
-          <button
-            onClick={async () => {
-              await deleteItem("magazines", magazineId!, "매거진");
-              navigate(-1);
-            }}
-            className="btn-add pl-30 pr-30"
-          >
+          <button onClick={handleDeleteMagazine} className="btn-add pl-30 pr-30">
             삭제
           </button>
           <div className="flex">

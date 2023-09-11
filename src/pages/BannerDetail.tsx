@@ -21,7 +21,7 @@ import sale from "../images/sale_s.png";
 import new_s from "../images/new_s.png";
 import Select from "react-select";
 import uuid from "react-uuid";
-import { timeFormat2 } from "../common/utils";
+import { deleteItem, timeFormat2 } from "../common/utils";
 
 interface IFile {
   file: File | null;
@@ -76,9 +76,14 @@ const BannerDetail: React.FC = () => {
     }
 
     setOrderSelect(tempSelect);
+    setFile({
+      file: null,
+      url: getBannerDetail.data[0]?.imgUrl,
+    });
 
     if (getBannerDetail.result && getBannerDetail.status === 200) {
       const data = getBannerDetail.data[0];
+      console.log("DATA", data);
 
       setHeadline(data.headline);
       setSubcopy(data.subcopy);
@@ -87,10 +92,6 @@ const BannerDetail: React.FC = () => {
       setSelectedOption({ value: data.order.toString(), label: data.order.toString() });
       setOpeningStamp(timeFormat2(data.openingStamp));
 
-      setFile({
-        file: null,
-        url: data.imgUrl,
-      });
       setOpenStatus(data.openStatus);
     }
   };
@@ -151,11 +152,15 @@ const BannerDetail: React.FC = () => {
     navigate(-1);
   };
 
+  const handleDeleteBanner = async () => {
+    await deleteItem("banners", bannerId!, "배너");
+  };
+
   return (
     <div>
       <div className="flex align-c pb-30">
         <img onClick={() => navigate(-1)} className="img-close cursor mr-4" src={forward} />
-        <p className="page-title mt-3">상단배너 등록</p>
+        <p className="page-title mt-3">상단배너 수정</p>
       </div>
 
       <div className="product-field-wrapper mt-2 w100p">
@@ -230,9 +235,9 @@ const BannerDetail: React.FC = () => {
             <p className="font-desc">이미지 1장, 1080px x 600px</p>
           </div>
 
-          {file.url && <img src={file.url} style={{ width: 278, height: "auto" }} />}
+          {file?.url !== "" && <img src={file.url} style={{ width: 278, height: "auto" }} />}
 
-          {file.url && (
+          {file?.url !== "" && (
             <div className="flex mt-10 mb-16">
               <ButtonR
                 name={`변경`}
@@ -373,7 +378,7 @@ const BannerDetail: React.FC = () => {
 
       <div className="flex justify-sb mt-10">
         <div>
-          <ButtonR name={"삭제"} onClick={() => {}} color={"white"} />
+          <ButtonR name={"삭제"} onClick={handleDeleteBanner} color={"white"} />
         </div>
         <div className="flex">
           <ButtonR name={"취소"} onClick={() => navigate(-1)} styleClass={"mr-4"} color={"white"} />

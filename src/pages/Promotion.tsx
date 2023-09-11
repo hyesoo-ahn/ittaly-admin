@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getDatas } from "../common/apis";
+import { getDatas, putUpdateDataBulk } from "../common/apis";
 import { IBrandData } from "../common/interfacs";
 import { deleteItem, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 
 const Promotion = () => {
   const navigate = useNavigate();
-  const [promotions, setPromotions] = useState<any[]>();
+  const [promotions, setPromotions] = useState<any[]>([]);
 
   useEffect(() => {
     init();
@@ -19,6 +19,50 @@ const Promotion = () => {
     });
 
     setPromotions(promotionData.data);
+  };
+
+  const handleCheckPromotion = (item: any) => {
+    let temp: any = [...promotions];
+    const findIdx = temp.findIndex((el: any) => el === item);
+    temp[findIdx].checked = !temp[findIdx].checked;
+    setPromotions(temp);
+  };
+
+  const handleStatusChange = async (state: boolean) => {
+    const filtered: any = promotions.filter((el) => el.checked);
+    const updateData = [];
+
+    switch (state) {
+      case true:
+        for (let i in filtered) {
+          updateData.push({
+            _id: filtered[i]._id,
+            setData: {
+              openStatus: true,
+            },
+          });
+        }
+        break;
+
+      case false:
+        for (let i in filtered) {
+          updateData.push({
+            _id: filtered[i]._id,
+            setData: {
+              openStatus: false,
+            },
+          });
+        }
+        break;
+    }
+
+    const updateResult: any = await putUpdateDataBulk({ collection: "promotions", updateData });
+
+    if (updateResult.status === 200) {
+      alert("변경되었습니다.");
+    }
+
+    init();
   };
 
   return (
@@ -38,9 +82,7 @@ const Promotion = () => {
       </div>
 
       <div className="list-header mt-10 pl-18 pr-18">
-        <div className="w10p">
-          <input type="checkbox" />
-        </div>
+        <div className="w10p">{/* <input type="checkbox" /> */}</div>
 
         <div className="w50p">
           <p>제목</p>
@@ -63,7 +105,11 @@ const Promotion = () => {
         <div key={i} className="list-content pl-18 pr-18">
           <div className="flex align-c mt-8 mb-8">
             <div className="w10p">
-              <input type="checkbox" />
+              <input
+                checked={promotionItem.checked}
+                onChange={() => handleCheckPromotion(promotionItem)}
+                type="checkbox"
+              />
             </div>
 
             <div className="w50p">
@@ -97,6 +143,23 @@ const Promotion = () => {
           </div>
         </div>
       ))}
+
+      <div className="mt-20 flex justify-sb align-c flex-wrap">
+        <div className="flex">
+          <ButtonR
+            name="공개"
+            color="white"
+            onClick={() => handleStatusChange(true)}
+            styles={{ marginRight: 4, width: 80 }}
+          />
+          <ButtonR
+            name="비공개"
+            color="white"
+            onClick={() => handleStatusChange(false)}
+            styles={{ marginRight: 4, width: 80 }}
+          />
+        </div>
+      </div>
     </div>
   );
 };

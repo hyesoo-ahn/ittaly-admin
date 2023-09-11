@@ -46,6 +46,50 @@ const BannerTop = () => {
     setBannersData([...newArr]);
   };
 
+  const handleCheckBanner = (item: any) => {
+    let temp = [...bannersData];
+    const findIdx = temp.findIndex((el) => el === item);
+    temp[findIdx].checked = !temp[findIdx].checked;
+    setBannersData(temp);
+  };
+
+  const handleFaqStatusChange = async (state: boolean) => {
+    const filtered = bannersData.filter((el) => el.checked);
+    const updateData = [];
+
+    switch (state) {
+      case true:
+        for (let i in filtered) {
+          updateData.push({
+            _id: filtered[i]._id,
+            setData: {
+              openStatus: true,
+            },
+          });
+        }
+        break;
+
+      case false:
+        for (let i in filtered) {
+          updateData.push({
+            _id: filtered[i]._id,
+            setData: {
+              openStatus: false,
+            },
+          });
+        }
+        break;
+    }
+
+    const updateResult: any = await putUpdateDataBulk({ collection: "banners", updateData });
+
+    if (updateResult.status === 200) {
+      alert("변경되었습니다.");
+    }
+
+    init();
+  };
+
   return (
     <div>
       <div className="flex justify-sb align-c">
@@ -63,9 +107,7 @@ const BannerTop = () => {
       </div>
 
       <div className="list-header mt-10 pl-18 pr-18 text-center">
-        <div className="w5p">
-          <input type="checkbox" />
-        </div>
+        <div className="w5p text-left">{/* <input type="checkbox" /> */}</div>
 
         <div className="w10p">
           <p>순서</p>
@@ -91,8 +133,12 @@ const BannerTop = () => {
       {bannersData?.map((aBanner: any, i: number) => (
         <div key={i} className="list-content pl-18 pr-18">
           <div className="flex align-c mt-8 mb-8 text-center">
-            <div className="w5p">
-              <input type="checkbox" />
+            <div className="w5p text-left">
+              <input
+                type="checkbox"
+                checked={aBanner.checked}
+                onChange={(e: any) => handleCheckBanner(aBanner)}
+              />
             </div>
 
             <div className="w10p">
@@ -142,6 +188,23 @@ const BannerTop = () => {
           </div>
         </div>
       ))}
+
+      <div className="mt-20 flex justify-sb align-c flex-wrap">
+        <div className="flex">
+          <ButtonR
+            name="공개"
+            color="white"
+            onClick={() => handleFaqStatusChange(true)}
+            styles={{ marginRight: 4, width: 80 }}
+          />
+          <ButtonR
+            name="비공개"
+            color="white"
+            onClick={() => handleFaqStatusChange(false)}
+            styles={{ marginRight: 4, width: 80 }}
+          />
+        </div>
+      </div>
     </div>
   );
 };

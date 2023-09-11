@@ -191,9 +191,7 @@ const AddBrand = () => {
       </div>
 
       <div className="flex justify-sb mt-10">
-        <div>
-          <ButtonR name={"삭제"} onClick={() => {}} color={"white"} />
-        </div>
+        <div>{/* <ButtonR name={"삭제"} onClick={() => {}} color={"white"} /> */}</div>
         <div className="flex">
           <ButtonR name={"취소"} onClick={() => navigate(-1)} styleClass={"mr-4"} color={"white"} />
           <ButtonR name={"저장"} onClick={handleAddBrand} />
