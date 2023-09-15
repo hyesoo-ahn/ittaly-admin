@@ -68,6 +68,9 @@ import PaymentDetail from "./pages/PaymentDetail";
 import FAQ from "./pages/FAQ";
 import AddFAQ from "./pages/AddFAQ";
 import FAQDetail from "./pages/FAQDetail";
+import ShippingRequest from "./pages/ShippingRequest";
+import Pendingshipment from "./pages/PendingShipment";
+import Invoice from "./pages/Invoice";
 
 function App() {
   useEffect(() => {
@@ -161,6 +164,9 @@ function App() {
             {/* 주문배송 */}
             <Route path="/order/payments" element={<Payments />} />
             <Route path="/order/payments/:paymentId" element={<PaymentDetail />} />
+            <Route path="/order/shippingrequest" element={<ShippingRequest />} />
+            <Route path="/order/pendingshipment" element={<Pendingshipment />} />
+            <Route path="/order/invoice" element={<Invoice />} />
 
             {/* 고객 */}
             {/* 유저 */}

@@ -16,33 +16,37 @@ export function CustomSelectbox(props: any) {
   }, [orderCancelPathSelect]);
 
   return (
-    <div>
-      <div ref={selectboxRef} style={{ width: 280 }}>
-        <div onClick={() => setOrderCancelPathSelect(true)} className="selectbox-custom-wrapper">
-          <p className={`${Object.keys(props.selected).length === 0 && "font-gray"}`}>
-            {Object.keys(props.selected).length === 0 ? props.noDataMessage : props.selected.label}
-          </p>
-          <p>▼</p>
-        </div>
-
-        {orderCancelPathSelect && (
-          <div className="mt-4 selectbox-custom-list">
-            {props.data?.map((item: any, i: number) => (
-              <div
-                onClick={() => {
-                  //   setSelectedPath(item);
-                  props.setSelected(item);
-                  setOrderCancelPathSelect(false);
-                }}
-                key={i}
-                className={`${item === props.selected && "selectbox-custom-selected"}`}
-              >
-                <p className={`font-12`}>{item.label}</p>
-              </div>
-            ))}
-          </div>
-        )}
+    <div ref={selectboxRef} className="relative">
+      <div
+        onClick={() => setOrderCancelPathSelect(true)}
+        className="selectbox-custom-wrapper"
+        style={{ width: 280, height: 32, ...props.style }}
+      >
+        <p className={`${Object.keys(props.selected).length === 0 && "font-gray"}`}>
+          {Object.keys(props.selected).length === 0 ? props.noDataMessage : props.selected.label}
+        </p>
+        <p>▼</p>
       </div>
+
+      {orderCancelPathSelect && (
+        <div
+          className="mt-4 selectbox-custom-list"
+          style={{ width: props.style?.width ? props.style.width : 280 }}
+        >
+          {props.data?.map((item: any, i: number) => (
+            <div
+              onClick={() => {
+                props.setSelected(item);
+                setOrderCancelPathSelect(false);
+              }}
+              key={i}
+              className={`${item === props.selected && "selectbox-custom-selected"}`}
+            >
+              <p className={`font-12`}>{item.label}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -21,8 +21,8 @@
 
 .field-list-wrapper {
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
-
   /* align-content: stretch; */
 }
 

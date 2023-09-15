@@ -3,6 +3,7 @@ import { csvToJSON } from "../common/utils";
 
 type Props = {
   onChange(data: string[][]): void;
+  csvType?: string;
 };
 
 const CSVSelector = forwardRef((props: Props, ref: any) => {
@@ -31,13 +32,26 @@ const CSVSelector = forwardRef((props: Props, ref: any) => {
         // console.log(_data);
 
         let temp: any = [];
-        for (let i in _data) {
-          if (!isNaN(parseInt(_data[i].추가금액.replace(/,/gi, "")))) {
-            temp.push({ ..._data[i], status: true });
-          } else {
-            temp.push({ ..._data[i], status: false });
+
+        if (props.csvType === "addProduct") {
+          for (let i in _data) {
+            if (!isNaN(parseInt(_data[i].추가금액.replace(/,/gi, "")))) {
+              temp.push({ ..._data[i], status: true });
+            } else {
+              temp.push({ ..._data[i], status: false });
+            }
           }
         }
+        if (props.csvType === "invoice") {
+          for (let i in _data) {
+            if (!isNaN(parseInt(_data[i].송장번호.replace(/,/gi, "")))) {
+              temp.push({ ..._data[i], status: true });
+            } else {
+              temp.push({ ..._data[i], status: false });
+            }
+          }
+        }
+
         props.onChange(temp);
       } catch (error) {
         console.error(error);

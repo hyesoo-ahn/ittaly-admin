@@ -15,7 +15,7 @@ const Cateogyoptions1 = [
   { value: "대분류 카테고리3", label: "대분류 카테고리3" },
 ];
 
-export default function Payments(): JSX.Element {
+export default function ShippingRequest(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
   const [exportItem, setExportItem] = useState<boolean>(false);
@@ -84,7 +84,7 @@ export default function Payments(): JSX.Element {
         </Modal>
       )}
       <div className="flex justify-sb align-c">
-        <p className="page-title">주문 전체검색</p>
+        <p className="page-title">출고요청 리스트</p>
       </div>
 
       <div className="w100p filter-container" style={{ flex: 1 }}>
@@ -118,49 +118,12 @@ export default function Payments(): JSX.Element {
 
         <div style={{ display: "flex", marginTop: 8 }}>
           <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}>
-            <SelectBox
-              containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
-              noOptionsMessage={"상태가 없습니다."}
-              placeholder="주문상태"
-            />
+            <InputR placeholer="상품코드" size="full" innerStyle={{ marginRight: 0 }} />
           </div>
           <div className="flex1 ml-4 mr-4" style={{ height: 32 }}>
-            <SelectBox
-              containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
-              noOptionsMessage={"상태가 없습니다."}
-              placeholder="결제수단"
-            />
+            <InputR size="full" placeholer="주문자 이름/ID" innerStyle={{ margin: 0 }} />
           </div>
           <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
-            <SelectBox
-              containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
-              noOptionsMessage={"상태가 없습니다."}
-              placeholder="주문자 유형"
-            />
-          </div>
-        </div>
-
-        <div style={{ display: "flex", marginTop: 8 }}>
-          <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}>
-            <SelectBox
-              containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
-              noOptionsMessage={"상태가 없습니다."}
-              placeholder="주문채널"
-            />
-          </div>
-          <div className="flex1 ml-4 mr-4" style={{ height: 32 }}>
             <SelectBox
               containerStyles={{ width: "100%" }}
               value={selected}
@@ -170,6 +133,11 @@ export default function Payments(): JSX.Element {
               placeholder="배송 유형"
             />
           </div>
+        </div>
+
+        <div style={{ display: "flex", marginTop: 8 }}>
+          <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}></div>
+          <div className="flex1 ml-4 mr-4" style={{ height: 32 }}></div>
           <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
             <button className="btn-add-b w50p mr-4 border-none" style={{ height: "100%" }}>
               검색
@@ -194,14 +162,14 @@ export default function Payments(): JSX.Element {
           <input type="checkbox" />
         </div>
 
-        <div className="w10p text-center">
+        <div className="w5p text-left">
           <p>주문상태</p>
         </div>
 
         <div className="w10p text-center">
           <p>주문번호</p>
         </div>
-        <div className="w20p text-center">
+        <div className="w25p text-center">
           <p>상품명</p>
         </div>
 
@@ -215,13 +183,10 @@ export default function Payments(): JSX.Element {
           <p>주문금액</p>
         </div>
         <div className="w10p text-center">
-          <p>결제수단</p>
-        </div>
-        <div className="w10p text-center">
           <p>주문일시</p>
         </div>
-        <div className="w5p text-center">
-          <p>주문채널</p>
+        <div className="w15p text-center">
+          <p>기능</p>
         </div>
       </div>
 
@@ -231,13 +196,13 @@ export default function Payments(): JSX.Element {
             <div className="w5p">
               <input type="checkbox" />
             </div>
-            <div className="w10p text-center">
+            <div className="w5p text-left">
               <p>결제완료</p>
             </div>
             <div className="w10p text-center" onClick={() => navigate("/order/payments/1234")}>
               <p className="font-blue text-underline cursor">123456789</p>
             </div>
-            <div className="w20p text-center">
+            <div className="w25p text-center">
               <p className="text-line">
                 {user.email}
                 {user.email}
@@ -259,13 +224,13 @@ export default function Payments(): JSX.Element {
               <p>1,234,567</p>
             </div>
             <div className="w10p text-center">
-              <p>네이버페이</p>
-            </div>
-            <div className="w10p text-center">
               <p className="text-line">2023.01.01 11:11:22</p>
             </div>
-            <div className="w5p text-center">
-              <p>Mobile app</p>
+            <div className="w15p text-center">
+              <div className="flex align-c justify-c">
+                <ButtonR name={"주문취소"} onClick={() => {}} color="white" styleClass={"mr-4"} />
+                <ButtonR name={"상품준비"} onClick={() => {}} color="white" />
+              </div>
             </div>
           </div>
         ))}
@@ -279,6 +244,8 @@ export default function Payments(): JSX.Element {
             onClick={() => setExportItem(true)}
             styles={{ marginRight: 4 }}
           />
+          <ButtonR name="배송준비" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
+          <ButtonR name="배송완료" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
         </div>
 
         <div className="flex pagination">

@@ -11,7 +11,7 @@ import sample from "../images/sample_img.png";
 import { useFileUpload } from "../hooks/useFileUpload";
 import Modal from "../components/Modal";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
-import { csvToJSON, currency, moveValue } from "../common/utils";
+import { CSV_ADD_PRODUCT_TEMPLATE, csvToJSON, currency, moveValue } from "../common/utils";
 import CheckboxS from "../components/CheckboxS";
 import { getDatas, postAddProduct, postUploadImage } from "../common/apis";
 import { useNavigate } from "react-router-dom";
@@ -1368,7 +1368,11 @@ export default function AddProduct(): JSX.Element {
             </div>
 
             <div className="text-center">
-              <CSVSelector ref={csvRef} onChange={(_data: any) => setJsonData(_data)} />
+              <CSVSelector
+                csvType="addProduct"
+                ref={csvRef}
+                onChange={(_data: any) => setJsonData(_data)}
+              />
 
               <ButtonR
                 name={"CSV 업로드"}
@@ -1384,20 +1388,7 @@ export default function AddProduct(): JSX.Element {
               </div>
 
               <CSVLink
-                data={[
-                  {
-                    option1: "A1 옵션명 수정 가능, 열 삭제 불가",
-                    option2: "B1 옵션명 수정 가능, 열 삭제 가능",
-                    option3: "C1 옵션명 수정 가능, 열 삭제 가능",
-                    additionalPrice: "D1 타이틀 수정 및 열 삭제 불가, 추가금액 없을 시 0 표기",
-                  },
-                  { option1: "블랙", option2: "L", option3: "", additionalPrice: "500" },
-                  { option1: "블랙", option2: "M", option3: "", additionalPrice: "0" },
-                  { option1: "블랙", option2: "S", option3: "", additionalPrice: "0" },
-                  { option1: "화이트", option2: "L", option3: "", additionalPrice: "500" },
-                  { option1: "화이트", option2: "M", option3: "", additionalPrice: "0" },
-                  { option1: "화이트", option2: "S", option3: "", additionalPrice: "0" },
-                ]}
+                data={CSV_ADD_PRODUCT_TEMPLATE}
                 headers={[
                   { label: "옵션1", key: "option1" },
                   { label: "옵션2", key: "option2" },

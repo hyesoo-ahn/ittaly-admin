@@ -78,11 +78,12 @@ export default function PaymentDetail(): JSX.Element {
     address: "세종특별자치시 보듬4로 20 10단지 호반베르디움 어반시티 아파트",
     restAddress: "101동 101호",
   });
-  const [orderCancelPopup, setOrderCancelPopup] = useState<boolean>(true);
+  const [orderCancelPopup, setOrderCancelPopup] = useState<boolean>(false);
   const [selectedPath, setSelectedPath] = useState<any>({});
   const [selectedReason, setSelectedReason] = useState<any>({});
   const [desc, setDesc] = useState<string>("");
   const [txtLength, setTxtLength] = useState(0);
+  const [orderStatusPopup, setOrderStatusPopup] = useState<string>("");
 
   const handle = {
     // 버튼 클릭 이벤트
@@ -165,7 +166,7 @@ export default function PaymentDetail(): JSX.Element {
           <Modal innerStyle={{ width: "60%", minHeight: "0" }}>
             <div className="padding-24">
               <div className="flex justify-sb">
-                <h2 className="margin-0 mb-20">회원메모 추가</h2>
+                <h2 className="margin-0 mb-20">CS 상담메모 추가</h2>
 
                 <div>
                   <img
@@ -183,29 +184,43 @@ export default function PaymentDetail(): JSX.Element {
                 <div className="flex1">
                   <div className="product-field-wrapper mt-2">
                     <div className="product-field mr-20">
-                      <p>닉네임/ID</p>
+                      <p>주문번호</p>
                     </div>
 
-                    <p>
-                      {user.nickname} ({user.kakaoId})
-                    </p>
+                    <p>1234567890</p>
                   </div>
                   <div className="product-field-wrapper mt-2">
                     <div className="product-field mr-20">
-                      <p>작성일</p>
+                      <p>상담경로</p>
                     </div>
 
-                    <p>-</p>
+                    <div>
+                      <CustomSelectbox
+                        selected={selectedReason}
+                        setSelected={setSelectedReason}
+                        data={CANCEL_REASON}
+                        noDataMessage={"지연사유 선택"}
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="flex1">
                   <div className="field-list-wrapper mt-2">
                     <div className="product-field mr-20">
-                      <p>작성자</p>
+                      <p>상담사</p>
                     </div>
 
                     <div className="flex align-c flex1 pt-10 pb-10">
                       <p>관리자</p>
+                    </div>
+                  </div>
+                  <div className="field-list-wrapper mt-2">
+                    <div className="product-field mr-20">
+                      <p>접수일시</p>
+                    </div>
+
+                    <div className="flex align-c flex1 pt-10 pb-10">
+                      <p>-</p>
                     </div>
                   </div>
                 </div>
@@ -241,6 +256,40 @@ export default function PaymentDetail(): JSX.Element {
                       </p>
                     </div>
                   )}
+                </div>
+              </div>
+
+              <div className="flex">
+                <div className="flex1">
+                  <div className="product-field-wrapper mt-2">
+                    <div className="product-field mr-20">
+                      <p>처리여부</p>
+                    </div>
+
+                    <div className="flex align-c mr-20">
+                      <div className="checkbox-c mr-4 cursor">
+                        <div className="checkbox-c-filled"></div>
+                      </div>
+                      <p>처리 전(N)</p>
+                    </div>
+                    <div className="flex align-c">
+                      <div className="checkbox-c mr-4 cursor">
+                        <div className="checkbox-c-filled"></div>
+                      </div>
+                      <p>처리 후(Y)</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex1">
+                  <div className="field-list-wrapper mt-2">
+                    <div className="product-field mr-20">
+                      <p>처리완료일</p>
+                    </div>
+
+                    <div className="flex align-c flex1 pt-10 pb-10">
+                      <p>-</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -394,6 +443,102 @@ export default function PaymentDetail(): JSX.Element {
             </div>
           </Modal>
         )}
+        {orderStatusPopup === "주문확인" && (
+          <Modal
+            innerStyle={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexDirection: "column",
+              width: "20%",
+              minHeight: "15vh",
+              padding: 30,
+            }}
+          >
+            <div className="flex justify-sb align-c f-direction-column">
+              <p className="font-16">주문 확인처리 하시겠습니까?</p>
+              <p className="font-16 mt-8">처리 시 배송준비중으로 변경됩니다.</p>
+            </div>
+            <div className="flex justify-c mt-20">
+              <ButtonR
+                color={"white"}
+                name="취소"
+                onClick={() => setOrderStatusPopup("")}
+                styleClass="mr-10"
+              />
+              <ButtonR name="저장" onClick={() => {}} />
+            </div>
+          </Modal>
+        )}
+        {orderStatusPopup === "상품준비" && (
+          <Modal
+            innerStyle={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexDirection: "column",
+              width: "30%",
+              minHeight: "20vh",
+              padding: 30,
+            }}
+          >
+            <div className="flex justify-sb align-c relative">
+              <h2 className="margin-0">상품준비(미출고) 처리</h2>
+              <img
+                onClick={() => setPersonalCustomCode(false)}
+                src={close}
+                style={{ width: 24, top: -10, right: -10 }}
+                className="cursor absolute"
+              />
+            </div>
+
+            <div className="flex flex-wrap mt-12">
+              <div className="w100p">
+                <div className="field-list-wrapper mt-2">
+                  <div className="product-field mr-20">
+                    <p>미출고 사유</p>
+                  </div>
+
+                  <div className="flex1 pt-10 pb-10 relative">
+                    <CustomSelectbox
+                      selected={selectedReason}
+                      setSelected={setSelectedReason}
+                      data={CANCEL_REASON}
+                      noDataMessage={"지연사유 선택"}
+                    />
+                    <div className="mt-8 flex1 relative">
+                      <textarea
+                        className="input-textarea"
+                        placeholder="200자 이내로 입력해주세요"
+                        value={desc}
+                        onChange={(e) => onChangeHandler(e)}
+                      />
+                      <div
+                        className="font-12"
+                        style={{
+                          position: "absolute",
+                          bottom: 10,
+                          right: 10,
+                          fontWeight: 400,
+                          color: "rgba(0,0,0,0.4)",
+                        }}
+                      >
+                        {txtLength}/200
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-c mt-20">
+              <ButtonR
+                color={"white"}
+                name="취소"
+                onClick={() => setOrderStatusPopup("")}
+                styleClass="mr-10"
+              />
+              <ButtonR name="저장" onClick={() => {}} />
+            </div>
+          </Modal>
+        )}
         {orderCancelPopup && (
           <Modal innerStyle={{ width: "80%", minHeight: "0" }}>
             <div className="padding-24">
@@ -542,6 +687,325 @@ export default function PaymentDetail(): JSX.Element {
                 </div>
               </div>
 
+              <div className="mt-30">
+                <div className="flex justify-sb align-c mb-8">
+                  <p className="font-bold font-16">
+                    주문상품 {memos.length}
+                    <span className="font-400">건</span>
+                  </p>
+                </div>
+
+                {/* table header */}
+                <div className="list-header pl-18 pr-18 text-center">
+                  <div className="w5p text-left">
+                    <input type="checkbox" />
+                  </div>
+
+                  <div className="w10p">
+                    <p>상품코드</p>
+                  </div>
+
+                  <div className="w20p text-left">
+                    <p>상품명</p>
+                  </div>
+
+                  <div className="w10p">
+                    <p>옵션명</p>
+                  </div>
+
+                  <div className="w10p">
+                    <p>판매가</p>
+                  </div>
+                  <div className="w10p">
+                    <p>쿠폰할인</p>
+                  </div>
+                  <div className="w10p">
+                    <p>배송비</p>
+                  </div>
+                  <div className="w10p">
+                    <p>구매수량</p>
+                  </div>
+
+                  <div className="w15p">
+                    <p>취소금액</p>
+                  </div>
+                </div>
+
+                <div className="list-content pl-18 pr-18 pt-12">
+                  <div className="flex align-c text-center" style={{ height: 28 }}>
+                    <div className="w5p text-left">
+                      <input type="checkbox" />
+                    </div>
+
+                    <div className="w10p">
+                      <p className="text-line">12345678</p>
+                    </div>
+
+                    <div className="w20p text-left">
+                      <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
+                    </div>
+
+                    <div className="w10p">
+                      <p>Small</p>
+                    </div>
+                    <div className="w10p">
+                      <p>{currency(200000)}</p>
+                    </div>
+
+                    <div className="w10p">
+                      <p>{currency(-10000)}</p>
+                    </div>
+                    <div className="w10p">
+                      <p>{currency(10000)}</p>
+                    </div>
+                    <div className="w10p">
+                      <p>2</p>
+                    </div>
+
+                    <div className="w15p">
+                      <p>{currency(400000)}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex align-c text-center pt-12">
+                    <div className="w5p text-left">
+                      <input type="checkbox" />
+                    </div>
+
+                    <div className="w10p">
+                      <p className="text-line">12345678</p>
+                    </div>
+
+                    <div className="w20p text-left">
+                      <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
+                    </div>
+
+                    <div className="w10p">
+                      <p>Small</p>
+                    </div>
+                    <div className="w10p">
+                      <p>{currency(200000)}</p>
+                    </div>
+
+                    <div className="w10p">
+                      <p>{currency(-10000)}</p>
+                    </div>
+                    <div className="w10p">
+                      <p>{currency(10000)}</p>
+                    </div>
+                    <div className="w10p">
+                      <div
+                        className="flex"
+                        style={{ alignItems: "center", justifyContent: "center" }}
+                      >
+                        <CustomSelectbox
+                          style={{ width: 100, height: 28 }}
+                          selected={"2"}
+                          setSelected={() => {}}
+                          data={[
+                            { label: "1", value: "1" },
+                            { label: "2", value: "2" },
+                          ]}
+                          noDataMessage={"수량"}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="w15p">
+                      <p>{currency(400000)}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex align-c text-center pt-12">
+                    <div className="w5p text-left">
+                      <input type="checkbox" />
+                    </div>
+
+                    <div className="w10p">
+                      <p className="text-line">12345678</p>
+                    </div>
+
+                    <div className="w20p text-left">
+                      <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
+                    </div>
+
+                    <div className="w10p">
+                      <p>Small</p>
+                    </div>
+                    <div className="w10p">
+                      <p>{currency(200000)}</p>
+                    </div>
+
+                    <div className="w10p">
+                      <p>{currency(-10000)}</p>
+                    </div>
+                    <div className="w10p">
+                      <p>{currency(10000)}</p>
+                    </div>
+                    <div className="w10p">
+                      <div
+                        className="flex"
+                        style={{ alignItems: "center", justifyContent: "center" }}
+                      >
+                        <CustomSelectbox
+                          style={{ width: 100, height: 28 }}
+                          selected={"2"}
+                          setSelected={() => {}}
+                          data={[
+                            { label: "1", value: "1" },
+                            { label: "2", value: "2" },
+                          ]}
+                          noDataMessage={"수량"}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="w15p">
+                      <p>{currency(400000)}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex align-c text-center pt-12">
+                    <div className="w5p text-left">
+                      <input type="checkbox" />
+                    </div>
+
+                    <div className="w10p">
+                      <p className="text-line">12345678</p>
+                    </div>
+
+                    <div className="w20p text-left">
+                      <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
+                    </div>
+
+                    <div className="w10p">
+                      <p>Small</p>
+                    </div>
+                    <div className="w10p">
+                      <p>{currency(200000)}</p>
+                    </div>
+
+                    <div className="w10p">
+                      <p>{currency(-10000)}</p>
+                    </div>
+                    <div className="w10p">
+                      <p>{currency(10000)}</p>
+                    </div>
+                    <div className="w10p">
+                      <div
+                        className="flex"
+                        style={{ alignItems: "center", justifyContent: "center" }}
+                      >
+                        <CustomSelectbox
+                          style={{ width: 100, height: 28 }}
+                          selected={"2"}
+                          setSelected={() => {}}
+                          data={[
+                            { label: "1", value: "1" },
+                            { label: "2", value: "2" },
+                          ]}
+                          noDataMessage={"수량"}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="w15p">
+                      <p>{currency(400000)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="font-category mt-30">취소내역</p>
+                <div className="flex flex-wrap mt-8">
+                  <div className="w50p">
+                    <div className="field-list-wrapper mt-2">
+                      <div className="product-field mr-20">
+                        <p>판매가합계</p>
+                      </div>
+
+                      <div className="flex1 pt-10 pb-10">
+                        <p>{currency(200000)}원</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w50p">
+                    <div className="field-list-wrapper mt-2">
+                      <div className="product-field mr-20">
+                        <p>배송비</p>
+                      </div>
+
+                      <div className="flex1 pt-10 pb-10">
+                        <p>{currency(10000)}원</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w50p">
+                    <div className="field-list-wrapper mt-2">
+                      <div className="product-field mr-20">
+                        <p>쿠폰할인취소</p>
+                      </div>
+
+                      <div className="flex1 flex align-c pt-10 pb-10">
+                        <InputR />
+                        <p>원</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w50p">
+                    <div className="field-list-wrapper mt-2">
+                      <div className="product-field mr-20">
+                        <p>사용적립금 반환</p>
+                      </div>
+
+                      <div className="flex1 flex align-c pt-10 pb-10">
+                        <InputR />
+                        <p>원</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="font-category mt-30">고객환불정보</p>
+                <div className="flex flex-wrap mt-8">
+                  <div className="w100p">
+                    <div className="field-list-wrapper mt-2">
+                      <div className="product-field mr-20">
+                        <p>환불내역</p>
+                      </div>
+
+                      <div className="flex1 pt-10 pb-10">
+                        <p>
+                          [판매가합계]200,000원 - [쿠폰할인취소]10,000원 - [적립금반환]0원 =
+                          190,000원
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w50p">
+                    <div className="field-list-wrapper mt-2">
+                      <div className="product-field mr-20">
+                        <p>환불예정금액</p>
+                      </div>
+
+                      <div className="flex1 pt-10 pb-10">
+                        <p>{currency(190000)}원</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w50p">
+                    <div className="field-list-wrapper mt-2">
+                      <div className="product-field mr-20">
+                        <p>환불수단</p>
+                      </div>
+
+                      <div className="flex1 flex align-c pt-10 pb-10">
+                        <p>신용/체크카드</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex justify-fe">
                 <ButtonR name={"확인"} onClick={() => {}} />
               </div>
@@ -630,6 +1094,42 @@ export default function PaymentDetail(): JSX.Element {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="flex1">
+            <div className="product-field-wrapper mt-2">
+              <div className="product-field mr-20">
+                <p>주문일시</p>
+              </div>
+
+              <p>2023.08.01 21:21:21</p>
+            </div>
+
+            <div className="product-field-wrapper mt-2">
+              <div className="product-field mr-20">
+                <p>주문채널</p>
+              </div>
+
+              <p>mobile app</p>
+            </div>
+
+            <div className="product-field-wrapper mt-2">
+              <div className="product-field mr-20">
+                <p>결제정보</p>
+              </div>
+
+              <p>롯데 / 3762 - **** - **** - ****</p>
+            </div>
+
+            <div className="field-list-wrapper mt-2">
+              <div className="product-field mr-20">
+                <p>적립정보</p>
+              </div>
+
+              <div className="flex align-c flex1 pt-10 pb-10">
+                <p>[적립금] 78,000원</p>
+              </div>
+            </div>
 
             <div className="field-list-wrapper mt-2">
               <div className="product-field mr-20">
@@ -682,83 +1182,6 @@ export default function PaymentDetail(): JSX.Element {
               </div>
             </div>
           </div>
-
-          <div className="flex1">
-            <div className="product-field-wrapper mt-2">
-              <div className="product-field mr-20">
-                <p>주문일시</p>
-              </div>
-
-              <p>2023.08.01 21:21:21</p>
-            </div>
-
-            <div className="product-field-wrapper mt-2">
-              <div className="product-field mr-20">
-                <p>주문채널</p>
-              </div>
-
-              <p>mobile app</p>
-            </div>
-
-            <div className="product-field-wrapper mt-2">
-              <div className="product-field mr-20">
-                <p>결제정보</p>
-              </div>
-
-              <p>롯데 / 3762 - **** - **** - ****</p>
-            </div>
-
-            <div className="field-list-wrapper mt-2">
-              <div className="product-field mr-20">
-                <p>적립정보</p>
-              </div>
-
-              <div className="flex align-c flex1 pt-10 pb-10">
-                <p>[적립금] 78,000원</p>
-              </div>
-            </div>
-
-            <div className="field-list-wrapper mt-2">
-              <div className="product-field mr-20">
-                <p>총 구매횟수</p>
-              </div>
-
-              <div className="flex align-c flex1 pt-10 pb-10">
-                <p className="mr-20">12</p>
-              </div>
-            </div>
-
-            <div className="field-list-wrapper mt-2">
-              <div className="product-field mr-20">
-                <p>총 실결제금액</p>
-                <p className="font-12 font-300">할인/적립금 사용금액 제외</p>
-              </div>
-
-              <div className="flex align-c flex1 pt-10 pb-10">
-                <p>1,234,567</p>
-              </div>
-            </div>
-
-            <div className="field-list-wrapper mt-2">
-              <div className="product-field mr-20">
-                <p>보유 적립금</p>
-              </div>
-
-              <div className="flex align-c flex1 pt-10 pb-10">
-                <p>1,234원</p>
-              </div>
-            </div>
-
-            <div className="field-list-wrapper mt-2">
-              <div className="product-field mr-20">
-                <p>마지막 접속일시</p>
-              </div>
-
-              <div className="flex align-c flex1 pt-10 pb-10">
-                <p>2023.01.01 11:11:11</p>
-              </div>
-            </div>
-          </div>
         </div>
         <div className="flex justify-fe">
           <ButtonR
@@ -767,15 +1190,101 @@ export default function PaymentDetail(): JSX.Element {
             onClick={() => setOrderCancelPopup(true)}
             color={"white"}
           />
-          <ButtonR name={"상품준비"} styleClass={"mr-8"} onClick={() => {}} color={"white"} />
+          <ButtonR
+            name={"상품준비"}
+            styleClass={"mr-8"}
+            onClick={() => setOrderStatusPopup("상품준비")}
+            color={"white"}
+          />
           <ButtonR name={"배송완료"} styleClass={"mr-8"} onClick={() => {}} color={"white"} />
-          <ButtonR name={"주문확인"} onClick={() => {}} />
+          <ButtonR name={"주문확인"} onClick={() => setOrderStatusPopup("주문확인")} />
+        </div>
+
+        <div className="mt-40">
+          <p className="font-category">CS정보</p>
+          <div className="flex mt-13">
+            <div className="flex1">
+              <div className="product-field-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>요청구분</p>
+                </div>
+
+                <p>취소</p>
+              </div>
+
+              <div className="product-field-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>CS접수번호</p>
+                </div>
+
+                <p className="font-blue text-underline">12345678</p>
+              </div>
+
+              <div className="field-list-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>접수사유</p>
+                </div>
+
+                <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
+                  <p>[고객신청] 단순변심</p>
+                </div>
+              </div>
+
+              <div className="field-list-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>환불여부</p>
+                </div>
+
+                <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
+                  <p>Y</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex1">
+              <div className="product-field-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>CS상태</p>
+                </div>
+
+                <p>완료</p>
+              </div>
+
+              <div className="product-field-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>CS접수경로</p>
+                </div>
+
+                <p>실시간채팅</p>
+              </div>
+
+              <div className="field-list-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>접수일</p>
+                </div>
+
+                <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
+                  <p>2023. 01. 01</p>
+                </div>
+              </div>
+
+              <div className="field-list-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>처리완료일</p>
+                </div>
+
+                <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
+                  <p>2023. 01. 01</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* 주문상품 */}
         <div className="mt-40">
           <div className="flex justify-sb align-c">
-            <p className="font-bold font-16">
+            <p className="font-category">
               주문상품 {memos.length}
               <span className="font-400">건</span>
             </p>
@@ -809,7 +1318,7 @@ export default function PaymentDetail(): JSX.Element {
             </div>
           </div>
 
-          <div className="list-content pl-18 pr-18">
+          <div className="list-content pl-18 pr-18 mt-12">
             <div className="flex align-c mt-8 mb-8 text-center">
               <div className="w10p text-left">
                 <p>12345678</p>
@@ -839,7 +1348,7 @@ export default function PaymentDetail(): JSX.Element {
             </div>
           </div>
 
-          <div className="list-content pl-18 pr-18">
+          <div className="list-content pl-18 pr-18 mt-12">
             <div className="flex align-c mt-8 mb-8 text-center">
               <div className="w10p text-left">
                 <p>12345678</p>
@@ -869,7 +1378,7 @@ export default function PaymentDetail(): JSX.Element {
             </div>
           </div>
 
-          <div className="list-content pl-18 pr-18">
+          <div className="list-content pl-18 pr-18 mt-12">
             <div className="flex align-c mt-8 mb-8 text-center">
               <div className="w10p text-left">
                 <p>12345678</p>
@@ -903,7 +1412,7 @@ export default function PaymentDetail(): JSX.Element {
         {/* CS상담메모 */}
         <div className="mt-40">
           <div className="flex justify-sb align-c">
-            <p className="font-bold font-16">CS상담메모</p>
+            <p className="font-category">CS상담메모</p>
             <ButtonR
               color={"white"}
               name={"메모 추가"}
@@ -915,7 +1424,7 @@ export default function PaymentDetail(): JSX.Element {
             />
           </div>
 
-          <div className="list-header mt-10 pl-18 pr-18 text-center">
+          <div className="list-header mt-8 pl-18 pr-18 text-center">
             <div className="w10p text-left">
               <p>구분</p>
             </div>

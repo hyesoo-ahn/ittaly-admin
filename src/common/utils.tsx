@@ -163,6 +163,67 @@ export const timeFormat1 = (timestamp: number): string => {
   return `${year}. ${month}. ${date} (${_dayKr}) ${hours}:${minutes}`;
 };
 
+export const formatOnlyDate = (timestamp: number) => {
+  const time: Date = new Date(timestamp);
+  const year: string = time.getFullYear().toString();
+  let month: string = (time.getMonth() + 1).toString();
+  if (month.length === 1) {
+    month = "0" + month;
+  }
+  let hours: string = time.getHours() > 9 ? time.getHours().toString() : `0${time.getHours()}`;
+  let minutes: string =
+    time.getMinutes() > 9 ? time.getMinutes().toString() : `0${time.getMinutes()}`;
+  let date: string = time.getDate().toString();
+  if (date.length === 1) {
+    date = "0" + date;
+  }
+
+  return `${year}. ${month}. ${date}`;
+};
+
+export const formatOnlyTime = (timestamp: number): string => {
+  const time: Date = new Date(timestamp);
+  const year: string = time.getFullYear().toString();
+  let month: string = (time.getMonth() + 1).toString();
+  if (month.length === 1) {
+    month = "0" + month;
+  }
+  let hours: string = time.getHours() > 9 ? time.getHours().toString() : `0${time.getHours()}`;
+  let minutes: string =
+    time.getMinutes() > 9 ? time.getMinutes().toString() : `0${time.getMinutes()}`;
+  let date: string = time.getDate().toString();
+  if (date.length === 1) {
+    date = "0" + date;
+  }
+  const day = time.getDay();
+  let _dayKr = "";
+  switch (day) {
+    case 0:
+      _dayKr = "일";
+      break;
+    case 1:
+      _dayKr = "월";
+      break;
+    case 2:
+      _dayKr = "화";
+      break;
+    case 3:
+      _dayKr = "수";
+      break;
+    case 4:
+      _dayKr = "목";
+      break;
+    case 5:
+      _dayKr = "금";
+      break;
+    case 6:
+      _dayKr = "토";
+      break;
+  }
+
+  return `${hours}:${minutes}`;
+};
+
 export const timeFormat2 = (timestamp: number): string => {
   const time: Date = new Date(timestamp);
   const year: string = time.getFullYear().toString();
@@ -298,3 +359,49 @@ export const handleDeleteBrand = async (item: any, init: any) => {
     );
   }
 };
+
+export const CSV_ADD_PRODUCT_TEMPLATE = [
+  {
+    option1: "A1 옵션명 수정 가능, 열 삭제 불가",
+    option2: "B1 옵션명 수정 가능, 열 삭제 가능",
+    option3: "C1 옵션명 수정 가능, 열 삭제 가능",
+    additionalPrice: "D1 타이틀 수정 및 열 삭제 불가, 추가금액 없을 시 0 표기",
+  },
+  { option1: "블랙", option2: "L", option3: "", additionalPrice: "500" },
+  { option1: "블랙", option2: "M", option3: "", additionalPrice: "0" },
+  { option1: "블랙", option2: "S", option3: "", additionalPrice: "0" },
+  { option1: "화이트", option2: "L", option3: "", additionalPrice: "500" },
+  { option1: "화이트", option2: "M", option3: "", additionalPrice: "0" },
+  { option1: "화이트", option2: "S", option3: "", additionalPrice: "0" },
+];
+
+export const CSV_INVOICE_TEMPLATE = [
+  {
+    orderNum: "삭제 및 수정 불가",
+    productName: "삭제 및 수정 불가",
+    deleveryType: "삭제 및 수정 불가",
+    courierCompany: "삭제 빛 수정 불가",
+    invoice: "숫자만 입력",
+  },
+  {
+    orderNum: "20230703A1B2C",
+    productName: "Seletti 하이브리드 푸르트 볼그릇 외 2건",
+    deleveryType: "국내배송",
+    courierCompany: "CJ",
+    invoice: "123456789",
+  },
+  {
+    orderNum: "20230703A1B2C",
+    productName: "Seletti 하이브리드 푸르트 볼그릇 외 1건",
+    deleveryType: "국내배송",
+    courierCompany: "CJ",
+    invoice: "123456789",
+  },
+  {
+    orderNum: "20230703A1B2C",
+    productName: "Seletti 하이브리드 푸르트 볼그릇",
+    deleveryType: "해외배송",
+    courierCompany: "GSMNtoN",
+    invoice: "123456789",
+  },
+];
