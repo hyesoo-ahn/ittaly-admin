@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import logo from "./logo.svg";
 import "./App.css";
 import { IMainContext } from "./interface/interface";
@@ -71,6 +72,12 @@ import FAQDetail from "./pages/FAQDetail";
 import ShippingRequest from "./pages/ShippingRequest";
 import Pendingshipment from "./pages/PendingShipment";
 import Invoice from "./pages/Invoice";
+import Deliverystatus from "./pages/DeliveryStatus";
+import Cancellation from "./pages/Cancellation";
+import RestockRequest from "./pages/RestockRequest";
+import RestockRequestDetail from "./pages/RestockRequestDetail";
+import MemberStatistics from "./pages/UserStatistics";
+import UserStatistics from "./pages/UserStatistics";
 
 function App() {
   useEffect(() => {
@@ -87,7 +94,7 @@ function App() {
   };
 
   const detectIsUser = async () => {
-    const adminToken = localStorage.getItem("admin");
+    const adminToken = localStorage.getItem("admintoken");
     if (adminToken && adminToken === ADMIN_TOKEN) {
       _handleStateChange("isUser", true);
     } else {
@@ -167,6 +174,9 @@ function App() {
             <Route path="/order/shippingrequest" element={<ShippingRequest />} />
             <Route path="/order/pendingshipment" element={<Pendingshipment />} />
             <Route path="/order/invoice" element={<Invoice />} />
+            <Route path="/order/deliverystatus" element={<Deliverystatus />} />
+            <Route path="/order/cancellation" element={<Cancellation />} />
+            <Route path="/order/cancellation/:tab" element={<Cancellation />} />
 
             {/* 고객 */}
             {/* 유저 */}
@@ -196,6 +206,16 @@ function App() {
             />
             <Route path="/customer/reviews" element={<ProductReviews />} />
             <Route path="/customer/reviews/:reviewId" element={<ProductReviewDetail />} />
+
+            {/* 입고요청 */}
+            <Route path="/customer/restockrequest" element={<RestockRequest />} />
+            <Route
+              path="/customer/restockrequest/:restockrequestid"
+              element={<RestockRequestDetail />}
+            />
+
+            {/* 시스템 관리 */}
+            <Route path="/system/statistics/users" element={<UserStatistics />} />
           </Route>
 
           <Route path="*" element={<ErrorPage />} />

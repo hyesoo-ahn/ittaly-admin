@@ -87,11 +87,15 @@ export const getLocation = (path: string) => {
   }
 
   if (split[1]?.includes("site")) {
-    selected = "사이트관리";
+    selected = "사이트 관리";
   }
 
   if (split[1]?.includes("customer")) {
     selected = "고객";
+  }
+
+  if (split[1]?.includes("system")) {
+    selected = "시스템 관리";
   }
 
   if (split[2]?.includes("main")) {
@@ -112,6 +116,10 @@ export const getLocation = (path: string) => {
 
   if (split[2]?.includes("referral")) {
     subSelected = "추천인 프로그램";
+  }
+
+  if (split[2]?.includes("statistics")) {
+    subSelected = "통계정보 확인";
   }
 
   return { selected, subSelected };
@@ -191,6 +199,8 @@ export const formatOnlyTime = (timestamp: number): string => {
   let hours: string = time.getHours() > 9 ? time.getHours().toString() : `0${time.getHours()}`;
   let minutes: string =
     time.getMinutes() > 9 ? time.getMinutes().toString() : `0${time.getMinutes()}`;
+  let seconds: string =
+    time.getSeconds() > 9 ? time.getSeconds().toString() : `0${time.getSeconds()}`;
   let date: string = time.getDate().toString();
   if (date.length === 1) {
     date = "0" + date;
@@ -221,7 +231,7 @@ export const formatOnlyTime = (timestamp: number): string => {
       break;
   }
 
-  return `${hours}:${minutes}`;
+  return `${hours}:${minutes}:${seconds}`;
 };
 
 export const timeFormat2 = (timestamp: number): string => {

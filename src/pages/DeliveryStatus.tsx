@@ -10,6 +10,7 @@ import Modal from "../components/Modal";
 import close from "../images/close.png";
 import CSVSelector from "../components/CSVSelector";
 import { CSVLink } from "react-csv";
+import { CustomSelectbox } from "../components/CustomSelectbox";
 
 const Cateogyoptions1 = [
   { value: "대분류 카테고리1", label: "대분류 카테고리1" },
@@ -17,14 +18,19 @@ const Cateogyoptions1 = [
   { value: "대분류 카테고리3", label: "대분류 카테고리3" },
 ];
 
-export default function Invoice(): JSX.Element {
+// 운송장 조회 참고하기
+// https://development-pro.tistory.com/entry/%ED%83%9D%EB%B0%B0%EC%82%AC%EC%A1%B0%ED%9A%8C%EA%B0%81-%ED%83%9D%EB%B0%B0%EC%82%AC-%EB%B0%8F-%EB%8C%80%ED%95%9C%ED%86%B5%EC%9A%B4-API-%EC%9D%B8%ED%84%B0%ED%8E%98%EC%9D%B4%EC%8A%A4
+
+export default function Deliverystatus(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
   const [exportItem, setExportItem] = useState<boolean>(false);
-  //   csv popup
-  const [csvPopup, setCsvPopup] = useState<boolean>(false);
-  const [jsonData, setJsonData] = useState<any>([]);
   const csvRef = useRef<HTMLInputElement>(null);
+  const [modifyInvoicePopup, setModifyInvoicePopup] = useState<boolean>(false);
+  const [selectedDeliveryService, setSelectedDeliveryService] = useState<any>({
+    label: "CJ",
+    value: "CJ",
+  });
 
   const [users, setUsers] = useState<any[]>([]);
 
@@ -42,155 +48,6 @@ export default function Invoice(): JSX.Element {
 
   return (
     <div>
-      {csvPopup && (
-        <Modal innerStyle={{ minHeight: 0 }}>
-          <div className="padding-24">
-            <div className="flex justify-sb">
-              <h2 className="margin-0 mb-20">옵션 엑셀 등록하기</h2>
-
-              <div>
-                <img
-                  onClick={() => {
-                    // handleInitProductOption();
-                    setCsvPopup(false);
-                  }}
-                  src={close}
-                  className="img-close cursor"
-                  alt="close"
-                />
-              </div>
-            </div>
-
-            <div className="text-center">
-              <CSVSelector
-                csvType="invoice"
-                ref={csvRef}
-                onChange={(_data: any) => setJsonData(_data)}
-              />
-
-              <ButtonR
-                name={"CSV 업로드"}
-                styles={{ backgroundColor: "#f1f1f1", paddingLeft: 25, paddingRight: 25 }}
-                color={"white"}
-                onClick={() => csvRef?.current?.click()}
-              />
-              <div className="mt-20 mb-20">
-                <p>CSV 양식을 내려받아 옵션 입력 후 업로드해주세요.</p>
-                <p className="mt-4">
-                  옵션 개수 및 양식과 다르게 입력된 경우 옵션이 등록되지 않습니다.
-                </p>
-              </div>
-
-              <CSVLink
-                data={CSV_INVOICE_TEMPLATE}
-                headers={[
-                  { label: "주문번호", key: "orderNum" },
-                  { label: "상품명", key: "productName" },
-                  { label: "배송유형", key: "deleveryType" },
-                  { label: "택배사명", key: "courierCompany" },
-                  { label: "송장번호", key: "invoice" },
-                ]}
-                // confirm 창에서 '확인'을 눌렀을 때만 csv 파일 다운로드
-                onClick={() => {
-                  if (window.confirm("csv파일을 다운로드 받겠습니까?")) {
-                    return true;
-                  } else {
-                    return false;
-                  }
-                }}
-                filename={`송장번호_샘플_시트`}
-              >
-                <p>CSV 양식 내려받기</p>
-              </CSVLink>
-            </div>
-
-            {jsonData.length !== 0 && (
-              <div className="list-header mt-30 pl-18 pr-18">
-                <div className="w10p">
-                  <p>주문번호</p>
-                </div>
-
-                <div className="w45p">
-                  <p>상품명</p>
-                </div>
-
-                <div className="w10p">
-                  <p>배송유형</p>
-                </div>
-
-                <div className="w10p">
-                  <p>택배사명</p>
-                </div>
-
-                <div className="w15p">
-                  <p>송장번호</p>
-                </div>
-                <div className="w10p">
-                  <p>결과</p>
-                </div>
-              </div>
-            )}
-
-            {jsonData?.length !== 0 &&
-              jsonData?.map((el: any, i: number) => (
-                <div key={i}>
-                  {i !== 0 && (
-                    <div key={i} className="list-content pl-18 pr-18">
-                      <div className="flex align-c mt-8 mb-8">
-                        <div className="w10p">
-                          <p className={`${!el.status && "font-red"}`}>
-                            {jsonData[i]?.[Object.keys(jsonData[0])[0]]}
-                          </p>
-                        </div>
-
-                        <div className="w45p">
-                          <p className={`${!el.status && "font-red"}`}>
-                            {jsonData[i]?.[Object.keys(jsonData[0])[1]]}
-                          </p>
-                        </div>
-
-                        <div className="w10p">
-                          <p className={`${!el.status && "font-red"}`}>
-                            {jsonData[i]?.[Object.keys(jsonData[0])[2]]}
-                          </p>
-                        </div>
-
-                        <div className="w10p">
-                          <p className={`${!el.status && "font-red"}`}>
-                            {jsonData[i]?.[Object.keys(jsonData[0])[3]]}
-                          </p>
-                        </div>
-
-                        <div className="w15p">
-                          <p className={`${!el.status && "font-red"}`}>
-                            {jsonData[i]?.[Object.keys(jsonData[0])[4]]}
-                          </p>
-                        </div>
-                        <div className="w10p">
-                          {el.status && <p>성공</p>}
-                          {!el.status && <p className="font-red">실패</p>}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-
-            <div className="flex justify-fe">
-              <ButtonR
-                name={"취소"}
-                onClick={() => {
-                  //   handleInitProductOption();
-                  setCsvPopup(false);
-                }}
-                styleClass="mr-10"
-                color={"white"}
-              />
-              <ButtonR name={"등록하기"} onClick={() => {}} styleClass="mr-12" />
-            </div>
-          </div>
-        </Modal>
-      )}
       {exportItem && (
         <Modal
           innerStyle={{
@@ -238,8 +95,57 @@ export default function Invoice(): JSX.Element {
           </div>
         </Modal>
       )}
+      {modifyInvoicePopup && (
+        <Modal
+          innerStyle={{
+            display: "flex",
+            flexDirection: "column",
+            width: "30%",
+            minHeight: "10vh",
+            padding: 30,
+          }}
+        >
+          <div className="flex justify-sb align-c relative">
+            <h2 className="margin-0">운송장 수정</h2>
+            <img
+              onClick={() => setModifyInvoicePopup(false)}
+              src={close}
+              style={{ width: 24, top: -10, right: -10 }}
+              className="cursor absolute"
+            />
+          </div>
+
+          <div className="mt-20 w100p flex">
+            <CustomSelectbox
+              style={{ width: 140, marginRight: 4 }}
+              selected={selectedDeliveryService}
+              setSelected={setSelectedDeliveryService}
+              data={[
+                {
+                  label: "CJ",
+                  value: "CJ",
+                },
+                { label: "GSMNtoN", value: "GSMNtoN" },
+              ]}
+              noDataMessage={"택배사 선택"}
+            />
+            <div className="w100p">
+              <InputR size="full" />
+            </div>
+          </div>
+          <div className="flex justify-fe mt-20">
+            <ButtonR
+              color={"white"}
+              name="취소"
+              onClick={() => setModifyInvoicePopup(false)}
+              styleClass="mr-4"
+            />
+            <ButtonR name="저장" onClick={() => {}} />
+          </div>
+        </Modal>
+      )}
       <div className="flex justify-sb align-c">
-        <p className="page-title">출고운송장 입력</p>
+        <p className="page-title">배송상태 조회</p>
       </div>
 
       <div className="w100p filter-container" style={{ flex: 1 }}>
@@ -308,12 +214,6 @@ export default function Invoice(): JSX.Element {
         <p>총 0건</p>
 
         <div className="flex">
-          <ButtonR
-            name={"송장 엑셀 등록하기"}
-            color="white"
-            styleClass="mr-4"
-            onClick={() => setCsvPopup(true)}
-          />
           <ButtonR name={"전체 목록 내보내기"} onClick={() => {}} />
         </div>
       </div>
@@ -330,7 +230,7 @@ export default function Invoice(): JSX.Element {
         <div className="w10p text-center">
           <p>주문번호</p>
         </div>
-        <div className="w15p text-center">
+        <div className="w20p text-center">
           <p>상품명</p>
         </div>
 
@@ -340,12 +240,15 @@ export default function Invoice(): JSX.Element {
         <div className="w10p text-center">
           <p>배송유형</p>
         </div>
-        <div className="w25p text-center">
+        <div className="w10p text-center">
           <p>배송정보</p>
         </div>
 
         <div className="w10p text-center">
           <p>주문일시</p>
+        </div>
+        <div className="w10p text-center">
+          <p>출고일시</p>
         </div>
 
         <div className="w10p text-center">
@@ -360,12 +263,12 @@ export default function Invoice(): JSX.Element {
               <input type="checkbox" />
             </div>
             <div className="w5p text-left">
-              <p>배송준비</p>
+              <p>배송중</p>
             </div>
             <div className="w10p text-center" onClick={() => navigate("/order/payments/1234")}>
               <p className="font-blue text-underline cursor">123456789</p>
             </div>
-            <div className="w15p text-center">
+            <div className="w20p text-center">
               <p className="text-line">
                 {user.email}
                 {user.email}
@@ -383,22 +286,16 @@ export default function Invoice(): JSX.Element {
             <div className="w10p text-center">
               <p>국내배송</p>
             </div>
-            <div className="w25p text-center">
-              <div className="flex justify-c">
-                <SelectBox
-                  placeholder={"택배사선택"}
-                  containerStyles={{ width: 120, marginRight: 4 }}
-                  value={null}
-                  onChange={(e: any) => {}}
-                  options={[
-                    { value: "CJ", label: "CJ" },
-                    { value: "GSMNtoN", label: "GSMNtoN" },
-                  ]}
-                  noOptionsMessage={"상품이 없습니다."}
-                />
-                <InputR placeholer="숫자만 입력" size="small" styleClass="mr-4" />
-                <ButtonR color="white" name={"적용"} onClick={() => {}} />
-              </div>
+            <div className="w10p text-center">
+              <p>GSMNtoN</p>
+              <p className="font-blue text-underline">566907170023</p>
+            </div>
+
+            <div className="w10p text-center">
+              <p className="text-line">
+                2023.01.01
+                <br /> 11:11:22
+              </p>
             </div>
 
             <div className="w10p text-center">
@@ -410,7 +307,11 @@ export default function Invoice(): JSX.Element {
 
             <div className="w10p text-center">
               <div className="flex align-c justify-c">
-                <ButtonR name={"주문취소"} onClick={() => {}} color="white" />
+                <ButtonR
+                  name={"운송장 수정"}
+                  onClick={() => setModifyInvoicePopup(true)}
+                  color="white"
+                />
               </div>
             </div>
           </div>

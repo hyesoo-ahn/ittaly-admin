@@ -13,7 +13,7 @@ export default function Main(): JSX.Element {
 
   const handleLogin = () => {
     if (password === ADMIN_TOKEN) {
-      localStorage.setItem("admin", password);
+      localStorage.setItem("admintoken", password);
       context.handleStateChange("isUser", true);
       navigate("/");
     } else {

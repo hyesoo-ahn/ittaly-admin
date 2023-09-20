@@ -36,7 +36,7 @@ const NAV_DATA = [
     ],
   },
   {
-    title: "사이트관리",
+    title: "사이트 관리",
     path: "",
     navArr1: [
       {
@@ -142,8 +142,29 @@ const NAV_DATA = [
       { title: "1:1 문의 관리", path: "/customer/inquiry" },
       { title: "상품 문의 관리", path: "/customer/productinquiry" },
       { title: "상품 후기 관리", path: "/customer/reviews" },
-      { title: "입고 요청 관리", path: "/error" },
+      { title: "입고 요청 관리", path: "/customer/restockrequest" },
       { title: "푸시 발송 관리", path: "/error" },
+    ],
+  },
+
+  {
+    title: "시스템 관리",
+    path: "",
+    navArr1: [
+      {
+        title: "통계정보 확인",
+        path: "",
+        navArr2: [
+          {
+            title: "회원 통계",
+            path: "/system/statistics/users",
+          },
+          {
+            title: "주문 통계",
+            path: "/system/statistics/orders",
+          },
+        ],
+      },
     ],
   },
 ];
@@ -159,7 +180,6 @@ function Layout(): JSX.Element {
   useEffect(() => {
     const getSelected: any = getLocation(location.pathname);
 
-    // console.log(getSelected);
     setSelect(getSelected?.selected);
     setSubSelect(getSelected?.subSelected);
   }, []);

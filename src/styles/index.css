@@ -810,3 +810,9 @@ input {
 .font-gray {
   color: #cccccc !important;
 }
+
+/* flex2 */
+
+.flex2-item {
+  flex: 1 300px;
+}

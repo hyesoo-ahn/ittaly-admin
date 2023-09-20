@@ -6,6 +6,7 @@ import SelectBox from "../components/SelectBox";
 import close from "../images/close.png";
 import { getDatas, getUsers, postCollection, putUpdateData } from "../common/apis";
 import { timeFormat1, timeFormat2 } from "../common/utils";
+import { history } from "../hooks/history";
 
 const MEMBERSHIP_LEVEL = [
   {
@@ -60,13 +61,25 @@ export default function UserDetail(): JSX.Element {
   const [user, setUser] = useState<any>({});
   const [memos, setMemos] = useState<any>([]);
   const [rewards, setRewards] = useState<any>([]);
+  const { pathname } = location;
 
   useEffect(() => {
-    const { pathname } = location;
     init();
 
     const tab = pathname.split("/");
     setSelectedTab(tab[5]);
+  }, []);
+
+  useEffect(() => {
+    const listenBackEvent = () => {
+      navigate("/customer/users/active", { replace: true });
+    };
+    const unlistenHistoryEvent = history.listen(({ action }) => {
+      if (action === "POP") {
+        listenBackEvent();
+      }
+    });
+    return unlistenHistoryEvent;
   }, []);
 
   useEffect(() => {
