@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
 import ButtonR from "../components/ButtonR";
+import { IMainContext } from "../interface/interface";
+import { MainContext } from "../common/context";
+import { history } from "../hooks/history";
 
 const Cateogyoptions1 = [
   { value: "전체", label: "전체" },
@@ -11,6 +14,8 @@ const Cateogyoptions1 = [
 
 export default function Cancellation() {
   const navigate = useNavigate();
+  const context = useContext<IMainContext>(MainContext);
+  const { push } = context;
   const location = useLocation();
   const [selected, setSelected] = useState<any>("");
   const [selectArr, setSelectArr] = useState<any>([
@@ -40,6 +45,26 @@ export default function Cancellation() {
       setSelectedTab("tab1");
     }
   });
+
+  useEffect(() => {
+    const stack = context.myHistory;
+
+    const listenBackEvent = (length: number): any => {
+      if (stack.length === 0) return navigate(-1);
+      if (stack.length !== 0 && stack[length - 1]?.split("/")[2] === "cancellation") {
+        return listenBackEvent(length - 1);
+      } else {
+        return navigate(stack[length - 1], { replace: true });
+      }
+    };
+
+    const unlistenHistoryEvent = history.listen(({ action }) => {
+      if (action === "POP") {
+        listenBackEvent(stack.length);
+      }
+    });
+    return unlistenHistoryEvent;
+  }, [location]);
 
   return (
     <div>

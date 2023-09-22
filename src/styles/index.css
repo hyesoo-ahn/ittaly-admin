@@ -816,3 +816,24 @@ input {
 .flex2-item {
   flex: 1 300px;
 }
+
+/* 주문통계 */
+
+.order-statistics-container {
+  height: calc(100vh - 220px);
+  gap: 10px;
+}
+
+.order-statistics-left {
+  flex: 1 300px;
+  border-radius: 4px;
+  border: 1px solid #c5c5c5;
+  padding: 20px;
+}
+
+.order-statistics-right {
+  flex: 1.5 300px;
+  border-radius: 4px;
+  border: 1px solid #c5c5c5;
+  padding: 20px;
+}

@@ -6,17 +6,13 @@ import { currency, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
+import { ISelectFilter } from "../common/interfacs";
 
 const Cateogyoptions1 = [
   { value: "대분류 카테고리1", label: "대분류 카테고리1" },
   { value: "대분류 카테고리2", label: "대분류 카테고리2" },
   { value: "대분류 카테고리3", label: "대분류 카테고리3" },
 ];
-
-interface ISelectFilter {
-  label: string;
-  value: string | number;
-}
 
 export default function UserStatistics(): JSX.Element {
   const location = useLocation();

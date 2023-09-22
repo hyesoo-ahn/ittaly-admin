@@ -78,6 +78,7 @@ import RestockRequest from "./pages/RestockRequest";
 import RestockRequestDetail from "./pages/RestockRequestDetail";
 import MemberStatistics from "./pages/UserStatistics";
 import UserStatistics from "./pages/UserStatistics";
+import OrderStatistics from "./pages/OrderStatistics";
 
 function App() {
   useEffect(() => {
@@ -104,9 +105,20 @@ function App() {
     setLoading(false);
   };
 
+  const _push = (location: string) => {
+    setData((prev: any) => {
+      return {
+        ...prev,
+        myHistory: [...prev.myHistory, location],
+      };
+    });
+  };
+
   const [data, setData] = useState<IMainContext>({
     handleStateChange: _handleStateChange,
     isUser: false,
+    push: _push,
+    myHistory: [],
   });
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -216,6 +228,7 @@ function App() {
 
             {/* 시스템 관리 */}
             <Route path="/system/statistics/users" element={<UserStatistics />} />
+            <Route path="/system/statistics/orders" element={<OrderStatistics />} />
           </Route>
 
           <Route path="*" element={<ErrorPage />} />

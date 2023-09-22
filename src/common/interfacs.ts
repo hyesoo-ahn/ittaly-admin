@@ -12,3 +12,8 @@ export interface ISubCategory {
   URL: string;
   openStatus: boolean;
 }
+
+export interface ISelectFilter {
+  label: string;
+  value: string | number;
+}

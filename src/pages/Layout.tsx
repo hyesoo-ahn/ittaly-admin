@@ -3,8 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-do
 import { MainContext } from "../common/context";
 import { IMainContext } from "../interface/interface";
 import logo_w from "../images/logo_w.png";
-import down from "../images/down.png";
-import up from "../images/up.png";
+import link from "../images/external_link.png";
 import arrow_down from "../images/down-arrow.png";
 import { getLocation } from "../common/utils";
 
@@ -163,6 +162,10 @@ const NAV_DATA = [
             title: "주문 통계",
             path: "/system/statistics/orders",
           },
+          {
+            title: "라이브 통계",
+            path: "/system/statistics/orders",
+          },
         ],
       },
     ],
@@ -173,16 +176,17 @@ function Layout(): JSX.Element {
   const context = useContext<IMainContext>(MainContext);
   const navigate = useNavigate();
   const location = useLocation();
-
   const [select, setSelect] = useState<string>("");
   const [subSelect, setSubSelect] = useState<string>("");
+  const { push } = context;
 
   useEffect(() => {
+    push(location.pathname);
     const getSelected: any = getLocation(location.pathname);
 
     setSelect(getSelected?.selected);
     setSubSelect(getSelected?.subSelected);
-  }, []);
+  }, [location]);
 
   const handleLogout = () => {
     context.handleStateChange("isUser", false);
@@ -277,14 +281,29 @@ function Layout(): JSX.Element {
                                     <div className="sub-category2">
                                       {subNav1?.navArr2?.map((subNav2: any, idx: number) => (
                                         <div key={idx} className="mb-20">
-                                          <NavLink
-                                            to={subNav2.path}
-                                            className={({ isActive, isPending }) => {
-                                              return isActive ? "nav-active" : "nav-deactive";
-                                            }}
-                                          >
-                                            {subNav2.title}
-                                          </NavLink>
+                                          {subNav2.title !== "라이브 통계" && (
+                                            <NavLink
+                                              to={subNav2.path}
+                                              className={({ isActive, isPending }) => {
+                                                return isActive ? "nav-active" : "nav-deactive";
+                                              }}
+                                            >
+                                              {subNav2.title}
+                                            </NavLink>
+                                          )}
+                                          {subNav2.title === "라이브 통계" && (
+                                            <a
+                                              target="_blank"
+                                              href={
+                                                "https://admin.shoplive.cloud/login?returnUrl=%2F"
+                                              }
+                                              style={{ textDecoration: "none" }}
+                                              className="flex align-c cursor font-white"
+                                            >
+                                              <p className="mr-4">라이브 통계</p>
+                                              <img src={link} style={{ width: 16, height: 16 }} />
+                                            </a>
+                                          )}
                                         </div>
                                       ))}
                                     </div>
