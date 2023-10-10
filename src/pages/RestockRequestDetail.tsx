@@ -59,7 +59,7 @@ export const RestockRequestDetail = () => {
                 <p>작성일자</p>
               </div>
 
-              <p>2023.01.01 10:00:00</p>
+              <p>2023.01.01</p>
             </div>
           </div>
         </div>

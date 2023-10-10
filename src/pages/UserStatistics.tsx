@@ -122,51 +122,149 @@ export default function UserStatistics(): JSX.Element {
       </div>
 
       <div className="list-header mt-10 pl-18 pr-18">
-        <div className="w10p text-left pl-6 pl-6">
-          <p>카테고리</p>
-        </div>
-        <div className="w20p text-center pl-6 pl-6">
-          <p>브랜드명</p>
-        </div>
-        <div className="w30p text-center pl-6 pl-6">
-          <p>상품명</p>
+        <div className="w20p text-left pl-6 pl-6">
+          <p>날짜</p>
         </div>
         <div className="w10p text-center pl-6 pl-6">
-          <p>작성자</p>
-        </div>
-        <div className="w20p text-center pl-6 pl-6">
-          <p>작성일자</p>
+          <p>카카오 가입</p>
         </div>
         <div className="w10p text-center pl-6 pl-6">
-          <p>기능</p>
+          <p>네이버 가입</p>
+        </div>
+        <div className="w10p text-center pl-6 pl-6">
+          <p>구글 가입</p>
+        </div>
+        <div className="w10p text-center pl-6 pl-6">
+          <p>애플 가입</p>
+        </div>
+        <div className="w20p text-center pl-6 pl-6">
+          <p>신규회원 합계</p>
+        </div>
+        <div className="w20p text-center pl-6 pl-6">
+          <p>탈퇴회원</p>
         </div>
       </div>
 
       <div className={`list-content pl-18 pr-18`}>
-        <div className={`flex align-c mt-8 mb-8`}>
-          <div className="w10p text-left pl-6 pl-6">
-            <p>패션잡화</p>
+        <div className={`flex align-c pt-10 pb-10`}>
+          <div className="w20p text-left pl-6 pl-6">
+            <p>yyyy.mm.dd</p>
           </div>
-          <div className="w20p text-center pl-6 pl-6">
-            <p>Valentino Garavani</p>
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
           </div>
-          <div className="w30p text-center pl-6 pl-6">
-            <p>Valentino Garavani Rockstud Tote Bag</p>
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
           </div>
 
           <div className="w10p text-center pl-6 pl-6">
-            <p>se29dsk</p>
-          </div>
-          <div className="w20p text-center pl-6 pl-6">
-            <p>2023. 01. 01</p>
+            <p>123</p>
           </div>
           <div className="w10p text-center pl-6 pl-6">
-            <ButtonR
-              name={"상세"}
-              onClick={() => navigate(`/customer/restockrequest/${"12345"}`)}
-              color="white"
-            />
+            <p>123</p>
           </div>
+          <div className="w20p text-center pl-6 pl-6">
+            <p className="font-bold">1,234</p>
+          </div>
+          <div className="w20p text-center pl-6 pl-6">
+            <p>0</p>
+          </div>
+        </div>
+        <div className={`flex align-c pt-10 pb-10`}>
+          <div className="w20p text-left pl-6 pl-6">
+            <p>yyyy.mm.dd</p>
+          </div>
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
+          </div>
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
+          </div>
+
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
+          </div>
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
+          </div>
+          <div className="w20p text-center pl-6 pl-6">
+            <p className="font-bold">1,234</p>
+          </div>
+          <div className="w20p text-center pl-6 pl-6">
+            <p>0</p>
+          </div>
+        </div>
+        <div className={`flex align-c pt-10 pb-10`}>
+          <div className="w20p text-left pl-6 pl-6">
+            <p>yyyy.mm.dd</p>
+          </div>
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
+          </div>
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
+          </div>
+
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
+          </div>
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
+          </div>
+          <div className="w20p text-center pl-6 pl-6">
+            <p className="font-bold">1,234</p>
+          </div>
+          <div className="w20p text-center pl-6 pl-6">
+            <p>0</p>
+          </div>
+        </div>
+        <div className={`flex align-c pt-10 pb-10`}>
+          <div className="w20p text-left pl-6 pl-6">
+            <p>yyyy.mm.dd</p>
+          </div>
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
+          </div>
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
+          </div>
+
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
+          </div>
+          <div className="w10p text-center pl-6 pl-6">
+            <p>123</p>
+          </div>
+          <div className="w20p text-center pl-6 pl-6">
+            <p className="font-bold">1,234</p>
+          </div>
+          <div className="w20p text-center pl-6 pl-6">
+            <p>0</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="list-header mt-10 pl-18 pr-18">
+        <div className="w20p pl-6 pl-6">
+          <p>합계</p>
+        </div>
+        <div className="w10p text-center pl-6 pl-6">
+          <p>{currency(123 * 4)}</p>
+        </div>
+        <div className="w10p text-center pl-6 pl-6">
+          <p>{currency(123 * 4)}</p>
+        </div>
+        <div className="w10p text-center pl-6 pl-6">
+          <p>{currency(123 * 4)}</p>
+        </div>
+        <div className="w10p text-center pl-6 pl-6">
+          <p>{currency(123 * 4)}</p>
+        </div>
+        <div className="w20p text-center pl-6 pl-6">
+          <p>{currency(1234 * 4)}</p>
+        </div>
+        <div className="w20p text-center pl-6 pl-6">
+          <p>0</p>
         </div>
       </div>
 

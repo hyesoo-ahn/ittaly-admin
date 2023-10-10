@@ -79,6 +79,7 @@ import RestockRequestDetail from "./pages/RestockRequestDetail";
 import MemberStatistics from "./pages/UserStatistics";
 import UserStatistics from "./pages/UserStatistics";
 import OrderStatistics from "./pages/OrderStatistics";
+import TermsOfService from "./pages/TermsOfService";
 
 function App() {
   useEffect(() => {
@@ -173,6 +174,7 @@ function App() {
             <Route path="/site/coupon/add" element={<AddCoupon />} />
             <Route path="/site/coupon/:couponId" element={<CouponDetail />} />
             <Route path="/site/terms/privacy" element={<TermsOfPrivacy />} />
+            <Route path="/site/terms/service" element={<TermsOfService />} />
             <Route path="/site/notice" element={<Notice />} />
             <Route path="/site/notice/add" element={<AddNotice />} />
             <Route path="/site/notice/:noticeId" element={<NoticeDetail />} />

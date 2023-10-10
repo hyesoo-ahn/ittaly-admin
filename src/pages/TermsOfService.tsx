@@ -32,7 +32,7 @@ const toolbarOptions = [
   ["clean"],
 ];
 
-const TermsOfPrivacy = () => {
+const TermsOfService = () => {
   const navigate = useNavigate();
   const [data, setData] = useState<any[]>([]);
   const [value, setValue] = useState("");
@@ -45,7 +45,7 @@ const TermsOfPrivacy = () => {
 
   const init = async () => {
     const { data }: any = await getDatas({
-      collection: "termsOfPrivacy",
+      collection: "termsOfService",
       sort: { sort: 1 },
     });
     setValue(data[0]?.value ? data[0]?.value : "");
@@ -57,8 +57,8 @@ const TermsOfPrivacy = () => {
     getTimeStamp = getTimeStamp - 3600000 * 9;
 
     const result: any = await putUpdateData({
-      collection: "termsOfPrivacy",
-      _id: "651fc7891a0fb1cd9c22a7d0",
+      collection: "termsOfService",
+      _id: "651fccd01a0fb1cd9c22a7d1",
       value,
       history: [
         {
@@ -79,7 +79,7 @@ const TermsOfPrivacy = () => {
   return (
     <div>
       <div className="flex justify-sb align-c">
-        <p className="page-title">약관 {">"} 개인정보처리방침</p>
+        <p className="page-title">약관 {">"} 이용약관</p>
       </div>
 
       <div className="field-list-wrapper mt-40">
@@ -175,4 +175,4 @@ const TermsOfPrivacy = () => {
   );
 };
 
-export default TermsOfPrivacy;
+export default TermsOfService;

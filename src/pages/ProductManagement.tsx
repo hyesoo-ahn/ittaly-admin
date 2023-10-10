@@ -45,6 +45,30 @@ export default function ProductManagement(): JSX.Element {
     init();
   }, []);
 
+  const [page, setPage] = useState(1); //페이지
+  const limit = 10; // posts가 보일 최대한의 갯수
+  const offset = (page - 1) * limit; // 시작점과 끝점을 구하는 offset
+  const [numPage, setNumPage] = useState<number>(1);
+  const numPagesTotal = Math.ceil(products.length / limit);
+  const numLimit = 5;
+  const numOffset = (numPage - 1) * numLimit;
+
+  // console.log(numPages);
+
+  const productData = (product: any) => {
+    if (Object.keys(product).length !== 0) {
+      let result = product.slice(offset, offset + limit);
+      return result;
+    }
+  };
+
+  const paginationNumbering = () => {
+    const numArr: number[] = Array.from({ length: numPagesTotal }, (v, i) => i + 1);
+
+    const result = numArr.slice(numOffset, numOffset + 5);
+    return result;
+  };
+
   const init = async () => {
     const productData: any = await getDatas({
       collection: "products",
@@ -324,7 +348,7 @@ export default function ProductManagement(): JSX.Element {
         </div>
       </div>
 
-      {products?.map((productItem: any, i: number) => (
+      {productData(products)?.map((productItem: any, i: number) => (
         <div key={i} className="list-content pl-18 pr-18">
           <div className="flex align-c mt-8 mb-8">
             <div className="w5p">
@@ -410,13 +434,42 @@ export default function ProductManagement(): JSX.Element {
         </div>
 
         <div className="flex pagination">
-          <p className="font-lightgray">{"<"}</p>
-          <p className="font-bold">1</p>
-          <p>2</p>
-          <p>3</p>
-          <p>4</p>
-          <p>5</p>
-          <p className="font-lightgray">{">"}</p>
+          <p
+            className="font-lightgray"
+            onClick={() => {
+              if (numPage > 1) {
+                setNumPage((prev: number) => {
+                  return prev - 1;
+                });
+                setPage(numOffset);
+              }
+            }}
+          >
+            {"<"}
+          </p>
+          {paginationNumbering()?.map((num: number, i: number) => (
+            <p
+              onClick={() => {
+                setPage(num);
+              }}
+              key={i}
+              className={`${num === page ? "font-bold text-underline" : ""}`}
+            >
+              {num}
+            </p>
+          ))}
+
+          <p
+            onClick={() => {
+              if (numPagesTotal * limit > page * limit) {
+                setNumPage((prev: number) => prev + 1);
+                setPage(numLimit * numPage + 1);
+              }
+            }}
+            className="font-lightgray"
+          >
+            {">"}
+          </p>
         </div>
       </div>
     </div>

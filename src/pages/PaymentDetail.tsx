@@ -1035,7 +1035,6 @@ export default function PaymentDetail(): JSX.Element {
               <div className="product-field mr-20">
                 <p>결제수단</p>
               </div>
-
               <p>신용/체크카드</p>
             </div>
 
