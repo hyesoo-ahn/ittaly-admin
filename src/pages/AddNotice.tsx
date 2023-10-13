@@ -39,7 +39,7 @@ interface IFile {
 }
 
 const CATEGORY = [
-  { label: "전체", value: "전체" },
+  // { label: "전체", value: "전체" },
   { label: "공지", value: "공지" },
   { label: "시스템", value: "시스템" },
   { label: "이벤트", value: "이벤트" },

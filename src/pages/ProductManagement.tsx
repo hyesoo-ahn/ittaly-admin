@@ -29,7 +29,6 @@ interface ISearchForm {
 
 export default function ProductManagement(): JSX.Element {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<any>("");
   const [allCheck, setAllCheck] = useState<boolean>(false);
   const [products, setProducts] = useState<any[]>([]);
   const [searchForm, setSearchForm] = useState<ISearchForm>({
@@ -461,7 +460,7 @@ export default function ProductManagement(): JSX.Element {
 
           <p
             onClick={() => {
-              if (numPagesTotal * limit > page * limit) {
+              if (paginationNumbering().length === 5 && numPagesTotal > paginationNumbering()[4]) {
                 setNumPage((prev: number) => prev + 1);
                 setPage(numLimit * numPage + 1);
               }

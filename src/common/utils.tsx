@@ -415,3 +415,7 @@ export const CSV_INVOICE_TEMPLATE = [
     invoice: "123456789",
   },
 ];
+
+// pagination info
+export const PAGINATION_LIMIT = 10; // posts가 보일 최대한의 갯수
+export const PAGINATION_NUM_LIMIT = 5; // 페이지네이션 번호 묶음

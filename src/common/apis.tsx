@@ -113,6 +113,28 @@ export const getDatas = async (body: any): Promise<boolean | object> => {
   }
 };
 
+// get data length for pagination
+export const getDataLength = async (body: any): Promise<boolean | object> => {
+  try {
+    const collection = body.collection;
+    const find = body.find ? body.find : {};
+
+    const { data }: any = await axios.get(
+      `${URI}/admin/count?collection=${collection}&find=${JSON.stringify(find)}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${ADMIN_TOKEN}`,
+        },
+      }
+    );
+
+    return data;
+  } catch (error) {
+    return false;
+  }
+};
+
 export const getAdminLookup = async (body: any): Promise<boolean | object> => {
   try {
     const collection = body.collection;

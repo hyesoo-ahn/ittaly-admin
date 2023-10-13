@@ -190,7 +190,7 @@ function Layout(): JSX.Element {
 
   const handleLogout = () => {
     context.handleStateChange("isUser", false);
-    localStorage.removeItem("admin");
+    localStorage.removeItem("admintoken");
     navigate("/login");
   };
 

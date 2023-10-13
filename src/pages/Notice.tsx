@@ -43,7 +43,8 @@ export default function Notice(): JSX.Element {
 
   const handleSearchData = async () => {
     let find: any = {};
-    if (selectedCategory) find.category = selectedCategory.value;
+    if (selectedCategory && selectedCategory.value !== "전체")
+      find.category = selectedCategory.value;
     if (selectedOpenStatus) find.openStatus = selectedOpenStatus.value === "Y" ? true : false;
     if (title !== "") find.title = title;
 

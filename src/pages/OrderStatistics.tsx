@@ -333,9 +333,93 @@ const MonthlyStatistics = () => {
       <div className="mt-14 flex flex-wrap w100p order-statistics-container">
         <div className="order-statistics-left">
           <p className="font-16">월별 판매 수익 현황</p>
+
+          <div className="list-header mt-10 pl-18 pr-18">
+            <div className="w50p text-center">
+              <p>월</p>
+            </div>
+            <div className="w50p text-center">
+              <p>판매수익</p>
+            </div>
+          </div>
+
+          <div className={`list-content pl-18 pr-18`}>
+            <div className={`flex align-c pt-10 pb-10`}>
+              <div className="w50p text-center">
+                <p>1월</p>
+              </div>
+              <div className="w50p text-center">
+                <p>1,234,567원</p>
+              </div>
+            </div>
+
+            <div className={`flex align-c pt-10 pb-10`}>
+              <div className="w50p text-center">
+                <p>2월</p>
+              </div>
+              <div className="w50p text-center">
+                <p>1,234,567원</p>
+              </div>
+            </div>
+
+            <div className={`flex align-c pt-10 pb-10`}>
+              <div className="w50p text-center">
+                <p>3월</p>
+              </div>
+              <div className="w50p text-center">
+                <p>1,234,567원</p>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="order-statistics-right">
           <p className="font-16">지난 30일간 상품 판매 순위 TOP 12</p>
+
+          <div className="list-header mt-10 pl-18 pr-18">
+            <div className="w10p text-left">{/* <p>상품명</p> */}</div>
+            <div className="w70p text-left">
+              <p>상품명</p>
+            </div>
+            <div className="w20p text-center">
+              <p>판매수익</p>
+            </div>
+          </div>
+
+          <div className={`list-content pl-18 pr-18`}>
+            <div className={`flex align-c pt-10 pb-10`}>
+              <div className="w10p text-center">
+                <p>1</p>
+              </div>
+              <div className="w70p text-left">
+                <p>Chanel 르리프트 세럼 30ml</p>
+              </div>
+              <div className="w20p text-center">
+                <p>1,234,567원</p>
+              </div>
+            </div>
+            <div className={`flex align-c pt-10 pb-10`}>
+              <div className="w10p text-center">
+                <p>2</p>
+              </div>
+              <div className="w70p text-left">
+                <p>Chanel 르리프트 세럼 30ml</p>
+              </div>
+              <div className="w20p text-center">
+                <p>1,234,567원</p>
+              </div>
+            </div>{" "}
+            <div className={`flex align-c pt-10 pb-10`}>
+              <div className="w10p text-center">
+                <p>3</p>
+              </div>
+              <div className="w70p text-left">
+                <p>Chanel 르리프트 세럼 30ml</p>
+              </div>
+              <div className="w20p text-center">
+                <p>1,234,567원</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
