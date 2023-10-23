@@ -37,6 +37,10 @@
   background-color: #f1f1f1;
 }
 
+.text-cancel {
+  text-decoration: line-through !important;
+}
+
 .text-line {
   width: 100%;
   overflow: hidden;

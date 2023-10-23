@@ -5,7 +5,7 @@ import Modal from "../components/Modal";
 import SelectBox from "../components/SelectBox";
 import close from "../images/close.png";
 import forward from "../images/Forward.png";
-import { postCollection, putUpdateData } from "../common/apis";
+import { getDatas, getValidCheckCustomCode, postCollection, putUpdateData } from "../common/apis";
 import { currency, timeFormat1, timeFormat2 } from "../common/utils";
 import DaumPostcode from "react-daum-postcode";
 import InputR from "../components/InputR";
@@ -28,6 +28,11 @@ const CS_ORDER_PATH = [
     value: "기타",
     label: "기타",
   },
+];
+
+const CS_MEMO_PATH = [
+  { label: "채팅상담", value: "채팅상담" },
+  { label: "1:1 문의", value: "1:1 문의" },
 ];
 
 const CANCEL_REASON = [
@@ -61,16 +66,33 @@ const CANCEL_REASON = [
   },
 ];
 
+const DELAY_REASON = [
+  {
+    value: "품절 - 재고확보중",
+    label: "품절 - 재고확보중",
+  },
+  {
+    value: "교환출고",
+    label: "교환출고",
+  },
+  {
+    value: "예약주문/주문제작",
+    label: "예약주문/주문제작",
+  },
+  {
+    value: "연휴 배송마감",
+    label: "연휴 배송마감",
+  },
+];
+
 export default function PaymentDetail(): JSX.Element {
   const navigate = useNavigate();
-  const { paymentId } = useParams();
-  const [user, setUser] = useState<any>({});
-  const [memos, setMemos] = useState<any>([]);
+  const { orderId } = useParams();
   const [memoPopup, setMemoPopup] = useState<boolean>(false);
   const [popupAdd, setPopupAdd] = useState<string>("");
-  const [memoContents, setMemoContents] = useState<string>("");
   const [editMemoId, setEditMemoId] = useState<string>("");
-  const [personalCustomCodePopup, setPersonalCustomCode] = useState<boolean>(false);
+  const [personalCustomCodePopup, setPersonalCustomCodePopup] = useState<boolean>(false);
+  const [personalCustomCode, setPersonalCustomCode] = useState<string>("");
   const [editAddressPopup, setEditAddressPopup] = useState<boolean>(false);
   const [openPostcode, setOpenPostcode] = React.useState<boolean>(false);
   const [address, setAddress] = useState<any>({
@@ -84,6 +106,15 @@ export default function PaymentDetail(): JSX.Element {
   const [desc, setDesc] = useState<string>("");
   const [txtLength, setTxtLength] = useState(0);
   const [orderStatusPopup, setOrderStatusPopup] = useState<string>("");
+  const [selectedDelayReason, setSelectedDelayReason] = useState<any>({});
+  const [csMemo, setCsMemo] = useState<any>({
+    csPath: {},
+    memo: "",
+    process: "N",
+  });
+  const [orderInfo, setOrderInfo] = useState<any>({});
+  const [csInfo, setCsInfo] = useState<any>([]);
+  const [csMemos, setCsMemos] = useState<any>([]);
 
   const handle = {
     // 버튼 클릭 이벤트
@@ -101,32 +132,35 @@ export default function PaymentDetail(): JSX.Element {
   const handleSaveCustomerMemo = async () => {
     if (popupAdd === "add") {
       const body = {
-        collection: "customerMemos",
-        targetUserId: user._id,
-        contents: memoContents,
+        collection: "csMemos",
+        targetOrderId: orderId,
+        targetCsId: csInfo[0]?._id,
+        memo: csMemo.memo,
+        process: "N",
+        path: csMemo.csPath.value,
       };
-
       const postResult = await postCollection(body);
       if (postResult.status === 200) {
         alert("메모 등록이 완료되었습니다.");
       }
     }
-
     if (popupAdd === "edit") {
       const body = {
-        collection: "customerMemos",
+        collection: "csMemos",
         _id: editMemoId,
-        contents: memoContents,
+        targetOrderId: orderId,
+        targetCsId: csInfo[0]?._id,
+        memo: csMemo.memo,
+        process: "N",
+        path: csMemo.csPath.value,
       };
-
       const updateResult: any = await putUpdateData(body);
       if (updateResult.status === 200) {
         alert("메모 수정이 완료되었습니다.");
       }
     }
-
     setMemoPopup(false);
-    setMemoContents("");
+
     init();
   };
 
@@ -135,16 +169,33 @@ export default function PaymentDetail(): JSX.Element {
   }, []);
 
   const init = async () => {
-    // const { data }: any = await getUsers({
-    //   collection: "users",
-    //   find: { _id: userId },
-    // });
-    // const memoData: any = await getDatas({
-    //   collection: "customerMemos",
-    //   find: { targetUserId: userId },
-    // });
-    // setMemos(memoData?.data);
-    // setUser(data[0] ? data[0] : {});
+    const { data }: any = await getDatas({
+      collection: "orders",
+      find: { _id: orderId },
+    });
+
+    const csData: any = await getDatas({
+      collection: "customerService",
+      find: { orderId: orderId },
+    });
+
+    if (csData.data.length !== 0) {
+      const csMemoData: any = await getDatas({
+        collection: "csMemos",
+        find: { targetOrderId: orderId, targetCsId: csData.data[0]?._id },
+      });
+
+      setCsMemos(csMemoData?.data);
+    }
+
+    setCsInfo(csData.data);
+    setOrderInfo(data[0]);
+    setPersonalCustomCode(data[0]?.deliveryAddressInfo?.personalCustomCode);
+    setAddress({
+      zonecode: data[0]?.address?.zonecode,
+      address: data[0]?.address?.address,
+      restAddress: data[0]?.address?.restAddress,
+    });
   };
 
   const onChangeHandler = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -152,6 +203,17 @@ export default function PaymentDetail(): JSX.Element {
     setDesc(e.target.value);
     setTxtLength(e.target.value.length);
   }, []);
+
+  const handleValidCustomCode = () => {
+    let regText = /^(p|P)[0-9]{12}$/;
+    if (!regText.exec(personalCustomCode)) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleDeleteMemo = async (_id: string) => {};
 
   return (
     <div>
@@ -187,7 +249,7 @@ export default function PaymentDetail(): JSX.Element {
                       <p>주문번호</p>
                     </div>
 
-                    <p>1234567890</p>
+                    <p>{orderInfo.orderNo}</p>
                   </div>
                   <div className="product-field-wrapper mt-2">
                     <div className="product-field mr-20">
@@ -196,10 +258,15 @@ export default function PaymentDetail(): JSX.Element {
 
                     <div>
                       <CustomSelectbox
-                        selected={selectedReason}
-                        setSelected={setSelectedReason}
-                        data={CANCEL_REASON}
-                        noDataMessage={"지연사유 선택"}
+                        selected={csMemo.csPath}
+                        setSelected={(e: any) => {
+                          setCsMemo((prev: any) => ({
+                            ...prev,
+                            csPath: e,
+                          }));
+                        }}
+                        data={CS_MEMO_PATH}
+                        noDataMessage={"상담경로 선택"}
                       />
                     </div>
                   </div>
@@ -220,7 +287,7 @@ export default function PaymentDetail(): JSX.Element {
                     </div>
 
                     <div className="flex align-c flex1 pt-10 pb-10">
-                      <p>-</p>
+                      <p>{popupAdd === "view" ? timeFormat1(csMemo.created) : "-"}</p>
                     </div>
                   </div>
                 </div>
@@ -234,8 +301,13 @@ export default function PaymentDetail(): JSX.Element {
                 <div className="flex align-c flex1 pt-10 pb-10">
                   {popupAdd !== "view" && (
                     <textarea
-                      value={memoContents}
-                      onChange={(e: any) => setMemoContents(e.target.value)}
+                      value={csMemo.memo}
+                      onChange={(e: any) => {
+                        setCsMemo((prev: any) => ({
+                          ...prev,
+                          memo: e.target.value,
+                        }));
+                      }}
                       className="input-textarea"
                       style={{ height: 200 }}
                       placeholder="내용을 입력해 주세요"
@@ -245,7 +317,7 @@ export default function PaymentDetail(): JSX.Element {
                   {popupAdd === "view" && (
                     <div>
                       <p>
-                        {memoContents.split("\n").map((line) => {
+                        {csMemo.memo?.split("\n").map((line: any) => {
                           return (
                             <span>
                               {line}
@@ -268,15 +340,37 @@ export default function PaymentDetail(): JSX.Element {
 
                     <div className="flex align-c mr-20">
                       <div className="checkbox-c mr-4 cursor">
-                        <div className="checkbox-c-filled"></div>
+                        {csMemo.process === "N" && <div className="checkbox-c-filled"></div>}
                       </div>
-                      <p>처리 전(N)</p>
+                      {
+                        <p
+                          className="cursor"
+                          onClick={() => {
+                            setCsMemo((prev: any) => ({
+                              ...prev,
+                              process: "N",
+                            }));
+                          }}
+                        >
+                          처리 전(N)
+                        </p>
+                      }
                     </div>
                     <div className="flex align-c">
                       <div className="checkbox-c mr-4 cursor">
-                        <div className="checkbox-c-filled"></div>
+                        {csMemo.process === "Y" && <div className="checkbox-c-filled"></div>}
                       </div>
-                      <p>처리 후(Y)</p>
+                      <p
+                        className="cursor"
+                        onClick={() => {
+                          setCsMemo((prev: any) => ({
+                            ...prev,
+                            process: "Y",
+                          }));
+                        }}
+                      >
+                        처리 후(Y)
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -287,7 +381,11 @@ export default function PaymentDetail(): JSX.Element {
                     </div>
 
                     <div className="flex align-c flex1 pt-10 pb-10">
-                      <p>-</p>
+                      <p>
+                        {popupAdd === "view" && csMemo.completed
+                          ? timeFormat1(csMemo.completed)
+                          : "-"}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -308,6 +406,8 @@ export default function PaymentDetail(): JSX.Element {
             </div>
           </Modal>
         )}
+
+        {/* 배송지 수정 팝업 */}
         {editAddressPopup && (
           <Modal
             innerStyle={{
@@ -398,7 +498,7 @@ export default function PaymentDetail(): JSX.Element {
             <div className="flex justify-sb align-c relative">
               <h2 className="margin-0">개인통관고유부호 수정</h2>
               <img
-                onClick={() => setPersonalCustomCode(false)}
+                onClick={() => setPersonalCustomCodePopup(false)}
                 src={close}
                 style={{ width: 24, top: -10, right: -10 }}
                 className="cursor absolute"
@@ -426,9 +526,19 @@ export default function PaymentDetail(): JSX.Element {
                 <p>개인통관고유부호</p>
               </div>
               <div style={{ flex: 2 }}>
-                <InputR value={"P1234567890123"} size={"full"} />
+                <InputR
+                  value={personalCustomCode}
+                  onChange={(e: any) => setPersonalCustomCode(e.target.value)}
+                  size={"full"}
+                />
                 <div className="mt-4"></div>
-                <p className="font-12 font-green">올바른 개인통관고유부호입니다</p>
+                {handleValidCustomCode() ? (
+                  <p className="font-12 font-green">올바른 개인통관고유부호입니다</p>
+                ) : (
+                  <p className="font-12 font-red">
+                    P로 시작하는 개인통관고유부호 13자리를 입력해주세요.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -436,7 +546,7 @@ export default function PaymentDetail(): JSX.Element {
               <ButtonR
                 color={"white"}
                 name="취소"
-                onClick={() => setPersonalCustomCode(false)}
+                onClick={() => setPersonalCustomCodePopup(false)}
                 styleClass="mr-4"
               />
               <ButtonR name="저장" onClick={() => {}} />
@@ -483,7 +593,7 @@ export default function PaymentDetail(): JSX.Element {
             <div className="flex justify-sb align-c relative">
               <h2 className="margin-0">상품준비(미출고) 처리</h2>
               <img
-                onClick={() => setPersonalCustomCode(false)}
+                onClick={() => setPersonalCustomCodePopup(false)}
                 src={close}
                 style={{ width: 24, top: -10, right: -10 }}
                 className="cursor absolute"
@@ -499,9 +609,9 @@ export default function PaymentDetail(): JSX.Element {
 
                   <div className="flex1 pt-10 pb-10 relative">
                     <CustomSelectbox
-                      selected={selectedReason}
-                      setSelected={setSelectedReason}
-                      data={CANCEL_REASON}
+                      selected={selectedDelayReason}
+                      setSelected={setSelectedDelayReason}
+                      data={DELAY_REASON}
                       noDataMessage={"지연사유 선택"}
                     />
                     <div className="mt-8 flex1 relative">
@@ -566,7 +676,7 @@ export default function PaymentDetail(): JSX.Element {
                     </div>
 
                     <div className="flex1 pt-10 pb-10">
-                      <p>12345678</p>
+                      <p>{orderInfo.orderNo}</p>
                     </div>
                   </div>
                 </div>
@@ -631,6 +741,7 @@ export default function PaymentDetail(): JSX.Element {
               </div>
 
               <p className="font-category mt-30">CS정보</p>
+
               <div className="flex flex-wrap mt-8">
                 <div className="w100p">
                   <div className="field-list-wrapper mt-2">
@@ -690,7 +801,7 @@ export default function PaymentDetail(): JSX.Element {
               <div className="mt-30">
                 <div className="flex justify-sb align-c mb-8">
                   <p className="font-bold font-16">
-                    주문상품 {memos.length}
+                    주문상품
                     <span className="font-400">건</span>
                   </p>
                 </div>
@@ -742,7 +853,7 @@ export default function PaymentDetail(): JSX.Element {
                     </div>
 
                     <div className="w20p text-left">
-                      <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
+                      <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1111</p>
                     </div>
 
                     <div className="w10p">
@@ -1021,21 +1132,21 @@ export default function PaymentDetail(): JSX.Element {
                 <p>주문번호</p>
               </div>
 
-              <p>12345678</p>
+              <p>{orderInfo.orderNo}</p>
             </div>
 
             <div className="product-field-wrapper mt-2">
               <div className="product-field mr-20">
                 <p>주문상태</p>
               </div>
-              <p className="font-bold">결제완료</p>
+              <p className="font-bold">{orderInfo.orderStatus}</p>
             </div>
 
             <div className="product-field-wrapper mt-2">
               <div className="product-field mr-20">
                 <p>결제수단</p>
               </div>
-              <p>신용/체크카드</p>
+              <p>{orderInfo.paymentMethod}</p>
             </div>
 
             <div className="field-list-wrapper mt-2">
@@ -1045,8 +1156,10 @@ export default function PaymentDetail(): JSX.Element {
 
               <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
                 <p>
-                  [판매가합계]800,000원 + [배송비]40,000원 - [쿠폰할인]40,000원 - [적립금]20,000원 =
-                  780,000원
+                  [판매가합계]{currency(orderInfo.totalAmount)}원 + [배송비]
+                  {currency(orderInfo.deliveryFee)}원 - [쿠폰할인]
+                  {currency(orderInfo.couponDiscount)}원 - [적립금]{currency(orderInfo.usingPoint)}
+                  원 = {currency(orderInfo.totalPayAmount)}원
                 </p>
               </div>
             </div>
@@ -1057,7 +1170,10 @@ export default function PaymentDetail(): JSX.Element {
               </div>
 
               <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
-                <p>[쿠폰할인]40,000원 / [적립금]20,000원</p>
+                <p>
+                  [쿠폰할인]{currency(orderInfo.couponDiscount)}원 / [적립금]
+                  {currency(orderInfo.usingPoint)}원
+                </p>
               </div>
             </div>
 
@@ -1067,7 +1183,7 @@ export default function PaymentDetail(): JSX.Element {
               </div>
 
               <div className="flex align-c flex1 pt-10 pb-10">
-                <p>해외배송</p>
+                <p>{orderInfo.deliveryType}</p>
               </div>
             </div>
 
@@ -1079,17 +1195,17 @@ export default function PaymentDetail(): JSX.Element {
               <div className="flex1 pt-10 pb-10">
                 <div className="flex align-c">
                   <p style={{ width: 60 }}>이름</p>
-                  <p>안혜수</p>
+                  <p>{orderInfo.ordererInfo?.name}</p>
                 </div>
 
                 <div className="flex align-c mt-4">
                   <p style={{ width: 60 }}>연락처</p>
-                  <p>010-1234-1234</p>
+                  <p>{orderInfo.ordererInfo?.phone}</p>
                 </div>
 
                 <div className="flex align-c mt-4">
                   <p style={{ width: 60 }}>이메일</p>
-                  <p>ahnhs719@gmail.com</p>
+                  <p>{orderInfo.ordererInfo?.email}</p>
                 </div>
               </div>
             </div>
@@ -1101,7 +1217,7 @@ export default function PaymentDetail(): JSX.Element {
                 <p>주문일시</p>
               </div>
 
-              <p>2023.08.01 21:21:21</p>
+              <p>{timeFormat1(orderInfo.orderDate)}</p>
             </div>
 
             <div className="product-field-wrapper mt-2">
@@ -1117,7 +1233,9 @@ export default function PaymentDetail(): JSX.Element {
                 <p>결제정보</p>
               </div>
 
-              <p>롯데 / 3762 - **** - **** - ****</p>
+              <p>
+                {orderInfo.card} / {orderInfo.cardNum} - **** - **** - ****
+              </p>
             </div>
 
             <div className="field-list-wrapper mt-2">
@@ -1126,7 +1244,7 @@ export default function PaymentDetail(): JSX.Element {
               </div>
 
               <div className="flex align-c flex1 pt-10 pb-10">
-                <p>[적립금] 78,000원</p>
+                <p>[적립금] {currency(orderInfo.rewardPoints)}원</p>
               </div>
             </div>
 
@@ -1138,26 +1256,26 @@ export default function PaymentDetail(): JSX.Element {
               <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
                 <div className="flex align-c">
                   <p style={{ width: 200 }}>이름</p>
-                  <p>안혜수</p>
+                  <p>{orderInfo.deliveryAddressInfo?.name}</p>
                 </div>
 
                 <div className="flex align-c mt-4">
                   <p style={{ width: 200 }}>연락처</p>
-                  <p>010-1234-1234</p>
+                  <p>{orderInfo.deliveryAddressInfo?.phone}</p>
                 </div>
 
                 <div className="flex align-c mt-4">
                   <p style={{ width: 200 }}>
                     개인통관고유부호
                     <span
-                      onClick={() => setPersonalCustomCode(true)}
+                      onClick={() => setPersonalCustomCodePopup(true)}
                       className="ml-4 font-blue text-underline cursor"
                     >
                       수정
                     </span>
                   </p>
 
-                  <p>ahnhs719@gmail.com</p>
+                  <p>{personalCustomCode}</p>
                 </div>
 
                 <div className="flex mt-4">
@@ -1199,92 +1317,96 @@ export default function PaymentDetail(): JSX.Element {
           <ButtonR name={"주문확인"} onClick={() => setOrderStatusPopup("주문확인")} />
         </div>
 
-        <div className="mt-40">
-          <p className="font-category">CS정보</p>
-          <div className="flex mt-13">
-            <div className="flex1">
-              <div className="product-field-wrapper mt-2">
-                <div className="product-field mr-20">
-                  <p>요청구분</p>
+        {csInfo.length !== 0 && (
+          <div className="mt-40">
+            <p className="font-category">CS정보</p>
+            <div className="flex mt-13">
+              <div className="flex1">
+                <div className="product-field-wrapper mt-2">
+                  <div className="product-field mr-20">
+                    <p>요청구분</p>
+                  </div>
+
+                  <p>취소</p>
                 </div>
 
-                <p>취소</p>
-              </div>
+                <div className="product-field-wrapper mt-2">
+                  <div className="product-field mr-20">
+                    <p>CS접수번호</p>
+                  </div>
 
-              <div className="product-field-wrapper mt-2">
-                <div className="product-field mr-20">
-                  <p>CS접수번호</p>
+                  <p className="font-blue text-underline">{csInfo[0]?.csNo}</p>
                 </div>
 
-                <p className="font-blue text-underline">12345678</p>
-              </div>
+                <div className="field-list-wrapper mt-2">
+                  <div className="product-field mr-20">
+                    <p>접수사유</p>
+                  </div>
 
-              <div className="field-list-wrapper mt-2">
-                <div className="product-field mr-20">
-                  <p>접수사유</p>
+                  <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
+                    <p>
+                      [{csInfo[0]?.from}] {csInfo[0]?.type}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
-                  <p>[고객신청] 단순변심</p>
-                </div>
-              </div>
+                <div className="field-list-wrapper mt-2">
+                  <div className="product-field mr-20">
+                    <p>환불여부</p>
+                  </div>
 
-              <div className="field-list-wrapper mt-2">
-                <div className="product-field mr-20">
-                  <p>환불여부</p>
-                </div>
-
-                <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
-                  <p>Y</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex1">
-              <div className="product-field-wrapper mt-2">
-                <div className="product-field mr-20">
-                  <p>CS상태</p>
-                </div>
-
-                <p>완료</p>
-              </div>
-
-              <div className="product-field-wrapper mt-2">
-                <div className="product-field mr-20">
-                  <p>CS접수경로</p>
-                </div>
-
-                <p>실시간채팅</p>
-              </div>
-
-              <div className="field-list-wrapper mt-2">
-                <div className="product-field mr-20">
-                  <p>접수일</p>
-                </div>
-
-                <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
-                  <p>2023. 01. 01</p>
+                  <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
+                    <p>{csInfo[0]?.refund ? "Y" : "N"}</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="field-list-wrapper mt-2">
-                <div className="product-field mr-20">
-                  <p>처리완료일</p>
+              <div className="flex1">
+                <div className="product-field-wrapper mt-2">
+                  <div className="product-field mr-20">
+                    <p>CS상태</p>
+                  </div>
+
+                  <p>{csInfo[0]?.status ? "완료" : "처리중"}</p>
                 </div>
 
-                <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
-                  <p>2023. 01. 01</p>
+                <div className="product-field-wrapper mt-2">
+                  <div className="product-field mr-20">
+                    <p>CS접수경로</p>
+                  </div>
+
+                  <p>{csInfo[0]?.csRoute}</p>
+                </div>
+
+                <div className="field-list-wrapper mt-2">
+                  <div className="product-field mr-20">
+                    <p>접수일</p>
+                  </div>
+
+                  <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
+                    <p>{timeFormat1(csInfo[0]?.created)}</p>
+                  </div>
+                </div>
+
+                <div className="field-list-wrapper mt-2">
+                  <div className="product-field mr-20">
+                    <p>처리완료일</p>
+                  </div>
+
+                  <div className="flex1 pt-10 pb-10" style={{ paddingRight: 20 }}>
+                    <p>{timeFormat1(csInfo[0]?.completed)}</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* 주문상품 */}
         <div className="mt-40">
           <div className="flex justify-sb align-c">
             <p className="font-category">
-              주문상품 {memos.length}
+              주문상품 {orderInfo.orderedProduct?.length}
               <span className="font-400">건</span>
             </p>
           </div>
@@ -1317,95 +1439,47 @@ export default function PaymentDetail(): JSX.Element {
             </div>
           </div>
 
-          <div className="list-content pl-18 pr-18 mt-12">
-            <div className="flex align-c mt-8 mb-8 text-center">
-              <div className="w10p text-left">
-                <p>12345678</p>
-              </div>
+          {orderInfo.orderedProduct?.map((item: any, i: number) => (
+            <div key={i} className="list-content pl-18 pr-18 mt-12">
+              <div className="flex align-c mt-8 mb-8 text-center">
+                <div className="w10p text-left">
+                  <p className={`${item.status === "buy" ? "text-cancel" : ""}`}>
+                    {item.productCode}
+                  </p>
+                </div>
 
-              <div className="w40p">
-                <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
-              </div>
+                <div className="w40p">
+                  <p className={`text-line ${item.status === "buy" ? "text-cancel" : ""}`}>
+                    {item.prodNameK}
+                  </p>
+                </div>
 
-              <div className="w10p">
-                <p>small</p>
-              </div>
+                <div className="w10p">
+                  <p className={`${item.status === "buy" ? "text-cancel" : ""}`}>{item.option}</p>
+                </div>
 
-              <div className="w10p">
-                <p>{currency(200000)}</p>
-              </div>
-              <div className="w10p">
-                <p>{currency(-100000)}</p>
-              </div>
+                <div className="w10p">
+                  <p className={`${item.status === "buy" ? "text-cancel" : ""}`}>
+                    {currency(item.price)}
+                  </p>
+                </div>
+                <div className="w10p">
+                  <p className={`${item.status === "buy" ? "text-cancel" : ""}`}>
+                    {currency(-item.couponDiscount)}
+                  </p>
+                </div>
 
-              <div className="w10p">
-                <p>{currency(4500)}</p>
-              </div>
-              <div className="w10p">
-                <p>2</p>
+                <div className="w10p">
+                  <p className={`${item.status === "buy" ? "text-cancel" : ""}`}>
+                    {currency(4500)}
+                  </p>
+                </div>
+                <div className="w10p">
+                  <p className={`${item.status === "buy" ? "text-cancel" : ""}`}>{item.quantity}</p>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="list-content pl-18 pr-18 mt-12">
-            <div className="flex align-c mt-8 mb-8 text-center">
-              <div className="w10p text-left">
-                <p>12345678</p>
-              </div>
-
-              <div className="w40p">
-                <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
-              </div>
-
-              <div className="w10p">
-                <p>small</p>
-              </div>
-
-              <div className="w10p">
-                <p>{currency(200000)}</p>
-              </div>
-              <div className="w10p">
-                <p>{currency(-100000)}</p>
-              </div>
-
-              <div className="w10p">
-                <p>{currency(4500)}</p>
-              </div>
-              <div className="w10p">
-                <p>2</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="list-content pl-18 pr-18 mt-12">
-            <div className="flex align-c mt-8 mb-8 text-center">
-              <div className="w10p text-left">
-                <p>12345678</p>
-              </div>
-
-              <div className="w40p">
-                <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
-              </div>
-
-              <div className="w10p">
-                <p>small</p>
-              </div>
-
-              <div className="w10p">
-                <p>{currency(200000)}</p>
-              </div>
-              <div className="w10p">
-                <p>{currency(-100000)}</p>
-              </div>
-
-              <div className="w10p">
-                <p>{currency(4500)}</p>
-              </div>
-              <div className="w10p">
-                <p>2</p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* CS상담메모 */}
@@ -1417,8 +1491,12 @@ export default function PaymentDetail(): JSX.Element {
               name={"메모 추가"}
               onClick={() => {
                 setMemoPopup(true);
-                setMemoContents("");
                 setPopupAdd("add");
+                setCsMemo({
+                  csPath: {},
+                  memo: "",
+                  process: "N",
+                });
               }}
             />
           </div>
@@ -1448,7 +1526,7 @@ export default function PaymentDetail(): JSX.Element {
             </div>
           </div>
 
-          {memos.map((aMemo: any, i: number) => (
+          {csMemos.map((aMemo: any, i: number) => (
             <div key={i} className="list-content pl-18 pr-18">
               <div className="flex align-c mt-8 mb-8 text-center">
                 <div className="w10p text-left">
@@ -1456,34 +1534,47 @@ export default function PaymentDetail(): JSX.Element {
                 </div>
 
                 <div className="w40p">
-                  <p className="text-line">{aMemo.contents}</p>
+                  <p className="text-line">{aMemo.memo}</p>
+                </div>
+
+                <div className="w10p">
+                  <p>관리자</p>
                 </div>
 
                 <div className="w15p">
-                  <p>작성자</p>
-                </div>
-
-                <div className="w25p">
                   <p>{timeFormat1(aMemo.created)}</p>
                 </div>
 
-                <div className="text-center w10p flex justify-c">
+                <div className="w10p">
+                  <p>{aMemo.process}</p>
+                </div>
+
+                <div className="text-center w15p flex justify-c">
                   <ButtonR
                     name="상세"
                     color="white"
                     styles={{ marginRight: 4 }}
                     onClick={() => {
                       setMemoPopup(true);
-                      setMemoContents(aMemo.contents);
                       setPopupAdd("view");
                       setEditMemoId(aMemo._id);
+                      setCsMemo({
+                        csPath: {
+                          label: aMemo.path,
+                          value: aMemo.path,
+                        },
+                        memo: aMemo.memo,
+                        process: aMemo.process,
+                        created: aMemo.created,
+                        completed: aMemo.completed,
+                      });
                     }}
                     // onClick={() => navigate(`/site/main/bannertop/${aBanner._id}`)}
                   />
                   <ButtonR
                     name="삭제"
                     color="white"
-                    onClick={() => {}}
+                    onClick={() => handleDeleteMemo(aMemo._id)}
                     // onClick={() => navigate(`/site/main/bannertop/${aBanner._id}`)}
                   />
                 </div>

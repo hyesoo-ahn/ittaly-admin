@@ -184,7 +184,7 @@ function App() {
 
             {/* 주문배송 */}
             <Route path="/order/payments" element={<Payments />} />
-            <Route path="/order/payments/:paymentId" element={<PaymentDetail />} />
+            <Route path="/order/payments/:orderId" element={<PaymentDetail />} />
             <Route path="/order/shippingrequest" element={<ShippingRequest />} />
             <Route path="/order/pendingshipment" element={<Pendingshipment />} />
             <Route path="/order/invoice" element={<Invoice />} />

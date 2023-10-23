@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { getDatas, putUpdateDataBulk } from "../common/apis";
+import { getDataLength, getDatas, putUpdateDataBulk } from "../common/apis";
 import {
   PAGINATION_LIMIT,
   PAGINATION_NUM_LIMIT,
@@ -34,6 +34,7 @@ const Cateogyoptions3 = [
 export default function Coupon(): JSX.Element {
   const navigate = useNavigate();
   const [coupons, setCoupons] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [filterOb, setFilterOb] = useState<any>({
     startingDate: "",
     endingDate: "",
@@ -42,21 +43,11 @@ export default function Coupon(): JSX.Element {
     title: "",
     status: null,
   });
+  const [filterInfo, setFilterInfo] = useState<any>({});
 
   useEffect(() => {
     init();
   }, []);
-
-  const init = async () => {
-    const { data }: any = await getDatas({
-      collection: "coupons",
-      sort: { created: 1 },
-      // skip: page * limit,
-      // limit: 10,
-    });
-
-    setCoupons(data);
-  };
 
   // pagination
   const [numPage, setNumPage] = useState<number>(1);
@@ -64,35 +55,47 @@ export default function Coupon(): JSX.Element {
   const limit = PAGINATION_LIMIT;
   const numLimit = PAGINATION_NUM_LIMIT;
   const offset = (page - 1) * limit; // 시작점과 끝점을 구하는 offset
-  const numPagesTotal = Math.ceil(coupons.length / limit);
+  const numPagesTotal = Math.ceil(totalCount / limit);
   const numOffset = (numPage - 1) * numLimit;
+  // const [pagesTotal, setPagesTotal] = useState<number>(0);
+
+  const init = async () => {
+    const result: any = await getDataLength({
+      collection: "coupons",
+      find: {},
+    });
+    setTotalCount(result.count);
+    // setPagesTotal(Math.ceil(result.count / limit));
+  };
+
+  useEffect(() => {
+    productData();
+  }, [page, filterInfo]);
+
+  const productData = async () => {
+    const count: any = await getDataLength({
+      collection: "coupons",
+      find: { ...filterInfo },
+    });
+
+    const { data }: any = await getDatas({
+      collection: "coupons",
+      sort: { created: 1 },
+      skip: (page - 1) * limit,
+      find: { ...filterInfo },
+      // 처음 스킵0 리미트10 다음 스킵10 리미트 10
+      limit: 10,
+    });
+
+    setTotalCount(count.count);
+    // setPagesTotal(Math.ceil(count.count / limit));
+    setCoupons(data);
+  };
 
   const paginationNumbering = () => {
     const numArr: number[] = Array.from({ length: numPagesTotal }, (v, i) => i + 1);
     const result = numArr.slice(numOffset, numOffset + 5);
     return result;
-  };
-
-  // const productData = (product: any) => {
-  //   if (Object.keys(product).length !== 0) {
-  //     let result = product.slice(offset, offset + limit);
-  //     return result;
-  //   }
-  // };
-
-  useEffect(() => {
-    productData();
-  }, [page]);
-
-  const productData = async () => {
-    const { data }: any = await getDatas({
-      collection: "coupons",
-      sort: { created: 1 },
-      skip: (page - 1) * limit,
-      limit: 10,
-    });
-
-    setCoupons(data);
   };
   // pagination end
 
@@ -127,11 +130,12 @@ export default function Coupon(): JSX.Element {
       };
     }
     if (filterOb.target?.label === "고객 다운로드") {
-      find.targetMember = false;
-    }
-    if (filterOb.target?.label === "조건부 발급") {
       find.targetMember = true;
     }
+    if (filterOb.target?.label === "조건부 발급") {
+      find.targetMember = false;
+    }
+
     if (filterOb.benefit?.label === "할인율") {
       find.discountRatio = { $ne: 0 };
     }
@@ -151,14 +155,8 @@ export default function Coupon(): JSX.Element {
       find.title = filterOb.title;
     }
 
-    const { data }: any = await getDatas({
-      collection: "coupons",
-      find: {
-        ...find,
-      },
-    });
-
-    setCoupons(data);
+    setPage(1);
+    setFilterInfo(find);
   };
 
   const handleInitFilter = () => {
@@ -170,6 +168,8 @@ export default function Coupon(): JSX.Element {
       title: "",
       status: null,
     });
+    setFilterInfo({});
+    setPage(1);
 
     init();
   };

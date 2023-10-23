@@ -91,14 +91,13 @@ export const getDatas = async (body: any): Promise<boolean | object> => {
     const collection = body.collection;
     const find = body.find ? body.find : {};
     const sort = body.sort ? body.sort : {};
-    const start = body.start ? body.start : 0;
+    const start = body.skip ? body.skip : 0;
     const limit = body.limit ? body.limit : {};
-    const end = body.end ? body.end : 0;
 
     const { data }: any = await axios.get(
       `${URI}/admin/find?collection=${collection}&find=${JSON.stringify(
         find
-      )}&sort=${JSON.stringify(sort)}&start=${start}&end=${end}&limit=${limit}`,
+      )}&sort=${JSON.stringify(sort)}&skip=${start}&limit=${limit}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -279,6 +278,24 @@ export const getUsers = async (body: any): Promise<boolean | object> => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${ADMIN_TOKEN}`,
+        },
+      }
+    );
+
+    return data;
+  } catch (error) {
+    return false;
+  }
+};
+
+// 통관부호 유효성검증
+export const getValidCheckCustomCode = async (): Promise<boolean | object> => {
+  try {
+    const { data }: any = await axios.get(
+      `https://tunipass.customs.go.kr:38010/ext/rest/ecmQry/retrieveEcm?crkyCn=y240a243a180e166g040j060q0&ecm=P180016748474&brno=1028144680&conmNm=(주)모노글로트홀딩스`,
+      {
+        headers: {
+          "Content-Type": "Application/xml",
         },
       }
     );

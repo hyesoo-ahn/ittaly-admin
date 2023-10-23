@@ -20,18 +20,19 @@ export default function Payments(): JSX.Element {
   const [selected, setSelected] = useState<any>("");
   const [exportItem, setExportItem] = useState<boolean>(false);
 
-  const [users, setUsers] = useState<any[]>([]);
+  const [datas, setDatas] = useState<any[]>([]);
 
   useEffect(() => {
     init();
   }, []);
 
   const init = async () => {
-    const { data }: any = await getUsers({
+    let { data }: any = await getDatas({
+      collection: "orders",
       // sort: { sort: -1 },
     });
 
-    setUsers(data);
+    setDatas(data);
   };
 
   return (
@@ -226,43 +227,44 @@ export default function Payments(): JSX.Element {
       </div>
 
       <div className={`list-content pl-18 pr-18`}>
-        {users?.map((user: any, i: number) => (
+        {datas?.map((order: any, i: number) => (
           <div key={i} className={`flex align-c mt-8 mb-8`}>
             <div className="w5p">
               <input type="checkbox" />
             </div>
             <div className="w10p text-center">
-              <p>결제완료</p>
+              <p>{order.orderStatus}</p>
             </div>
-            <div className="w10p text-center" onClick={() => navigate("/order/payments/1234")}>
-              <p className="font-blue text-underline cursor">123456789</p>
+            <div
+              className="w10p text-center"
+              onClick={() => navigate(`/order/payments/${order._id}`)}
+            >
+              <p className="font-blue text-underline cursor">{order.orderNo}</p>
             </div>
             <div className="w20p text-center">
               <p className="text-line">
-                {user.email}
-                {user.email}
-                {user.email}
-                {user.email}
-                {user.email}
-                {user.email}1
+                {order.orderedProduct[0]?.productName}상품명은 서버에서 받아온다 외{" "}
+                {order.orderedProduct.length}건
               </p>
             </div>
 
             <div className="w10p text-center">
-              <p>김모노(aff77h2r)</p>
-              <p>Gold, 총 12건</p>
+              <p>
+                {order.userName}({order.userId})
+              </p>
+              <p>{order.userLevel}, 총 12건</p>
             </div>
             <div className="w10p text-center">
-              <p>국내배송</p>
+              <p>{order.deliveryType}</p>
             </div>
             <div className="w10p text-center">
-              <p>1,234,567</p>
+              <p>{currency(order?.totalPayAmount)}</p>
             </div>
             <div className="w10p text-center">
-              <p>네이버페이</p>
+              <p>{order.paymentMethod}</p>
             </div>
             <div className="w10p text-center">
-              <p className="text-line">2023.01.01 11:11:22</p>
+              <p className="text-line">{timeFormat1(order.orderDate)}</p>
             </div>
             <div className="w5p text-center">
               <p>Mobile app</p>
