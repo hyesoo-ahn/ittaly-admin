@@ -13,16 +13,16 @@ import { CustomSelectbox } from "../components/CustomSelectbox";
 
 const CS_ORDER_PATH = [
   {
-    value: "마이잇태리: 고객이 프론트에서 직접취소",
-    label: "마이잇태리: 고객이 프론트에서 직접취소",
+    value: "마이잇태리",
+    label: "마이잇태리",
   },
   {
-    value: "채팅상담: 채널톡 상담",
-    label: "채팅상담: 채널톡 상담",
+    value: "채팅상담",
+    label: "채팅상담",
   },
   {
-    value: "1:1 문의: 1:1 문의 상담",
-    label: "1:1 문의: 1:1 문의 상담",
+    value: "1:1 문의",
+    label: "1:1 문의",
   },
   {
     value: "기타",
@@ -214,6 +214,38 @@ export default function PaymentDetail(): JSX.Element {
   };
 
   const handleDeleteMemo = async (_id: string) => {};
+
+  const handleSetAddress = async () => {
+    const updateAddress: any = await putUpdateData({
+      collection: "orders",
+      _id: orderId,
+      address,
+      deliveryAddressInfo: {
+        ...orderInfo.deliveryAddressInfo,
+        address: `(${address.zonecode}) ${address.address} ${address.restAddress}`,
+      },
+    });
+
+    setEditAddressPopup(false);
+    init();
+  };
+
+  const handleCheckOrderedProduct = (item: any) => {
+    let ordered = [...orderInfo.orderedProduct];
+    const getIdx = ordered.findIndex((el) => el === item);
+    ordered[getIdx].checked = !ordered[getIdx].checked;
+
+    setOrderInfo((prev: any) => {
+      return {
+        ...prev,
+        orderedProduct: ordered,
+      };
+    });
+  };
+
+  useEffect(() => {
+    console.log(orderInfo.orderedProduct);
+  }, [orderInfo]);
 
   return (
     <div>
@@ -478,10 +510,17 @@ export default function PaymentDetail(): JSX.Element {
               <ButtonR
                 color={"white"}
                 name="취소"
-                onClick={() => setEditAddressPopup(false)}
+                onClick={() => {
+                  setEditAddressPopup(false);
+                  setAddress({
+                    zonecode: orderInfo?.address.zonecode,
+                    address: orderInfo?.address.address,
+                    restAddress: orderInfo?.address.restAddress,
+                  });
+                }}
                 styleClass="mr-4"
               />
-              <ButtonR name="저장" onClick={() => {}} />
+              <ButtonR name="저장" onClick={handleSetAddress} />
             </div>
           </Modal>
         )}
@@ -687,7 +726,7 @@ export default function PaymentDetail(): JSX.Element {
                     </div>
 
                     <div className="flex1 pt-10 pb-10">
-                      <p>신용/체크카드</p>
+                      <p>{orderInfo.paymentMethod}</p>
                     </div>
                   </div>
                 </div>
@@ -699,8 +738,10 @@ export default function PaymentDetail(): JSX.Element {
 
                     <div className="flex1 pt-10 pb-10">
                       <p>
-                        [판매가합계]800,000원 + [배송비]40,000원 - [쿠폰할인]40,000원 -
-                        [적립금]20,000원 = 780,000원{" "}
+                        [판매가합계]{currency(orderInfo.totalAmount)}원 + [배송비]
+                        {currency(orderInfo.deliveryFee)}원 - [쿠폰할인]
+                        {currency(orderInfo.couponDiscount)}원 - [적립금]
+                        {currency(orderInfo.usingPoint)}원 = {currency(orderInfo.totalPayAmount)}원
                       </p>
                     </div>
                   </div>
@@ -712,7 +753,10 @@ export default function PaymentDetail(): JSX.Element {
                     </div>
 
                     <div className="flex1 pt-10 pb-10">
-                      <p>[쿠폰할인]40,000원 / [적립금]20,000원</p>
+                      <p>
+                        [쿠폰할인]{currency(orderInfo.couponDiscount)}원 / [적립금]
+                        {currency(orderInfo.usingPoint)}원
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -723,7 +767,7 @@ export default function PaymentDetail(): JSX.Element {
                     </div>
 
                     <div className="flex1 pt-10 pb-10">
-                      <p>[적립금]78,000원</p>
+                      <p>[적립금] {currency(orderInfo.rewardPoints)}원</p>
                     </div>
                   </div>
                 </div>
@@ -734,7 +778,7 @@ export default function PaymentDetail(): JSX.Element {
                     </div>
 
                     <div className="flex1 pt-10 pb-10">
-                      <p>해외배송</p>
+                      <p>{orderInfo.deliveryType}</p>
                     </div>
                   </div>
                 </div>
@@ -843,187 +887,60 @@ export default function PaymentDetail(): JSX.Element {
                 </div>
 
                 <div className="list-content pl-18 pr-18 pt-12">
-                  <div className="flex align-c text-center" style={{ height: 28 }}>
-                    <div className="w5p text-left">
-                      <input type="checkbox" />
-                    </div>
-
-                    <div className="w10p">
-                      <p className="text-line">12345678</p>
-                    </div>
-
-                    <div className="w20p text-left">
-                      <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1111</p>
-                    </div>
-
-                    <div className="w10p">
-                      <p>Small</p>
-                    </div>
-                    <div className="w10p">
-                      <p>{currency(200000)}</p>
-                    </div>
-
-                    <div className="w10p">
-                      <p>{currency(-10000)}</p>
-                    </div>
-                    <div className="w10p">
-                      <p>{currency(10000)}</p>
-                    </div>
-                    <div className="w10p">
-                      <p>2</p>
-                    </div>
-
-                    <div className="w15p">
-                      <p>{currency(400000)}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex align-c text-center pt-12">
-                    <div className="w5p text-left">
-                      <input type="checkbox" />
-                    </div>
-
-                    <div className="w10p">
-                      <p className="text-line">12345678</p>
-                    </div>
-
-                    <div className="w20p text-left">
-                      <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
-                    </div>
-
-                    <div className="w10p">
-                      <p>Small</p>
-                    </div>
-                    <div className="w10p">
-                      <p>{currency(200000)}</p>
-                    </div>
-
-                    <div className="w10p">
-                      <p>{currency(-10000)}</p>
-                    </div>
-                    <div className="w10p">
-                      <p>{currency(10000)}</p>
-                    </div>
-                    <div className="w10p">
-                      <div
-                        className="flex"
-                        style={{ alignItems: "center", justifyContent: "center" }}
-                      >
-                        <CustomSelectbox
-                          style={{ width: 100, height: 28 }}
-                          selected={"2"}
-                          setSelected={() => {}}
-                          data={[
-                            { label: "1", value: "1" },
-                            { label: "2", value: "2" },
-                          ]}
-                          noDataMessage={"수량"}
+                  {orderInfo.orderedProduct.map((item: any, i: number) => (
+                    <div key={i} className="flex align-c text-center pt-12">
+                      <div className="w5p text-left">
+                        <input
+                          type="checkbox"
+                          checked={item.checked ? item.checked : false}
+                          onChange={() => handleCheckOrderedProduct(item)}
                         />
                       </div>
-                    </div>
 
-                    <div className="w15p">
-                      <p>{currency(400000)}</p>
-                    </div>
-                  </div>
+                      <div className="w10p">
+                        <p className="text-line">12345678</p>
+                      </div>
 
-                  <div className="flex align-c text-center pt-12">
-                    <div className="w5p text-left">
-                      <input type="checkbox" />
-                    </div>
+                      <div className="w20p text-left">
+                        <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
+                      </div>
 
-                    <div className="w10p">
-                      <p className="text-line">12345678</p>
-                    </div>
+                      <div className="w10p">
+                        <p>Small</p>
+                      </div>
+                      <div className="w10p">
+                        <p>{currency(200000)}</p>
+                      </div>
 
-                    <div className="w20p text-left">
-                      <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
-                    </div>
+                      <div className="w10p">
+                        <p>{currency(-10000)}</p>
+                      </div>
+                      <div className="w10p">
+                        <p>{currency(10000)}</p>
+                      </div>
+                      <div className="w10p">
+                        <div
+                          className="flex"
+                          style={{ alignItems: "center", justifyContent: "center" }}
+                        >
+                          <CustomSelectbox
+                            style={{ width: 100, height: 28 }}
+                            selected={{ value: 1, label: 1 }}
+                            setSelected={() => {}}
+                            data={[
+                              { label: "1", value: "1" },
+                              { label: "2", value: "2" },
+                            ]}
+                            noDataMessage={"수량"}
+                          />
+                        </div>
+                      </div>
 
-                    <div className="w10p">
-                      <p>Small</p>
-                    </div>
-                    <div className="w10p">
-                      <p>{currency(200000)}</p>
-                    </div>
-
-                    <div className="w10p">
-                      <p>{currency(-10000)}</p>
-                    </div>
-                    <div className="w10p">
-                      <p>{currency(10000)}</p>
-                    </div>
-                    <div className="w10p">
-                      <div
-                        className="flex"
-                        style={{ alignItems: "center", justifyContent: "center" }}
-                      >
-                        <CustomSelectbox
-                          style={{ width: 100, height: 28 }}
-                          selected={"2"}
-                          setSelected={() => {}}
-                          data={[
-                            { label: "1", value: "1" },
-                            { label: "2", value: "2" },
-                          ]}
-                          noDataMessage={"수량"}
-                        />
+                      <div className="w15p">
+                        <p>{currency(400000)}</p>
                       </div>
                     </div>
-
-                    <div className="w15p">
-                      <p>{currency(400000)}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex align-c text-center pt-12">
-                    <div className="w5p text-left">
-                      <input type="checkbox" />
-                    </div>
-
-                    <div className="w10p">
-                      <p className="text-line">12345678</p>
-                    </div>
-
-                    <div className="w20p text-left">
-                      <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
-                    </div>
-
-                    <div className="w10p">
-                      <p>Small</p>
-                    </div>
-                    <div className="w10p">
-                      <p>{currency(200000)}</p>
-                    </div>
-
-                    <div className="w10p">
-                      <p>{currency(-10000)}</p>
-                    </div>
-                    <div className="w10p">
-                      <p>{currency(10000)}</p>
-                    </div>
-                    <div className="w10p">
-                      <div
-                        className="flex"
-                        style={{ alignItems: "center", justifyContent: "center" }}
-                      >
-                        <CustomSelectbox
-                          style={{ width: 100, height: 28 }}
-                          selected={"2"}
-                          setSelected={() => {}}
-                          data={[
-                            { label: "1", value: "1" },
-                            { label: "2", value: "2" },
-                          ]}
-                          noDataMessage={"수량"}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="w15p">
-                      <p>{currency(400000)}</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
                 <p className="font-category mt-30">취소내역</p>
@@ -1292,7 +1209,8 @@ export default function PaymentDetail(): JSX.Element {
                   </div>
                   <div>
                     <p>
-                      ({address.zonecode}) {address.address} {address.restAddress}
+                      {orderInfo.deliveryAddressInfo?.address}
+                      {/* ({address.zonecode}) {address.address} {address.restAddress} */}
                     </p>
                   </div>
                 </div>
@@ -1443,39 +1361,43 @@ export default function PaymentDetail(): JSX.Element {
             <div key={i} className="list-content pl-18 pr-18 mt-12">
               <div className="flex align-c mt-8 mb-8 text-center">
                 <div className="w10p text-left">
-                  <p className={`${item.status === "buy" ? "text-cancel" : ""}`}>
+                  <p className={`${item.status === "cancel" ? "text-cancel" : ""}`}>
                     {item.productCode}
                   </p>
                 </div>
 
                 <div className="w40p">
-                  <p className={`text-line ${item.status === "buy" ? "text-cancel" : ""}`}>
+                  <p className={`text-line ${item.status === "cancel" ? "text-cancel" : ""}`}>
                     {item.prodNameK}
                   </p>
                 </div>
 
                 <div className="w10p">
-                  <p className={`${item.status === "buy" ? "text-cancel" : ""}`}>{item.option}</p>
+                  <p className={`${item.status === "cancel" ? "text-cancel" : ""}`}>
+                    {item.option}
+                  </p>
                 </div>
 
                 <div className="w10p">
-                  <p className={`${item.status === "buy" ? "text-cancel" : ""}`}>
+                  <p className={`${item.status === "cancel" ? "text-cancel" : ""}`}>
                     {currency(item.price)}
                   </p>
                 </div>
                 <div className="w10p">
-                  <p className={`${item.status === "buy" ? "text-cancel" : ""}`}>
+                  <p className={`${item.status === "cancel" ? "text-cancel" : ""}`}>
                     {currency(-item.couponDiscount)}
                   </p>
                 </div>
 
                 <div className="w10p">
-                  <p className={`${item.status === "buy" ? "text-cancel" : ""}`}>
+                  <p className={`${item.status === "cancel" ? "text-cancel" : ""}`}>
                     {currency(4500)}
                   </p>
                 </div>
                 <div className="w10p">
-                  <p className={`${item.status === "buy" ? "text-cancel" : ""}`}>{item.quantity}</p>
+                  <p className={`${item.status === "cancel" ? "text-cancel" : ""}`}>
+                    {item.quantity}
+                  </p>
                 </div>
               </div>
             </div>

@@ -1177,7 +1177,21 @@ export default function AddProduct(): JSX.Element {
                 <img
                   onClick={() => {
                     handleClose();
-                    setProductInfos([]);
+                    setProductInfos([
+                      {
+                        title: "제조국",
+                        content: "이탈리아",
+                      },
+                      {
+                        title: "품질 보증 기준",
+                        content:
+                          "공정거래위원회 고시(소비자분쟁해결기준)에 의거하여 보상해 드립니다.",
+                      },
+                      {
+                        title: "A/S 책임자와 전화번호",
+                        content: "ittaly, 010-4194-4399 (평일 09:00 - 18:00)",
+                      },
+                    ]);
                     setProductInfoForm({
                       title: "",
                       content: "",
