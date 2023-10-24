@@ -346,43 +346,53 @@ export default function AddProduct(): JSX.Element {
     const err: string[] = [];
     if (!form.category1) {
       isValid = false;
-      err.push("카테고리1");
+      return alert("카테고리 대분류를 선택해주세요.");
+      // err.push("카테고리1");
     }
     if (!form.category2) {
       isValid = false;
-      err.push("카테고리2");
+      return alert("카테고리 소분류를 선택해주세요.");
+      // err.push("카테고리2");
     }
     if (!form.brand) {
       isValid = false;
-      err.push("브랜드");
+      return alert("브랜드를 선택해주세요.");
+      // err.push("브랜드");
     }
     if (form.productNameK === "" || form.productNameE === "") {
       isValid = false;
-      err.push("상품이름");
+      return alert("상품명을 입력해주세요.");
+      // err.push("상품이름");
     }
     if (form.productCode === "") {
       isValid = false;
-      err.push("상품코드");
+      return alert("상품 코드를 입력해주세요.");
+      // err.push("상품코드");
     }
     if (form.keywords === "") {
       isValid = false;
-      err.push("키워드");
+      return alert("키워드를 입력해주세요.");
+      // err.push("키워드");
     }
     if (form.originalPrice === "") {
       isValid = false;
-      err.push("가격");
+      return alert("가격을 입력해주세요.");
+      // err.push("가격");
     }
     if (form.discounted === "") {
       isValid = false;
-      err.push("할인가");
+      return alert("할인가를 입력해주세요.");
+      // err.push("할인가");
     }
     if (!files.thumbnail[0]?.file) {
       isValid = false;
-      err.push("썸네일이미지");
+      return alert("썸네일 이미지를 첨부해주세요.");
+      // err.push("썸네일이미지");
     }
     if (points.length === 0) {
       isValid = false;
-      err.push("상품포인트");
+      return alert("상품의 구매 포인트를 입력해주세요.");
+      // err.push("상품포인트");
     }
 
     // console.log(err);
@@ -678,7 +688,7 @@ export default function AddProduct(): JSX.Element {
     // console.log(files.thumbnail);
 
     const isValid = await validationCheck();
-    if (!isValid) return alert("필수 입력 사항을 모두 입력해 주세요.");
+    if (!isValid) return;
     if (loading) return alert("상품 등록중입니다.");
     setLoading(true);
 
