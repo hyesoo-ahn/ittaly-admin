@@ -153,12 +153,13 @@ export default function AddProduct(): JSX.Element {
         });
       }
 
-      setForm((prev: any) => {
-        return {
-          ...prev,
-          category2: null,
-        };
-      });
+      // setForm((prev: any) => {
+      //   return {
+      //     ...prev,
+      //     category2: null,
+      //   };
+      // });
+
       setSubCategories(tempCategories);
     }
 
