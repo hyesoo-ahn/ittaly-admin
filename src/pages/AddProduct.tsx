@@ -7,11 +7,17 @@ import down_g from "../images/down_g.png";
 import up_b from "../images/up_b.png";
 import down_b from "../images/down_b.png";
 import close from "../images/close.png";
-import sample from "../images/sample_img.png";
+import cancel from "../images/icon_cancel.png";
 import { useFileUpload } from "../hooks/useFileUpload";
 import Modal from "../components/Modal";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
-import { CSV_ADD_PRODUCT_TEMPLATE, csvToJSON, currency, moveValue } from "../common/utils";
+import {
+  CSV_ADD_PRODUCT_TEMPLATE,
+  DELIVERY_TERMS_DEFAULT,
+  csvToJSON,
+  currency,
+  moveValue,
+} from "../common/utils";
 import CheckboxS from "../components/CheckboxS";
 import { getDatas, postAddProduct, postUploadImage } from "../common/apis";
 import { useNavigate } from "react-router-dom";
@@ -135,6 +141,19 @@ export default function AddProduct(): JSX.Element {
   const [jsonData, setJsonData] = useState<any>([]);
   const csvRef = useRef<HTMLInputElement>(null);
 
+  // 배송 정보 팝업
+  const [deliveryTermsPopup, setDeliveryTermsPopup] = useState<boolean>(false);
+  const [deliveryTerms, setDeliveryTerms] = useState<any>([
+    {
+      title: "",
+      contents: JSON.parse(JSON.stringify(DELIVERY_TERMS_DEFAULT)),
+    },
+  ]);
+  const [deliveryTermsForm, setDeliveryTermsForm] = useState<any>({
+    title: "",
+    contents: [""],
+  });
+
   useEffect(() => {
     init();
   }, []);
@@ -152,13 +171,6 @@ export default function AddProduct(): JSX.Element {
           label: categories[targetIdx].subCategories[i].optionName,
         });
       }
-
-      // setForm((prev: any) => {
-      //   return {
-      //     ...prev,
-      //     category2: null,
-      //   };
-      // });
 
       setSubCategories(tempCategories);
     }
@@ -435,6 +447,19 @@ export default function AddProduct(): JSX.Element {
         });
 
         break;
+      case "deliveryTerms":
+        for (let i in deliveryTermsForm.contents) {
+          if (deliveryTermsForm.contents[i] === "") return alert("내용을 입력해 주세요.");
+        }
+        tempArr = [...deliveryTerms];
+        tempArr.push(deliveryTermsForm);
+        setDeliveryTerms(tempArr);
+        setDeliveryTermsForm({
+          title: "",
+          contents: [""],
+        });
+
+        break;
     }
   };
 
@@ -447,6 +472,7 @@ export default function AddProduct(): JSX.Element {
   const handleClose = () => {
     openScroll();
     setIsOpen(false);
+    setDeliveryTermsPopup(false);
   };
 
   const handleChangeTextarea = (content: string) => {
@@ -468,6 +494,10 @@ export default function AddProduct(): JSX.Element {
 
     if (type === "productItem") {
       setProductItemOptions([...newArr]);
+    }
+
+    if (type === "deliveryTerms") {
+      setDeliveryTerms([...newArr]);
     }
   };
 
@@ -491,6 +521,12 @@ export default function AddProduct(): JSX.Element {
         tempArr = [...productItemOptions];
         tempArr.splice(i, 1);
         setProductItemOptions(tempArr);
+        break;
+
+      case "deliveryTerms":
+        tempArr = [...deliveryTerms];
+        tempArr.splice(i, 1);
+        setDeliveryTerms(tempArr);
         break;
     }
   };
@@ -1004,6 +1040,51 @@ export default function AddProduct(): JSX.Element {
     setOptionCsvPopup(false);
   };
 
+  const handleDeleteDeliverTermsOption = (body: any) => {
+    let temp = [...deliveryTerms];
+    const tempIndex = temp.findIndex((el) => el === body.termItem);
+    temp[tempIndex].contents.splice(body.index, 1);
+    setDeliveryTerms(temp);
+  };
+
+  const handleDeleteRelatedProducts = (item: any, index: number) => {
+    let temp = [...relatedProducts.products];
+
+    temp.splice(index, 1);
+    setRelatedProducts((prev: any) => {
+      return {
+        ...prev,
+        products: temp,
+      };
+    });
+  };
+
+  const handleAddDeliveryField = (termItem: any, i: number) => {
+    let tempArr = [...deliveryTerms];
+    tempArr[i].contents.push("");
+    setDeliveryTerms(tempArr);
+  };
+
+  const handleChangeDeliveryFieldInput = (body: any) => {
+    let temp = [...deliveryTerms];
+    if (body.type === "title") {
+      temp[body.termIndex].title = body.value;
+    } else {
+      temp[body.termIndex].contents[body.contentIndex] = body.value;
+    }
+
+    setDeliveryTerms(temp);
+  };
+
+  const handleResetDeliveryTerm = () => {
+    setDeliveryTerms([{ title: "", contents: DELIVERY_TERMS_DEFAULT }]);
+    setDeliveryTermsForm({
+      title: "",
+      contents: [""],
+    });
+    handleClose();
+  };
+
   return (
     <>
       {productOptionPopup && (
@@ -1510,6 +1591,230 @@ export default function AddProduct(): JSX.Element {
           </div>
         </Modal>
       )}
+      {deliveryTermsPopup && (
+        <Modal>
+          <div style={{ flex: 1 }} className="padding-24">
+            <div className="flex justify-sb">
+              <h2 className="margin-0 mb-20">배송정보</h2>
+
+              <div>
+                <img
+                  onClick={() => {
+                    setDeliveryTerms([{ title: "", contents: DELIVERY_TERMS_DEFAULT }]);
+                    setDeliveryTermsForm({
+                      title: "",
+                      contents: [""],
+                    });
+                    handleClose();
+                  }}
+                  src={close}
+                  className="img-close cursor"
+                  alt="close"
+                />
+              </div>
+            </div>
+            <div className="list-header">
+              <div className="text-center w10p">순서</div>
+              <div className="text-center w80p">항목</div>
+              <div className="text-center w10p">삭제/추가</div>
+            </div>
+
+            <div className="list-header-content">
+              <div className="text-center w10p">
+                <img src={up_g} style={{ width: 28, height: "auto" }} className="mr-4 cursor" />
+                <img src={down_g} style={{ width: 28, height: "auto" }} className="cursor" />
+              </div>
+              <div className="text-center w80p">
+                <div className="flex align-c mb-10">
+                  <div className="w10p" style={{ width: "10%" }}></div>
+                  <p className="text-left font-12 font-gray">
+                    추가 버튼을 클릭해서 정보를 추가해주세요.
+                  </p>
+                </div>
+                <div className="flex align-c">
+                  <div
+                    className="font-14 text-center font-bold flex align-c justify-c"
+                    style={{ width: "10%" }}
+                  >
+                    제목
+                  </div>
+
+                  <div className="flex align-c" style={{ width: "80%" }}>
+                    <input
+                      value={deliveryTermsForm?.title}
+                      onChange={(e) => {
+                        setDeliveryTermsForm((prevState: any) => {
+                          return {
+                            ...prevState,
+                            title: e.target.value,
+                          };
+                        });
+                      }}
+                      className="input-desc"
+                      placeholder="제목을 입력하세요 (15자 이내)"
+                    />
+                    <div className="ml-24"></div>
+                  </div>
+                </div>
+                {deliveryTermsForm.contents?.map((aContent: any, i: number) => (
+                  <div key={i} className="flex align-c mt-10">
+                    <div className="font-14 font-bold" style={{ width: "10%" }}>
+                      {i === 0 && "내용"}
+                    </div>
+
+                    <div className="flex align-c" style={{ width: "80%" }}>
+                      <textarea
+                        value={aContent}
+                        onChange={(e) => {
+                          let temp = [...deliveryTermsForm.contents];
+                          temp[i] = e.target.value;
+                          setDeliveryTermsForm((prevState: any) => {
+                            return {
+                              ...prevState,
+                              contents: temp,
+                            };
+                          });
+                        }}
+                        className="input-textarea-s"
+                        placeholder="내용을 입력하세요"
+                      />
+                      <div className="ml-24"></div>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="flex align-c mt-10 justify-c">
+                  <p
+                    onClick={() => {
+                      if (deliveryTermsForm.contents[deliveryTermsForm.contents.length - 1] === "")
+                        return;
+                      setDeliveryTermsForm((prev: any) => {
+                        return {
+                          ...prev,
+                          contents: [...prev.contents, ""],
+                        };
+                      });
+                    }}
+                    className="text-center font-bold cursor"
+                  >
+                    + 내용 값 추가하기
+                  </p>
+                </div>
+              </div>
+              <div className="text-center w10p">
+                <ButtonR onClick={() => handleAddForm("deliveryTerms")} name="추가" />
+              </div>
+            </div>
+
+            {deliveryTerms?.map((termItem: any, i: number) => (
+              <div key={i} className="list-header-content">
+                <div className="text-center w10p">
+                  <img
+                    onClick={() => handleMoveOrder("deliveryTerms", deliveryTerms, i, i - 1)}
+                    src={i === 0 ? up_g : up_b}
+                    style={{ width: 28, height: "auto" }}
+                    className="mr-4 cursor"
+                  />
+                  <img
+                    onClick={() => handleMoveOrder("deliveryTerms", deliveryTerms, i, i + 1)}
+                    src={i === deliveryTerms.length - 1 ? down_g : down_b}
+                    style={{ width: 28, height: "auto" }}
+                    className="cursor"
+                  />
+                </div>
+                <div className="text-center w80p">
+                  <div className="flex align-c">
+                    <div
+                      className="font-14 text-center font-bold flex align-c justify-c"
+                      style={{ width: "10%" }}
+                    >
+                      제목
+                    </div>
+
+                    <div className="flex align-c" style={{ width: "80%" }}>
+                      <input
+                        onChange={(e: any) =>
+                          handleChangeDeliveryFieldInput({
+                            termIndex: i,
+                            type: "title",
+                            value: e.target.value,
+                          })
+                        }
+                        value={termItem?.title}
+                        className="input-desc"
+                        placeholder=""
+                      />
+                      <div className="ml-10" style={{ width: 20 }} />
+                    </div>
+                  </div>
+                  {termItem?.contents?.map((aContent: any, index: number) => (
+                    <div key={index} className="flex align-c mt-10">
+                      <div
+                        className="font-14 text-center font-bold flex align-c justify-c"
+                        style={{ width: "10%" }}
+                      >
+                        {index === 0 && "내용"}
+                      </div>
+                      <div className="flex align-c" style={{ width: "80%" }}>
+                        <textarea
+                          onChange={(e: any) =>
+                            handleChangeDeliveryFieldInput({
+                              termIndex: i,
+                              contentIndex: index,
+                              type: "contents",
+                              value: e.target.value,
+                            })
+                          }
+                          value={aContent}
+                          className="input-textarea-s"
+                          placeholder="200자 이내로 입력해주세요(선택)"
+                        />
+                        <img
+                          onClick={() =>
+                            handleDeleteDeliverTermsOption({
+                              termItem,
+                              contentItem: aContent,
+                              index,
+                            })
+                          }
+                          className="ml-10 cursor"
+                          src={cancel}
+                          style={{ width: 20, height: "auto" }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <p
+                    onClick={() => handleAddDeliveryField(termItem, i)}
+                    className="text-center font-bold cursor mt-10"
+                  >
+                    + 내용 값 추가하기
+                  </p>
+                </div>
+                <div className="text-center w10p">
+                  <button
+                    onClick={() => handleDeleteListItem("deliveryTerms", i)}
+                    className="btn-add mr-4"
+                  >
+                    삭제
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            <div className="flex justify-fe mt-10">
+              <ButtonR
+                color={"white"}
+                onClick={handleResetDeliveryTerm}
+                styles={{ marginRight: 10 }}
+                name={"취소"}
+              />
+              <ButtonR onClick={handleClose} name={"저장"} />
+            </div>
+          </div>
+        </Modal>
+      )}
+
       <div>
         <div className="flex justify-sb align-c pb-30">
           <p className="page-title">상품등록/상세</p>
@@ -2364,7 +2669,7 @@ export default function AddProduct(): JSX.Element {
                         />
                         <ButtonR
                           onClick={() => handleUploadClick(3)}
-                          name={`이미지 추가 ${productItemForm.imgUrls.length}/5`}
+                          name={`이미지 추가 ${productItemForm?.imgUrls?.length}/5`}
                           styles={{ marginRight: 12 }}
                         />
 
@@ -2517,10 +2822,48 @@ export default function AddProduct(): JSX.Element {
                   </div>
                 </div>
               </div>
-              <div className="list-header-content justify-sb align-c">
-                <p className="font-bold font-14">배송정책</p>
-                <button className="btn-add">수정</button>
+              <div>
+                <div className="list-header-content f-direction-column">
+                  <div className="flex justify-sb align-c w100p">
+                    <p className="font-bold font-14">배송정책</p>
+
+                    <button onClick={() => setDeliveryTermsPopup(true)} className="btn-add">
+                      수정
+                    </button>
+                  </div>
+
+                  <div className={`${deliveryTerms?.length !== 0 && "mt-20"} font-400 font-gray`}>
+                    {deliveryTerms?.map((el: any, i: number) => (
+                      <div key={i} className="flex mt-12">
+                        <div className="w20p">
+                          <p>{el.title}</p>
+                        </div>
+
+                        <div className="w80p font-14">
+                          {el.contents?.map((aContent: string, index: number) => (
+                            <div
+                              className="mt-8"
+                              key={index}
+                              dangerouslySetInnerHTML={{
+                                __html: handleChangeTextarea(aContent),
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
+              {/* <div className="list-header-content justify-sb align-c">
+                <p className="font-bold font-14">배송정책</p>
+                <button onClick={() => setDeliveryTermsPopup(true)} className="btn-add">
+                  수정
+                </button>
+
+
+                
+              </div> */}
               <div className="list-header-content justify-sb align-c">
                 <p className="font-bold font-14">취소/교환/반품 안내</p>
                 <button className="btn-add">수정</button>
@@ -2621,7 +2964,11 @@ export default function AddProduct(): JSX.Element {
                         <p>{productItem.productNameK}</p>
                       </div>
 
-                      <ButtonR onClick={() => {}} color={"white"} name="삭제" />
+                      <ButtonR
+                        onClick={() => handleDeleteRelatedProducts(productItem, i)}
+                        color={"white"}
+                        name="삭제"
+                      />
                     </div>
                   ))}
                 </div>

@@ -419,3 +419,20 @@ export const CSV_INVOICE_TEMPLATE = [
 // pagination info
 export const PAGINATION_LIMIT = 10; // posts가 보일 최대한의 갯수
 export const PAGINATION_NUM_LIMIT = 5; // 페이지네이션 번호 묶음
+
+// 배송정책 디폴트 텍스트
+export const DELIVERY_TERMS_DEFAULT = [
+  "배송정보는 판매자의 사정에 따라 변동될 수 있으며, 구매 당시의 배송정보가 적용됩니다. ",
+  "주말/공휴일과 겹칠 경우 다음 영업일에 발송됩니다. ",
+  "도서/산간 지역은 추가 배송비가 발생할 수 있습니다. ",
+  "천재지변/물량수급변동 등의 예외적인 사유 발생 시, 다소 지연될 수 있는 점 양해바랍니다. ",
+  "배송: 택배 / 해외(GSMNtoN), 국내(CJ대한통운)",
+  "배송비: 해외 기본 15,000원, 국내 기본 2,500원(제주/도서산간 추가 배송비 5,000원)",
+  "상품의 크기나 무게에 따라 배송비가 추가될 수 있습니다.",
+];
+
+export const CANCELATION_TERMS_DEFAULT = [
+  {
+    title: "1. 취소안내",
+  },
+];

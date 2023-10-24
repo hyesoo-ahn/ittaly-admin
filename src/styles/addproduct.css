@@ -136,6 +136,14 @@
   padding: 8px;
   resize: none;
 }
+.input-textarea-s {
+  height: 64px;
+  width: 100%;
+  border: 1px solid #cccccc;
+  outline: none !important;
+  padding: 8px;
+  resize: none;
+}
 
 .input-desc::-webkit-input-placeholder {
   font-weight: 400;
@@ -151,14 +159,16 @@
   color: rgba(0, 0, 0, 0.4);
 }
 
-.input-textarea::-webkit-input-placeholder {
+.input-textarea::-webkit-input-placeholder,
+.input-textarea-s::-webkit-input-placeholder {
   font-weight: 400;
   font-size: 14px;
   line-height: 17px;
 
   color: rgba(0, 0, 0, 0.4);
 }
-.input-textarea:-ms-input-placeholder {
+.input-textarea:-ms-input-placeholder,
+.input-textarea-s::-webkit-input-placeholder {
   font-weight: 400;
   font-size: 14px;
   line-height: 17px;
