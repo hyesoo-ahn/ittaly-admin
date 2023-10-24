@@ -2832,7 +2832,7 @@ export default function AddProduct(): JSX.Element {
                     </button>
                   </div>
 
-                  <div className={`${deliveryTerms?.length !== 0 && "mt-20"} font-400 font-gray`}>
+                  <div className={`${deliveryTerms?.length !== 0 && ""} font-400 font-gray`}>
                     {deliveryTerms?.map((el: any, i: number) => (
                       <div key={i} className="flex mt-12">
                         <div className="w20p">
