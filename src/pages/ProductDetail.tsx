@@ -602,7 +602,7 @@ export default function ProductDetail(): JSX.Element {
 
   const handleChangeTextarea = (content: string) => {
     let str = content;
-    str = str.replace(/(?:\r\n|\r|\n)/g, `<br/>`);
+    // str = str.replace(/(?:\r\n|\r|\n)/g, `<br/>`);
     return str;
   };
 
@@ -1214,7 +1214,6 @@ export default function ProductDetail(): JSX.Element {
     tempArr[i].contents.push("");
     setDeliveryTerms(tempArr);
   };
-  1;
 
   return (
     <>
