@@ -110,7 +110,7 @@ export default function AddProduct(): JSX.Element {
     },
     {
       title: "A/S 책임자와 전화번호",
-      content: "ittaly, 010-4194-4399 (평일 09:00 - 18:00)",
+      content: "ittaly, 010-4194-4399 (평일 10:00 - 17:00)",
     },
   ]);
   const [saleStatus, setSaleStatus] = useState<string>("onSale");
@@ -903,7 +903,7 @@ export default function AddProduct(): JSX.Element {
       },
       {
         title: "A/S 책임자와 전화번호",
-        content: "ittaly, 010-4194-4399 (평일 09:00 - 18:00)",
+        content: "ittaly, 010-4194-4399 (평일 10:00 - 17:00)",
       },
     ]);
     setProductInfoForm({
@@ -1333,7 +1333,7 @@ export default function AddProduct(): JSX.Element {
                       },
                       {
                         title: "A/S 책임자와 전화번호",
-                        content: "ittaly, 010-4194-4399 (평일 09:00 - 18:00)",
+                        content: "ittaly, 010-4194-4399 (평일 10:00 - 17:00)",
                       },
                     ]);
                     setProductInfoForm({
@@ -2465,7 +2465,7 @@ export default function AddProduct(): JSX.Element {
             <div
               onClick={() => {
                 onChangeForm("deliveryType", "domestic");
-                onChangePrice("deliveryFee", "2500");
+                onChangePrice("deliveryFee", "3000");
               }}
               className="checkbox-c mr-4"
             >
@@ -2475,7 +2475,7 @@ export default function AddProduct(): JSX.Element {
             <p
               onClick={() => {
                 onChangeForm("deliveryType", "domestic");
-                onChangePrice("deliveryFee", "2500");
+                onChangePrice("deliveryFee", "3000");
               }}
               className="font-desc cursor"
             >

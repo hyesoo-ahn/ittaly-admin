@@ -343,8 +343,7 @@ export default function ProductDetail(): JSX.Element {
       type: detailData?.relatedProd?.length !== 0 ? "planned" : "random",
       products: detailData?.relatedProd,
     });
-    console.log("deliveryTerms", detailData.deliveryTerms);
-    console.log("cancellationTerms", detailData.cancellationTerms);
+
     setDeliveryTerms(
       detailData.deliveryTerms
         ? detailData.deliveryTerms
@@ -507,7 +506,8 @@ export default function ProductDetail(): JSX.Element {
       return alert("할인가를 입력해주세요.");
       // err.push("할인가");
     }
-    if (!files.thumbnail[0]?.file) {
+
+    if (files.thumbnail[0]?.fileUrl === "") {
       isValid = false;
       return alert("썸네일 이미지를 첨부해주세요.");
       // err.push("썸네일이미지");
@@ -844,17 +844,6 @@ export default function ProductDetail(): JSX.Element {
   };
 
   const handleAddProduct = async () => {
-    // 판매/가격 정보까지 =>  form
-    // 옵션 여부 => productOptions
-    // 배송정책 form.freeship
-    // 대표 이미지 => files.thumbnail url: imgUrl
-    // 추가 이미지 => files.additionalImg url: imgUrl
-    // 구매 포인트 => points 요약: summary 설명: desc 이미지URL: imgUrl
-    // 상품 옵션 => productItemOptions 옵션명: optionName 이미지URL: imgUrl
-    // 상품정보제공공시 => productInfos 제목: title 설명: content
-    // 연관 추천상품 => relatedProducts 랜덤: random 직접입력: planned products: []...
-    // 판매상태 saleStatus 판매중: onSale 판매중지: saleStopped 일시품절: soldOut
-    // console.log(files.thumbnail);
     const isValid = await validationCheck();
     if (!isValid) return;
     if (loading) return alert("상품 등록중입니다.");
@@ -1007,7 +996,7 @@ export default function ProductDetail(): JSX.Element {
       },
       {
         title: "A/S 책임자와 전화번호",
-        content: "ittaly, 010-4194-4399 (평일 09:00 - 18:00)",
+        content: "ittaly, 010-4194-4399 (평일 10:00 - 17:00)",
       },
     ]);
     setProductInfoForm({
