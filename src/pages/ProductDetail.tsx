@@ -123,12 +123,7 @@ export default function ProductDetail(): JSX.Element {
 
   // 배송 정보 팝업
   const [deliveryTermsPopup, setDeliveryTermsPopup] = useState<boolean>(false);
-  const [deliveryTerms, setDeliveryTerms] = useState<any>([
-    {
-      title: "",
-      contents: JSON.parse(JSON.stringify(DELIVERY_TERMS_DEFAULT)),
-    },
-  ]);
+  const [deliveryTerms, setDeliveryTerms] = useState<any>([]);
   const [deliveryTermsForm, setDeliveryTermsForm] = useState<any>({
     title: "",
     contents: [""],
@@ -136,9 +131,7 @@ export default function ProductDetail(): JSX.Element {
 
   // 취소/교환/반품 팝업
   const [cancellationPopup, setCancellationPopup] = useState<boolean>(false);
-  const [cancellationTerms, setCancellationTerms] = useState<any>(
-    JSON.parse(JSON.stringify(CANCELLATION_TERMS_DEFAULT))
-  );
+  const [cancellationTerms, setCancellationTerms] = useState<any>([]);
   const [cancellationTermsForm, setCancellationTermsForm] = useState<any>({
     title: "",
     contents: [""],
@@ -350,6 +343,18 @@ export default function ProductDetail(): JSX.Element {
       type: detailData?.relatedProd?.length !== 0 ? "planned" : "random",
       products: detailData?.relatedProd,
     });
+    console.log("deliveryTerms", detailData.deliveryTerms);
+    console.log("cancellationTerms", detailData.cancellationTerms);
+    setDeliveryTerms(
+      detailData.deliveryTerms
+        ? detailData.deliveryTerms
+        : JSON.parse(JSON.stringify(DELIVERY_TERMS_DEFAULT))
+    );
+    setCancellationTerms(
+      detailData.cancellationTerms
+        ? detailData.cancellationTerms
+        : JSON.parse(JSON.stringify(CANCELLATION_TERMS_DEFAULT))
+    );
   };
 
   const initProductOptions = (data: any) => {
@@ -1797,7 +1802,7 @@ export default function ProductDetail(): JSX.Element {
           </div>
         </Modal>
       )}
-       {cancellationPopup && (
+      {cancellationPopup && (
         <Modal>
           <div style={{ flex: 1 }} className="padding-24">
             <div className="flex justify-sb">
@@ -2031,7 +2036,6 @@ export default function ProductDetail(): JSX.Element {
           </div>
         </Modal>
       )}
-
 
       <div>
         <div className="flex justify-sb align-c pb-30">
