@@ -1214,6 +1214,7 @@ export default function ProductDetail(): JSX.Element {
     tempArr[i].contents.push("");
     setDeliveryTerms(tempArr);
   };
+  1;
 
   return (
     <>

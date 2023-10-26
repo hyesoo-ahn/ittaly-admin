@@ -144,12 +144,10 @@ export default function AddProduct(): JSX.Element {
 
   // 배송 정보 팝업
   const [deliveryTermsPopup, setDeliveryTermsPopup] = useState<boolean>(false);
-  const [deliveryTerms, setDeliveryTerms] = useState<any>([
-    {
-      title: "",
-      contents: JSON.parse(JSON.stringify(DELIVERY_TERMS_DEFAULT)),
-    },
-  ]);
+  const [deliveryTerms, setDeliveryTerms] = useState<any>(
+    JSON.parse(JSON.stringify(DELIVERY_TERMS_DEFAULT))
+  );
+
   const [deliveryTermsForm, setDeliveryTermsForm] = useState<any>({
     title: "",
     contents: [""],
@@ -502,7 +500,11 @@ export default function AddProduct(): JSX.Element {
 
   const handleChangeTextarea = (content: string) => {
     let str = content;
-    str = str.replace(/(?:\r\n|\r|\n)/g, `<br/>`);
+
+    if (str) {
+      str = str.replace(/(?:\r\n|\r|\n)/g, `<br/>`);
+    }
+
     return str;
   };
 
@@ -1127,7 +1129,7 @@ export default function AddProduct(): JSX.Element {
   };
 
   const handleResetDeliveryTerm = () => {
-    setDeliveryTerms([{ title: "", contents: DELIVERY_TERMS_DEFAULT }]);
+    setDeliveryTerms(JSON.parse(JSON.stringify(DELIVERY_TERMS_DEFAULT)));
     setDeliveryTermsForm({
       title: "",
       contents: [""],
@@ -1650,7 +1652,7 @@ export default function AddProduct(): JSX.Element {
               <div>
                 <img
                   onClick={() => {
-                    setDeliveryTerms([{ title: "", contents: DELIVERY_TERMS_DEFAULT }]);
+                    setDeliveryTerms(JSON.parse(JSON.stringify(DELIVERY_TERMS_DEFAULT)));
                     setDeliveryTermsForm({
                       title: "",
                       contents: [""],
@@ -3162,7 +3164,7 @@ export default function AddProduct(): JSX.Element {
                         <div className="w80p font-14">
                           {el.contents?.map((aContent: string, index: number) => (
                             <div
-                              className="mt-8"
+                              // className="mt-8"
                               key={index}
                               dangerouslySetInnerHTML={{
                                 __html: handleChangeTextarea(aContent),
