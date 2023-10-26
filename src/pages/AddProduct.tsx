@@ -12,6 +12,7 @@ import { useFileUpload } from "../hooks/useFileUpload";
 import Modal from "../components/Modal";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import {
+  CANCELLATION_TERMS_DEFAULT,
   CSV_ADD_PRODUCT_TEMPLATE,
   DELIVERY_TERMS_DEFAULT,
   csvToJSON,
@@ -150,6 +151,16 @@ export default function AddProduct(): JSX.Element {
     },
   ]);
   const [deliveryTermsForm, setDeliveryTermsForm] = useState<any>({
+    title: "",
+    contents: [""],
+  });
+
+  // 취소/교환/반품 팝업
+  const [cancellationPopup, setCancellationPopup] = useState<boolean>(false);
+  const [cancellationTerms, setCancellationTerms] = useState<any>(
+    JSON.parse(JSON.stringify(CANCELLATION_TERMS_DEFAULT))
+  );
+  const [cancellationTermsForm, setCancellationTermsForm] = useState<any>({
     title: "",
     contents: [""],
   });
@@ -460,6 +471,19 @@ export default function AddProduct(): JSX.Element {
         });
 
         break;
+      case "cancellationTerms":
+        for (let i in cancellationTermsForm.contents) {
+          if (cancellationTermsForm.contents[i] === "") return alert("내용을 입력해 주세요.");
+        }
+        tempArr = [...cancellationTerms];
+        tempArr.push(cancellationTermsForm);
+        setCancellationTerms(tempArr);
+        setCancellationTermsForm({
+          title: "",
+          contents: [""],
+        });
+
+        break;
     }
   };
 
@@ -473,6 +497,7 @@ export default function AddProduct(): JSX.Element {
     openScroll();
     setIsOpen(false);
     setDeliveryTermsPopup(false);
+    setCancellationPopup(false);
   };
 
   const handleChangeTextarea = (content: string) => {
@@ -498,6 +523,10 @@ export default function AddProduct(): JSX.Element {
 
     if (type === "deliveryTerms") {
       setDeliveryTerms([...newArr]);
+    }
+
+    if (type === "cancellationTerms") {
+      setCancellationTerms([...newArr]);
     }
   };
 
@@ -527,6 +556,11 @@ export default function AddProduct(): JSX.Element {
         tempArr = [...deliveryTerms];
         tempArr.splice(i, 1);
         setDeliveryTerms(tempArr);
+        break;
+      case "cancellationTerms":
+        tempArr = [...cancellationTerms];
+        tempArr.splice(i, 1);
+        setCancellationTerms(tempArr);
         break;
     }
   };
@@ -782,6 +816,8 @@ export default function AddProduct(): JSX.Element {
       productInfos,
       saleStatus,
       relatedProd,
+      deliveryTerms,
+      cancellationTerms,
     };
 
     // console.log(_body);
@@ -1040,11 +1076,15 @@ export default function AddProduct(): JSX.Element {
     setOptionCsvPopup(false);
   };
 
-  const handleDeleteDeliverTermsOption = (body: any) => {
-    let temp = [...deliveryTerms];
+  const handleDeleteTermsOption = (body: any) => {
+    let temp = body.termType === "deliveryTerms" ? [...deliveryTerms] : [...cancellationTerms];
     const tempIndex = temp.findIndex((el) => el === body.termItem);
     temp[tempIndex].contents.splice(body.index, 1);
-    setDeliveryTerms(temp);
+    if (body.termType === "deliveryTerms") {
+      setDeliveryTerms(temp);
+    } else {
+      setCancellationTerms(temp);
+    }
   };
 
   const handleDeleteRelatedProducts = (item: any, index: number) => {
@@ -1059,21 +1099,31 @@ export default function AddProduct(): JSX.Element {
     });
   };
 
+  const handleAddCancellationField = (termItem: any, i: number) => {
+    let tempArr = [...cancellationTerms];
+    tempArr[i].contents.push("");
+    setDeliveryTerms(tempArr);
+  };
+
   const handleAddDeliveryField = (termItem: any, i: number) => {
     let tempArr = [...deliveryTerms];
     tempArr[i].contents.push("");
     setDeliveryTerms(tempArr);
   };
 
-  const handleChangeDeliveryFieldInput = (body: any) => {
-    let temp = [...deliveryTerms];
+  const handleChangeTermFieldInput = (body: any) => {
+    let temp = body.termType === "deliveryTerms" ? [...deliveryTerms] : [...cancellationTerms];
     if (body.type === "title") {
       temp[body.termIndex].title = body.value;
     } else {
       temp[body.termIndex].contents[body.contentIndex] = body.value;
     }
 
-    setDeliveryTerms(temp);
+    if (body.termType === "deliveryTerms") {
+      setDeliveryTerms(temp);
+    } else {
+      setCancellationTerms(temp);
+    }
   };
 
   const handleResetDeliveryTerm = () => {
@@ -1734,7 +1784,8 @@ export default function AddProduct(): JSX.Element {
                     <div className="flex align-c" style={{ width: "80%" }}>
                       <input
                         onChange={(e: any) =>
-                          handleChangeDeliveryFieldInput({
+                          handleChangeTermFieldInput({
+                            termType: "deliveryTerms",
                             termIndex: i,
                             type: "title",
                             value: e.target.value,
@@ -1758,7 +1809,8 @@ export default function AddProduct(): JSX.Element {
                       <div className="flex align-c" style={{ width: "80%" }}>
                         <textarea
                           onChange={(e: any) =>
-                            handleChangeDeliveryFieldInput({
+                            handleChangeTermFieldInput({
+                              termType: "deliveryTerms",
                               termIndex: i,
                               contentIndex: index,
                               type: "contents",
@@ -1771,7 +1823,8 @@ export default function AddProduct(): JSX.Element {
                         />
                         <img
                           onClick={() =>
-                            handleDeleteDeliverTermsOption({
+                            handleDeleteTermsOption({
+                              termType: "deliveryTerms",
                               termItem,
                               contentItem: aContent,
                               index,
@@ -1794,6 +1847,240 @@ export default function AddProduct(): JSX.Element {
                 <div className="text-center w10p">
                   <button
                     onClick={() => handleDeleteListItem("deliveryTerms", i)}
+                    className="btn-add mr-4"
+                  >
+                    삭제
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            <div className="flex justify-fe mt-10">
+              <ButtonR
+                color={"white"}
+                onClick={handleResetDeliveryTerm}
+                styles={{ marginRight: 10 }}
+                name={"취소"}
+              />
+              <ButtonR onClick={handleClose} name={"저장"} />
+            </div>
+          </div>
+        </Modal>
+      )}
+      {cancellationPopup && (
+        <Modal>
+          <div style={{ flex: 1 }} className="padding-24">
+            <div className="flex justify-sb">
+              <h2 className="margin-0 mb-20">배송정보</h2>
+
+              <div>
+                <img
+                  onClick={() => {
+                    setCancellationTerms(CANCELLATION_TERMS_DEFAULT);
+                    setCancellationTermsForm({
+                      title: "",
+                      contents: [""],
+                    });
+                    handleClose();
+                  }}
+                  src={close}
+                  className="img-close cursor"
+                  alt="close"
+                />
+              </div>
+            </div>
+            <div className="list-header">
+              <div className="text-center w10p">순서</div>
+              <div className="text-center w80p">항목</div>
+              <div className="text-center w10p">삭제/추가</div>
+            </div>
+
+            <div className="list-header-content">
+              <div className="text-center w10p">
+                <img src={up_g} style={{ width: 28, height: "auto" }} className="mr-4 cursor" />
+                <img src={down_g} style={{ width: 28, height: "auto" }} className="cursor" />
+              </div>
+              <div className="text-center w80p">
+                <div className="flex align-c mb-10">
+                  <div className="w10p" style={{ width: "10%" }}></div>
+                  <p className="text-left font-12 font-gray">
+                    추가 버튼을 클릭해서 정보를 추가해주세요.
+                  </p>
+                </div>
+                <div className="flex align-c">
+                  <div
+                    className="font-14 text-center font-bold flex align-c justify-c"
+                    style={{ width: "10%" }}
+                  >
+                    제목
+                  </div>
+
+                  <div className="flex align-c" style={{ width: "80%" }}>
+                    <input
+                      value={cancellationTermsForm?.title}
+                      onChange={(e) => {
+                        setCancellationTermsForm((prevState: any) => {
+                          return {
+                            ...prevState,
+                            title: e.target.value,
+                          };
+                        });
+                      }}
+                      className="input-desc"
+                      placeholder="제목을 입력하세요 (15자 이내)"
+                    />
+                    <div className="ml-24"></div>
+                  </div>
+                </div>
+                {cancellationTermsForm.contents?.map((aContent: any, i: number) => (
+                  <div key={i} className="flex align-c mt-10">
+                    <div className="font-14 font-bold" style={{ width: "10%" }}>
+                      {i === 0 && "내용"}
+                    </div>
+
+                    <div className="flex align-c" style={{ width: "80%" }}>
+                      <textarea
+                        value={aContent}
+                        onChange={(e) => {
+                          let temp = [...cancellationTermsForm.contents];
+                          temp[i] = e.target.value;
+                          setCancellationTermsForm((prevState: any) => {
+                            return {
+                              ...prevState,
+                              contents: temp,
+                            };
+                          });
+                        }}
+                        className="input-textarea-s"
+                        placeholder="내용을 입력하세요"
+                      />
+                      <div className="ml-24"></div>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="flex align-c mt-10 justify-c">
+                  <p
+                    onClick={() => {
+                      if (
+                        cancellationTermsForm.contents[
+                          cancellationTermsForm.contents.length - 1
+                        ] === ""
+                      )
+                        return;
+                      setCancellationTermsForm((prev: any) => {
+                        return {
+                          ...prev,
+                          contents: [...prev.contents, ""],
+                        };
+                      });
+                    }}
+                    className="text-center font-bold cursor"
+                  >
+                    + 내용 값 추가하기
+                  </p>
+                </div>
+              </div>
+              <div className="text-center w10p">
+                <ButtonR onClick={() => handleAddForm("cancellationTerms")} name="추가" />
+              </div>
+            </div>
+
+            {cancellationTerms?.map((termItem: any, i: number) => (
+              <div key={i} className="list-header-content">
+                <div className="text-center w10p">
+                  <img
+                    onClick={() =>
+                      handleMoveOrder("cancellationTerms", cancellationTerms, i, i - 1)
+                    }
+                    src={i === 0 ? up_g : up_b}
+                    style={{ width: 28, height: "auto" }}
+                    className="mr-4 cursor"
+                  />
+                  <img
+                    onClick={() =>
+                      handleMoveOrder("cancellationTerms", cancellationTerms, i, i + 1)
+                    }
+                    src={i === cancellationTerms.length - 1 ? down_g : down_b}
+                    style={{ width: 28, height: "auto" }}
+                    className="cursor"
+                  />
+                </div>
+                <div className="text-center w80p">
+                  <div className="flex align-c">
+                    <div
+                      className="font-14 text-center font-bold flex align-c justify-c"
+                      style={{ width: "10%" }}
+                    >
+                      제목
+                    </div>
+
+                    <div className="flex align-c" style={{ width: "80%" }}>
+                      <input
+                        onChange={(e: any) =>
+                          handleChangeTermFieldInput({
+                            termType: "cancellationTerms",
+                            termIndex: i,
+                            type: "title",
+                            value: e.target.value,
+                          })
+                        }
+                        value={termItem?.title}
+                        className="input-desc"
+                        placeholder=""
+                      />
+                      <div className="ml-10" style={{ width: 20 }} />
+                    </div>
+                  </div>
+                  {termItem?.contents?.map((aContent: any, index: number) => (
+                    <div key={index} className="flex align-c mt-10">
+                      <div
+                        className="font-14 text-center font-bold flex align-c justify-c"
+                        style={{ width: "10%" }}
+                      >
+                        {index === 0 && "내용"}
+                      </div>
+                      <div className="flex align-c" style={{ width: "80%" }}>
+                        <textarea
+                          onChange={(e: any) =>
+                            handleChangeTermFieldInput({
+                              termType: "cancellation",
+                              termIndex: i,
+                              contentIndex: index,
+                              type: "contents",
+                              value: e.target.value,
+                            })
+                          }
+                          value={aContent}
+                          className="input-textarea-s"
+                          placeholder="200자 이내로 입력해주세요(선택)"
+                        />
+                        <img
+                          onClick={() =>
+                            handleDeleteTermsOption({
+                              termType: "cancellationTerms",
+                              termItem,
+                              contentItem: aContent,
+                              index,
+                            })
+                          }
+                          className="ml-10 cursor"
+                          src={cancel}
+                          style={{ width: 20, height: "auto" }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <p
+                    onClick={() => handleAddCancellationField(termItem, i)}
+                    className="text-center font-bold cursor mt-10"
+                  >
+                    + 내용 값 추가하기
+                  </p>
+                </div>
+                <div className="text-center w10p">
+                  <button
+                    onClick={() => handleDeleteListItem("cancellationTerms", i)}
                     className="btn-add mr-4"
                   >
                     삭제
@@ -2855,18 +3142,38 @@ export default function AddProduct(): JSX.Element {
                   </div>
                 </div>
               </div>
-              {/* <div className="list-header-content justify-sb align-c">
-                <p className="font-bold font-14">배송정책</p>
-                <button onClick={() => setDeliveryTermsPopup(true)} className="btn-add">
-                  수정
-                </button>
+              <div>
+                <div className="list-header-content f-direction-column">
+                  <div className="flex justify-sb align-c w100p">
+                    <p className="font-bold font-14">취소/교환/반품 안내</p>
 
+                    <button onClick={() => setCancellationPopup(true)} className="btn-add">
+                      수정
+                    </button>
+                  </div>
 
-                
-              </div> */}
-              <div className="list-header-content justify-sb align-c">
-                <p className="font-bold font-14">취소/교환/반품 안내</p>
-                <button className="btn-add">수정</button>
+                  <div className={`${cancellationTerms?.length !== 0 && ""} font-400 font-gray`}>
+                    {cancellationTerms?.map((el: any, i: number) => (
+                      <div key={i} className="flex mt-12">
+                        <div className="w20p">
+                          <p>{el.title}</p>
+                        </div>
+
+                        <div className="w80p font-14">
+                          {el.contents?.map((aContent: string, index: number) => (
+                            <div
+                              className="mt-8"
+                              key={index}
+                              dangerouslySetInnerHTML={{
+                                __html: handleChangeTextarea(aContent),
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
