@@ -52,8 +52,6 @@ export default function ProductManagement(): JSX.Element {
   const numLimit = 5;
   const numOffset = (numPage - 1) * numLimit;
 
-  // console.log(numPages);
-
   const productData = (product: any) => {
     if (Object.keys(product).length !== 0) {
       let result = product.slice(offset, offset + limit);

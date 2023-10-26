@@ -8,7 +8,6 @@ import up_b from "../images/up_b.png";
 import down_b from "../images/down_b.png";
 import close from "../images/close.png";
 import cancel from "../images/icon_cancel.png";
-import sample from "../images/sample_img.png";
 import Modal from "../components/Modal";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import {
@@ -18,7 +17,7 @@ import {
   moveValue,
 } from "../common/utils";
 import CheckboxS from "../components/CheckboxS";
-import { getDatas, postAddProduct, postUploadImage, putUpdateData } from "../common/apis";
+import { getDatas, postUploadImage, putUpdateData } from "../common/apis";
 import { useNavigate, useParams } from "react-router-dom";
 import SelectBox from "../components/SelectBox";
 
@@ -921,7 +920,7 @@ export default function ProductDetail(): JSX.Element {
         const getUrl: any = await postUploadImage(formData);
         tempAdditionalImg.push(getUrl.url);
       } else {
-        tempAdditionalImg.push(files.additionalImg[i].fileUrl);
+        tempAdditionalImg.push(files.additionalImg[i]?.fileUrl);
       }
     }
 

@@ -45,10 +45,6 @@ export default function Coupon(): JSX.Element {
   });
   const [filterInfo, setFilterInfo] = useState<any>({});
 
-  useEffect(() => {
-    init();
-  }, []);
-
   // pagination
   const [numPage, setNumPage] = useState<number>(1);
   const [page, setPage] = useState(1);
@@ -58,15 +54,6 @@ export default function Coupon(): JSX.Element {
   const numPagesTotal = Math.ceil(totalCount / limit);
   const numOffset = (numPage - 1) * numLimit;
   // const [pagesTotal, setPagesTotal] = useState<number>(0);
-
-  const init = async () => {
-    const result: any = await getDataLength({
-      collection: "coupons",
-      find: {},
-    });
-    setTotalCount(result.count);
-    // setPagesTotal(Math.ceil(result.count / limit));
-  };
 
   useEffect(() => {
     productData();
@@ -171,7 +158,7 @@ export default function Coupon(): JSX.Element {
     setFilterInfo({});
     setPage(1);
 
-    init();
+    productData();
   };
 
   const handleCouponStatusChange = async (state: boolean) => {
@@ -207,7 +194,7 @@ export default function Coupon(): JSX.Element {
     if (updateResult.status === 200) {
       alert("쿠폰 변경이 완료되었습니다.");
     }
-    init();
+    productData();
   };
 
   return (
@@ -251,9 +238,6 @@ export default function Coupon(): JSX.Element {
               required
               aria-required="true"
             />
-
-            {/* <input style={{ width: "100%", marginRight: 4 }} type="date" /> */}
-            {/* <input style={{ width: "100%", marginLeft: 4 }} type="date" /> */}
           </div>
           <div className="flex1 ml-4 mr-4">
             <SelectBox
@@ -434,87 +418,13 @@ export default function Coupon(): JSX.Element {
                 styles={{ marginRight: 4 }}
                 onClick={async () => {
                   await deleteItem("coupons", couponItem._id, "쿠폰");
-                  await init();
+                  await productData();
                 }}
               />
             </div>
           </div>
         </div>
       ))}
-
-      {/* {productData(coupons)?.map((couponItem: any, i: number) => (
-        <div key={i} className={`list-content pl-18 pr-18`}>
-          <div className={`flex align-c mt-8 mb-8`}>
-            <div className="w5p">
-              <input
-                type="checkbox"
-                checked={couponItem.checked || ""}
-                onChange={(e: any) => handleCheckCoupon(couponItem)}
-              />
-            </div>
-
-            <div className="w10p">
-              <p>{couponItem._id.substr(6, 8)}</p>
-            </div>
-
-            <div className="w10p text-center">
-              <p>{couponItem.title}</p>
-            </div>
-
-            <div className="w10p text-center">
-              {couponItem.discountRatio !== 0 && <p>할인율</p>}
-              {couponItem.discountPrice !== 0 && <p>할인금액</p>}
-              {couponItem.freeshipping && <p>무료배송</p>}
-            </div>
-
-            <div className="w10p text-center">
-              {couponItem.discountRatio !== 0 && <p>{couponItem.discountRatio}%</p>}
-              {couponItem.discountPrice !== 0 && <p>{currency(couponItem.discountPrice)}</p>}
-              {couponItem.freeshipping && <p>무료배송</p>}
-            </div>
-
-            <div className="w15p text-center">
-              {couponItem.startingDate && couponItem.endingDate && (
-                <p>
-                  <span>{couponItem.startingDate ? timeFormat1(couponItem.startingDate) : ""}</span>{" "}
-                  ~ <span>{couponItem.endingDate ? timeFormat1(couponItem.endingDate) : ""}</span>
-                </p>
-              )}
-
-              {!couponItem.startingDate && !couponItem.endingDate && <p>-</p>}
-            </div>
-            <div className="w10p text-center">
-              <p>발급수</p>
-            </div>
-
-            <div className="w10p text-center">
-              {couponItem.targetMember && <p>고객 다운로드</p>}
-              {!couponItem.targetMember && <p>조건부 발급</p>}
-            </div>
-            <div className="w10p text-center">
-              <p>{couponItem.status ? "사용가능" : "사용불가"}</p>
-            </div>
-
-            <div className="w10p flex justify-c text-center">
-              <ButtonR
-                name="상세"
-                color="white"
-                styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/site/coupon/${couponItem._id}`)}
-              />
-              <ButtonR
-                name="삭제"
-                color="white"
-                styles={{ marginRight: 4 }}
-                onClick={async () => {
-                  await deleteItem("coupons", couponItem._id, "쿠폰");
-                  await init();
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      ))} */}
 
       <div className="mt-20 flex justify-sb align-c flex-wrap">
         <div className="flex">
@@ -532,15 +442,6 @@ export default function Coupon(): JSX.Element {
           />
         </div>
 
-        {/* <div className="flex pagination">
-          <p className="font-lightgray">{"<"}</p>
-          <p className="font-bold">1</p>
-          <p>2</p>
-          <p>3</p>
-          <p>4</p>
-          <p>5</p>
-          <p className="font-lightgray">{">"}</p>
-        </div> */}
         <Pagination
           data={coupons}
           numPagesTotal={numPagesTotal}
