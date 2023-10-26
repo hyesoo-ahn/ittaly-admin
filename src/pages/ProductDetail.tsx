@@ -1201,7 +1201,7 @@ export default function ProductDetail(): JSX.Element {
   };
 
   const handleResetDeliveryTerm = () => {
-    setDeliveryTerms([{ title: "", contents: DELIVERY_TERMS_DEFAULT }]);
+    setDeliveryTerms(JSON.parse(JSON.stringify(DELIVERY_TERMS_DEFAULT)));
     setDeliveryTermsForm({
       title: "",
       contents: [""],
@@ -1585,7 +1585,7 @@ export default function ProductDetail(): JSX.Element {
               <div>
                 <img
                   onClick={() => {
-                    setDeliveryTerms([{ title: "", contents: DELIVERY_TERMS_DEFAULT }]);
+                    setDeliveryTerms(JSON.parse(JSON.stringify(DELIVERY_TERMS_DEFAULT)));
                     setDeliveryTermsForm({
                       title: "",
                       contents: [""],
@@ -2027,7 +2027,14 @@ export default function ProductDetail(): JSX.Element {
             <div className="flex justify-fe mt-10">
               <ButtonR
                 color={"white"}
-                onClick={handleResetDeliveryTerm}
+                onClick={() => {
+                  setCancellationTerms(CANCELLATION_TERMS_DEFAULT);
+                  setCancellationTermsForm({
+                    title: "",
+                    contents: [""],
+                  });
+                  handleClose();
+                }}
                 styles={{ marginRight: 10 }}
                 name={"취소"}
               />
