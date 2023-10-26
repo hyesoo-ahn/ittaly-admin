@@ -501,9 +501,9 @@ export default function AddProduct(): JSX.Element {
   const handleChangeTextarea = (content: string) => {
     let str = content;
 
-    if (str) {
-      str = str.replace(/(?:\r\n|\r|\n)/g, `<br/>`);
-    }
+    // if (str) {
+    //   str = str.replace(/(?:\r\n|\r|\n)/g, `<br/>`);
+    // }
 
     return str;
   };
