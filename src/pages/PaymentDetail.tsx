@@ -1,4 +1,5 @@
 import React, { ChangeEvent, memo, useCallback, useEffect, useRef, useState } from "react";
+import _ from "lodash";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ButtonR from "../components/ButtonR";
 import Modal from "../components/Modal";
@@ -10,6 +11,7 @@ import { currency, timeFormat1, timeFormat2 } from "../common/utils";
 import DaumPostcode from "react-daum-postcode";
 import InputR from "../components/InputR";
 import { CustomSelectbox } from "../components/CustomSelectbox";
+import { useInput } from "../hooks/usePriceInput";
 
 const CS_ORDER_PATH = [
   {
@@ -113,8 +115,16 @@ export default function PaymentDetail(): JSX.Element {
     process: "N",
   });
   const [orderInfo, setOrderInfo] = useState<any>({});
+  const [orderInfoCopy, setOrderInfoCopy] = useState<any>({});
   const [csInfo, setCsInfo] = useState<any>([]);
   const [csMemos, setCsMemos] = useState<any>([]);
+
+  // 주문취소처리 폼
+  const [cancelForm, setCancelForm] = useState<any>({});
+  const [{ cancelCouponPrice, cancelRewardPrice }, onChangePrice, resetPrice] = useInput({
+    cancelCouponPrice: "",
+    cancelRewardPrice: "",
+  });
 
   const handle = {
     // 버튼 클릭 이벤트
@@ -189,6 +199,7 @@ export default function PaymentDetail(): JSX.Element {
     }
 
     setCsInfo(csData.data);
+    setOrderInfoCopy(_.cloneDeep(data[0]));
     setOrderInfo(data[0]);
     setPersonalCustomCode(data[0]?.deliveryAddressInfo?.personalCustomCode);
     setAddress({
@@ -200,7 +211,12 @@ export default function PaymentDetail(): JSX.Element {
 
   const onChangeHandler = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
     if (e.target.value.length > 200) return;
-    setDesc(e.target.value);
+    setCancelForm((prev: any) => {
+      return {
+        ...prev,
+        reason: e.target.value,
+      };
+    });
     setTxtLength(e.target.value.length);
   }, []);
 
@@ -244,8 +260,65 @@ export default function PaymentDetail(): JSX.Element {
   };
 
   useEffect(() => {
-    console.log(orderInfo.orderedProduct);
+    // console.log(orderInfo.orderedProduct);
   }, [orderInfo]);
+
+  const handleCancelFormChange = (type: string, value: string) => {
+    setCancelForm((prev: any) => {
+      return {
+        ...prev,
+        [type]: value,
+      };
+    });
+  };
+
+  const handlePostCancelOrder = async () => {
+    // 1. CS정보 post하기
+    // 수량이 1개가 아닌 경우 =>
+    // 2. orderInfo에서 취소할 물건의 status === "cancel"로 변경하기
+    // 3. 그 외 필요한 취소정보 update하기
+  };
+
+  const setProductQuantityRange = (index: number) => {
+    const range = [];
+    for (let i = 1; i < parseInt(orderInfoCopy.orderedProduct[index]?.quantity + 1); i++) {
+      range.push({
+        label: i,
+        value: i,
+      });
+    }
+
+    return range;
+  };
+
+  const handleChangeProductQuantity = (item: any, e: any) => {
+    let tempProducts = [...orderInfo.orderedProduct];
+    const tIndex = tempProducts.findIndex((el) => el === item);
+    tempProducts[tIndex].quantity = parseInt(e.value);
+
+    setOrderInfo((prev: any) => {
+      return {
+        ...prev,
+        orderedProduct: tempProducts,
+      };
+    });
+  };
+
+  const handleChangePrice = (e: any, i: number) => {
+    let value: string = e.target.value;
+    const numCheck: boolean = /^[0-9,]/.test("123adsasdfasdf");
+
+    if (!numCheck && value) return;
+
+    if (numCheck) {
+      const numValue = value.replaceAll(",", "");
+      value = numValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // let temp = [...optionsArr];
+    // temp[i].additionalPrice = value;
+    // setOptionsArr(temp);
+  };
 
   return (
     <div>
@@ -698,6 +771,7 @@ export default function PaymentDetail(): JSX.Element {
                   <img
                     onClick={() => {
                       setOrderCancelPopup(false);
+                      resetPrice();
                     }}
                     src={close}
                     className="img-close cursor"
@@ -795,8 +869,8 @@ export default function PaymentDetail(): JSX.Element {
 
                     <div className="flex1 pt-10 pb-10 relative">
                       <CustomSelectbox
-                        selected={selectedPath}
-                        setSelected={setSelectedPath}
+                        selected={cancelForm.csRoute || ""}
+                        setSelected={(e: any) => handleCancelFormChange("csRoute", e)}
                         data={CS_ORDER_PATH}
                         noDataMessage={"CS접수경로 선택"}
                       />
@@ -812,8 +886,8 @@ export default function PaymentDetail(): JSX.Element {
 
                     <div className="flex1 pt-10 pb-10 relative">
                       <CustomSelectbox
-                        selected={selectedReason}
-                        setSelected={setSelectedReason}
+                        selected={cancelForm.cancelReason || ""}
+                        setSelected={(e: any) => handleCancelFormChange("cancelReason", e)}
                         data={CANCEL_REASON}
                         noDataMessage={"접수사유 선택"}
                       />
@@ -821,7 +895,7 @@ export default function PaymentDetail(): JSX.Element {
                         <textarea
                           className="input-textarea"
                           placeholder="200자 이내로 입력해주세요"
-                          value={desc}
+                          value={cancelForm.reason}
                           onChange={(e) => onChangeHandler(e)}
                         />
                         <div
@@ -919,18 +993,12 @@ export default function PaymentDetail(): JSX.Element {
                         <p>{currency(10000)}</p>
                       </div>
                       <div className="w10p">
-                        <div
-                          className="flex"
-                          style={{ alignItems: "center", justifyContent: "center" }}
-                        >
+                        <div className="flex align-c justify-c">
                           <CustomSelectbox
                             style={{ width: 100, height: 28 }}
-                            selected={{ value: 1, label: 1 }}
-                            setSelected={() => {}}
-                            data={[
-                              { label: "1", value: "1" },
-                              { label: "2", value: "2" },
-                            ]}
+                            selected={{ value: item.quantity, label: item.quantity }}
+                            setSelected={(e: any) => handleChangeProductQuantity(item, e)}
+                            data={setProductQuantityRange(i)}
                             noDataMessage={"수량"}
                           />
                         </div>
@@ -974,7 +1042,10 @@ export default function PaymentDetail(): JSX.Element {
                       </div>
 
                       <div className="flex1 flex align-c pt-10 pb-10">
-                        <InputR />
+                        <InputR
+                          value={cancelCouponPrice}
+                          onChange={(e: any) => onChangePrice("cancelCouponPrice", e)}
+                        />
                         <p>원</p>
                       </div>
                     </div>
@@ -986,7 +1057,10 @@ export default function PaymentDetail(): JSX.Element {
                       </div>
 
                       <div className="flex1 flex align-c pt-10 pb-10">
-                        <InputR />
+                        <InputR
+                          value={cancelRewardPrice}
+                          onChange={(e: any) => onChangePrice("cancelRewardPrice", e)}
+                        />
                         <p>원</p>
                       </div>
                     </div>
@@ -1003,8 +1077,9 @@ export default function PaymentDetail(): JSX.Element {
 
                       <div className="flex1 pt-10 pb-10">
                         <p>
-                          [판매가합계]200,000원 - [쿠폰할인취소]10,000원 - [적립금반환]0원 =
-                          190,000원
+                          [판매가합계]{currency(orderInfo.totalAmount)}원 - [쿠폰할인취소]
+                          {currency(cancelCouponPrice.replaceAll(",", ""))}원 - [적립금반환]
+                          {currency(cancelRewardPrice.replaceAll(",", ""))}원 = 190,000원
                         </p>
                       </div>
                     </div>
@@ -1368,7 +1443,7 @@ export default function PaymentDetail(): JSX.Element {
 
                 <div className="w40p">
                   <p className={`text-line ${item.status === "cancel" ? "text-cancel" : ""}`}>
-                    {item.prodNameK}
+                    {item.productNameK}
                   </p>
                 </div>
 

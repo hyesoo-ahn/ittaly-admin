@@ -19,6 +19,7 @@ export default function Payments(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
   const [exportItem, setExportItem] = useState<boolean>(false);
+  const [filterOb, setFilterOb] = useState<any>({});
 
   const [datas, setDatas] = useState<any[]>([]);
 
@@ -34,6 +35,37 @@ export default function Payments(): JSX.Element {
 
     setDatas(data);
   };
+
+  // 주문 전체검색
+
+  const handleChangeFilterInput = (type: string, value: any) => {
+    setFilterOb((prev: any) => {
+      return {
+        ...prev,
+        [type]: value,
+      };
+    });
+  };
+
+  const handleFilter = async () => {
+    let find: any = {};
+
+    if (filterOb.startingDate) {
+      find.orderDate = {
+        $gte: new Date(filterOb.startingDate).getTime(),
+      };
+    }
+    if (filterOb.endingDate) {
+      find.orderDate = {
+        ...find.creaated,
+        $lte: new Date(filterOb.endingDate).getTime(),
+      };
+    }
+  };
+
+  useEffect(() => {
+    console.log("filterOb", filterOb);
+  }, [filterOb]);
 
   return (
     <div>
@@ -92,6 +124,15 @@ export default function Payments(): JSX.Element {
         <div className="flex">
           <div className="flex1 ml-4 mr-4 flex">
             <input
+              value={filterOb.startingDate || ""}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    startingDate: e.target.value,
+                  };
+                });
+              }}
               type="date"
               className="main-event-date-input mr-4"
               data-placeholder="주문일(~부터)"
@@ -99,6 +140,15 @@ export default function Payments(): JSX.Element {
               aria-required="true"
             />
             <input
+              value={filterOb.endingDate || ""}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    endingDate: e.target.value,
+                  };
+                });
+              }}
               type="date"
               className="main-event-date-input ml-4"
               data-placeholder="주문일(~까지)"
@@ -110,10 +160,22 @@ export default function Payments(): JSX.Element {
             {/* <input style={{ width: "100%", marginLeft: 4 }} type="date" /> */}
           </div>
           <div style={{ flex: 1, margin: "0 4px" }}>
-            <InputR size="full" placeholer="주문번호" innerStyle={{ margin: 0 }} />
+            <InputR
+              value={filterOb.orderNum || ""}
+              onChange={(e: any) => handleChangeFilterInput("orderNum", e.target.value)}
+              size="full"
+              placeholer="주문번호"
+              innerStyle={{ margin: 0 }}
+            />
           </div>
           <div style={{ flex: 1, margin: "0 4px" }}>
-            <InputR size="full" placeholer="상품명" innerStyle={{ margin: 0 }} />
+            <InputR
+              value={filterOb.orderNum || ""}
+              onChange={(e: any) => handleChangeFilterInput("orderNum", e.target.value)}
+              size="full"
+              placeholer="상품명"
+              innerStyle={{ margin: 0 }}
+            />
           </div>
         </div>
 
@@ -172,7 +234,11 @@ export default function Payments(): JSX.Element {
             />
           </div>
           <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
-            <button className="btn-add-b w50p mr-4 border-none" style={{ height: "100%" }}>
+            <button
+              onClick={handleFilter}
+              className="btn-add-b w50p mr-4 border-none"
+              style={{ height: "100%" }}
+            >
               검색
             </button>
             <button className="w50p bg-white ml-4 border-black" style={{ height: "100%" }}>
@@ -218,12 +284,12 @@ export default function Payments(): JSX.Element {
         <div className="w10p text-center">
           <p>결제수단</p>
         </div>
-        <div className="w10p text-center">
+        <div className="w15p text-center">
           <p>주문일시</p>
         </div>
-        <div className="w5p text-center">
+        {/* <div className="w5p text-center">
           <p>주문채널</p>
-        </div>
+        </div> */}
       </div>
 
       <div className={`list-content pl-18 pr-18`}>
@@ -263,12 +329,12 @@ export default function Payments(): JSX.Element {
             <div className="w10p text-center">
               <p>{order.paymentMethod}</p>
             </div>
-            <div className="w10p text-center">
+            <div className="w15p text-center">
               <p className="text-line">{timeFormat1(order.orderDate)}</p>
             </div>
-            <div className="w5p text-center">
+            {/* <div className="w5p text-center">
               <p>Mobile app</p>
-            </div>
+            </div> */}
           </div>
         ))}
       </div>
