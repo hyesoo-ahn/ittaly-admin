@@ -1,40 +1,164 @@
 import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { getDatas, getUsers } from "../common/apis";
-import { currency, timeFormat1, timeFormat2 } from "../common/utils";
+import { getDataLength, getDatas, getOrderData, getUsers } from "../common/apis";
+import {
+  PAGINATION_LIMIT,
+  PAGINATION_NUM_LIMIT,
+  currency,
+  timeFormat1,
+  timeFormat2,
+} from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
 import Modal from "../components/Modal";
 import close from "../images/close.png";
+import Pagination from "../components/Pagination";
 
-const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
+const ORDER_STATUS_OPTIONS = [
+  {
+    value: "전체",
+    label: "전체",
+  },
+  {
+    value: "결제완료",
+    label: "결제완료",
+  },
+  {
+    value: "상품준비",
+    label: "상품준비",
+  },
+  {
+    value: "배송준비",
+    label: "배송준비",
+  },
+  {
+    value: "배송완료",
+    label: "배송완료",
+  },
+  {
+    value: "주문취소",
+    label: "주문취소",
+  },
+  {
+    value: "부분취소",
+    label: "부분취소",
+  },
+  {
+    value: "교환신청",
+    label: "교환신청",
+  },
+  {
+    value: "교환완료",
+    label: "교환완료",
+  },
+  {
+    value: "반품신청",
+    label: "반품신청",
+  },
+  {
+    value: "반품완료",
+    label: "반품완료",
+  },
+];
+
+const PAY_METHOD_OPTIONS = [
+  {
+    value: "전체",
+    label: "전체",
+  },
+  {
+    value: "신용/체크카드",
+    label: "신용/체크카드",
+  },
+  {
+    value: "네이버페이",
+    label: "네이버페이",
+  },
+  {
+    value: "카카오페이",
+    label: "카카오페이",
+  },
+];
+
+const ORDERER_TYPE = [
+  { value: "전체", label: "전체" },
+  { value: "회원", label: "회원" },
+  { value: "비회원", label: "비회원" },
+];
+
+const DELIVERY_TYPE = [
+  {
+    value: "전체",
+    label: "전체",
+  },
+  {
+    value: "해외배송",
+    label: "해외배송",
+  },
+  {
+    value: "국내배송",
+    label: "국내배송",
+  },
 ];
 
 export default function Payments(): JSX.Element {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<any>("");
   const [exportItem, setExportItem] = useState<boolean>(false);
   const [filterOb, setFilterOb] = useState<any>({});
-
+  const [filterInfo, setFilterInfo] = useState<any>({});
   const [datas, setDatas] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
+
+  // pagination
+  const [numPage, setNumPage] = useState<number>(1);
+  const [page, setPage] = useState(1);
+  const limit = PAGINATION_LIMIT;
+  const numLimit = PAGINATION_NUM_LIMIT;
+  const offset = (page - 1) * limit; // 시작점과 끝점을 구하는 offset
+  const numPagesTotal = Math.ceil(totalCount / limit);
+  const numOffset = (numPage - 1) * numLimit;
 
   useEffect(() => {
     init();
-  }, []);
+  }, [page, filterInfo]);
 
   const init = async () => {
-    let { data }: any = await getDatas({
+    const count: any = await getDataLength({
       collection: "orders",
-      // sort: { sort: -1 },
+      find: { ...filterInfo },
     });
 
-    setDatas(data);
+    let data: any = [];
+
+    const text = filterInfo.text;
+
+    delete filterInfo.text;
+    if (!text || text === "") {
+      data = await getDatas({
+        // sort: { sort: -1 },
+        collection: "orders",
+        find: { ...filterInfo },
+      });
+    } else {
+      data = await getOrderData({
+        text: text,
+        // sort: { sort: -1 },
+        find: { ...filterInfo },
+      });
+    }
+
+    setTotalCount(count.count);
+    setDatas(data.data);
   };
+
+  const paginationNumbering = () => {
+    const numArr: number[] = Array.from({ length: numPagesTotal }, (v, i) => i + 1);
+    const result = numArr.slice(numOffset, numOffset + 5);
+    return result;
+  };
+  // pagination end
 
   // 주문 전체검색
 
@@ -45,6 +169,14 @@ export default function Payments(): JSX.Element {
         [type]: value,
       };
     });
+  };
+
+  const handleInitFilter = () => {
+    setFilterOb({});
+    setFilterInfo({});
+    // setPage(1);
+
+    init();
   };
 
   const handleFilter = async () => {
@@ -61,11 +193,38 @@ export default function Payments(): JSX.Element {
         $lte: new Date(filterOb.endingDate).getTime(),
       };
     }
-  };
+    if (filterOb.orderNo && filterOb.orderNo !== "") {
+      find.orderNo = filterOb.orderNo;
+    }
 
-  useEffect(() => {
-    console.log("filterOb", filterOb);
-  }, [filterOb]);
+    find.text = filterOb.productNameK;
+    // 1. 해당 상품명을 가진 프로덕트 아이디를 조회
+    // 2. orders 컬렉션에서 elemMatch 이용해서
+    // db.getCollection('orders').find({"orderedProduct": {"$elemMatch":{"_id": "64be4610ea26a037ec37cd1f"} }})
+
+    if (filterOb.userName && filterOb.userName !== "") {
+      find.userName = filterOb.userName;
+    }
+    if (filterOb.orderStatus && filterOb.orderStatus.value !== "전체") {
+      find.orderStatus = filterOb.orderStatus.value;
+    }
+    if (filterOb.payMethod && filterOb.payMethod.value !== "전체") {
+      find.paymentMethod = filterOb.payMethod.value;
+    }
+
+    // 회원, 비회원 우케해?
+    // if (filterOb.ordererType && filterOb.ordererType.value === "회원") {
+    //   find.userId = {
+    //     $ne: "",
+    //   };
+    // }
+
+    if (filterOb.deliveryType && filterOb.deliveryType.value !== "전체") {
+      find.deliveryType = filterOb.deliveryType.value;
+    }
+
+    setFilterInfo(find);
+  };
 
   return (
     <div>
@@ -161,8 +320,8 @@ export default function Payments(): JSX.Element {
           </div>
           <div style={{ flex: 1, margin: "0 4px" }}>
             <InputR
-              value={filterOb.orderNum || ""}
-              onChange={(e: any) => handleChangeFilterInput("orderNum", e.target.value)}
+              value={filterOb.orderNo || ""}
+              onChange={(e: any) => handleChangeFilterInput("orderNo", e.target.value)}
               size="full"
               placeholer="주문번호"
               innerStyle={{ margin: 0 }}
@@ -170,8 +329,8 @@ export default function Payments(): JSX.Element {
           </div>
           <div style={{ flex: 1, margin: "0 4px" }}>
             <InputR
-              value={filterOb.orderNum || ""}
-              onChange={(e: any) => handleChangeFilterInput("orderNum", e.target.value)}
+              value={filterOb.productNameK || ""}
+              onChange={(e: any) => handleChangeFilterInput("productNameK", e.target.value)}
               size="full"
               placeholer="상품명"
               innerStyle={{ margin: 0 }}
@@ -181,33 +340,32 @@ export default function Payments(): JSX.Element {
 
         <div style={{ display: "flex", marginTop: 8 }}>
           <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}>
-            <SelectBox
-              containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
-              noOptionsMessage={"상태가 없습니다."}
-              placeholder="주문상태"
+            <InputR
+              value={filterOb.userName || ""}
+              onChange={(e: any) => handleChangeFilterInput("userName", e.target.value)}
+              size="full"
+              placeholer="주문자이름"
+              innerStyle={{ margin: 0 }}
             />
           </div>
           <div className="flex1 ml-4 mr-4" style={{ height: 32 }}>
             <SelectBox
               containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
+              value={filterOb.orderStatus || ""}
+              onChange={(e: any) => handleChangeFilterInput("orderStatus", e)}
+              options={ORDER_STATUS_OPTIONS}
               noOptionsMessage={"상태가 없습니다."}
-              placeholder="결제수단"
+              placeholder="주문상태"
             />
           </div>
           <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
             <SelectBox
               containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
+              value={filterOb.payMethod || ""}
+              onChange={(e: any) => handleChangeFilterInput("payMethod", e)}
+              options={PAY_METHOD_OPTIONS}
               noOptionsMessage={"상태가 없습니다."}
-              placeholder="주문자 유형"
+              placeholder="결제수단"
             />
           </div>
         </div>
@@ -216,22 +374,30 @@ export default function Payments(): JSX.Element {
           <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}>
             <SelectBox
               containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
+              value={filterOb.ordererType || ""}
+              onChange={(e: any) => handleChangeFilterInput("ordererType", e)}
+              options={ORDERER_TYPE}
               noOptionsMessage={"상태가 없습니다."}
-              placeholder="주문채널"
+              placeholder="주문자유형"
             />
           </div>
           <div className="flex1 ml-4 mr-4" style={{ height: 32 }}>
             <SelectBox
               containerStyles={{ width: "100%" }}
+              value={filterOb.deliveryType || ""}
+              onChange={(e: any) => handleChangeFilterInput("deliveryType", e)}
+              options={DELIVERY_TYPE}
+              noOptionsMessage={"상태가 없습니다."}
+              placeholder="배송 유형"
+            />
+            {/* <SelectBox
+              containerStyles={{ width: "100%" }}
               value={selected}
               onChange={(e: any) => setSelected(e)}
               options={Cateogyoptions1}
               noOptionsMessage={"상태가 없습니다."}
-              placeholder="배송 유형"
-            />
+              placeholder="주문채널"
+            /> */}
           </div>
           <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
             <button
@@ -241,7 +407,11 @@ export default function Payments(): JSX.Element {
             >
               검색
             </button>
-            <button className="w50p bg-white ml-4 border-black" style={{ height: "100%" }}>
+            <button
+              onClick={handleInitFilter}
+              className="w50p bg-white ml-4 border-black"
+              style={{ height: "100%" }}
+            >
               초기화
             </button>
           </div>
@@ -349,15 +519,19 @@ export default function Payments(): JSX.Element {
           />
         </div>
 
-        <div className="flex pagination">
-          <p className="font-lightgray">{"<"}</p>
-          <p className="font-bold">1</p>
-          <p>2</p>
-          <p>3</p>
-          <p>4</p>
-          <p>5</p>
-          <p className="font-lightgray">{">"}</p>
-        </div>
+        <Pagination
+          data={datas}
+          numPagesTotal={numPagesTotal}
+          numOffset={numOffset}
+          numLimit={numLimit}
+          limit={limit}
+          numPage={numPage}
+          setNumPage={setNumPage}
+          paginationNumbering={paginationNumbering}
+          page={page}
+          setPage={setPage}
+          offset={offset}
+        />
       </div>
     </div>
   );

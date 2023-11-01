@@ -1,5 +1,6 @@
 import React, { ChangeEvent, memo, useCallback, useEffect, useRef, useState } from "react";
 import _ from "lodash";
+import moment from "moment";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ButtonR from "../components/ButtonR";
 import Modal from "../components/Modal";
@@ -11,7 +12,7 @@ import { currency, timeFormat1, timeFormat2 } from "../common/utils";
 import DaumPostcode from "react-daum-postcode";
 import InputR from "../components/InputR";
 import { CustomSelectbox } from "../components/CustomSelectbox";
-import { useInput } from "../hooks/usePriceInput";
+import { useInput, usePriceInput } from "../hooks/useInput";
 
 const CS_ORDER_PATH = [
   {
@@ -103,8 +104,6 @@ export default function PaymentDetail(): JSX.Element {
     restAddress: "101동 101호",
   });
   const [orderCancelPopup, setOrderCancelPopup] = useState<boolean>(false);
-  const [selectedPath, setSelectedPath] = useState<any>({});
-  const [selectedReason, setSelectedReason] = useState<any>({});
   const [desc, setDesc] = useState<string>("");
   const [txtLength, setTxtLength] = useState(0);
   const [orderStatusPopup, setOrderStatusPopup] = useState<string>("");
@@ -121,10 +120,17 @@ export default function PaymentDetail(): JSX.Element {
 
   // 주문취소처리 폼
   const [cancelForm, setCancelForm] = useState<any>({});
-  const [{ cancelCouponPrice, cancelRewardPrice }, onChangePrice, resetPrice] = useInput({
+  const [{ cancelCouponPrice, cancelRewardPrice }, onChangePrice, resetPrice] = usePriceInput({
     cancelCouponPrice: "",
     cancelRewardPrice: "",
   });
+  const [{ delayReason, trackingNumber }, delayReasonLength, onChange, resetInput] = useInput(
+    {
+      delayReason: "",
+      trackingNumber: "",
+    },
+    200
+  );
 
   const handle = {
     // 버튼 클릭 이벤트
@@ -259,10 +265,6 @@ export default function PaymentDetail(): JSX.Element {
     });
   };
 
-  useEffect(() => {
-    // console.log(orderInfo.orderedProduct);
-  }, [orderInfo]);
-
   const handleCancelFormChange = (type: string, value: string) => {
     setCancelForm((prev: any) => {
       return {
@@ -277,6 +279,7 @@ export default function PaymentDetail(): JSX.Element {
     // 수량이 1개가 아닌 경우 =>
     // 2. orderInfo에서 취소할 물건의 status === "cancel"로 변경하기
     // 3. 그 외 필요한 취소정보 update하기
+    // 4. 쿠폰 취소
   };
 
   const setProductQuantityRange = (index: number) => {
@@ -304,20 +307,41 @@ export default function PaymentDetail(): JSX.Element {
     });
   };
 
-  const handleChangePrice = (e: any, i: number) => {
-    let value: string = e.target.value;
-    const numCheck: boolean = /^[0-9,]/.test("123adsasdfasdf");
+  const handleOrderStatusUpdate = async (status: string) => {
+    if (status === "상품준비") {
+      const update = await putUpdateData({
+        colleciton: "orders",
+        _id: orderId,
+        // tid: "testId",
+        orderStatus: status,
+        delayType: selectedDelayReason.value,
+        delayReason,
+      });
 
-    if (!numCheck && value) return;
+      setOrderStatusPopup("");
+      setSelectedDelayReason({});
+      resetInput();
 
-    if (numCheck) {
-      const numValue = value.replaceAll(",", "");
-      value = numValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      if (update) {
+        alert("배송 상태가 변경되었습니다.");
+      }
+
+      init();
     }
+  };
 
-    // let temp = [...optionsArr];
-    // temp[i].additionalPrice = value;
-    // setOptionsArr(temp);
+  const countDelayDays = () => {
+    const today: any = new Date();
+    const orderDate: any = new Date(orderInfo.orderDate);
+    const gapNum: any = today - orderDate - 86400000;
+
+    const delayDays = Math.ceil(gapNum / (1000 * 60 * 60 * 24));
+
+    return delayDays;
+  };
+
+  const handleAddDeliveryAccount = () => {
+    console.log(trackingNumber);
   };
 
   return (
@@ -705,7 +729,11 @@ export default function PaymentDetail(): JSX.Element {
             <div className="flex justify-sb align-c relative">
               <h2 className="margin-0">상품준비(미출고) 처리</h2>
               <img
-                onClick={() => setPersonalCustomCodePopup(false)}
+                onClick={() => {
+                  setOrderStatusPopup("");
+                  setSelectedDelayReason({});
+                  resetInput();
+                }}
                 src={close}
                 style={{ width: 24, top: -10, right: -10 }}
                 className="cursor absolute"
@@ -730,8 +758,8 @@ export default function PaymentDetail(): JSX.Element {
                       <textarea
                         className="input-textarea"
                         placeholder="200자 이내로 입력해주세요"
-                        value={desc}
-                        onChange={(e) => onChangeHandler(e)}
+                        value={delayReason}
+                        onChange={(e) => onChange("delayReason", e)}
                       />
                       <div
                         className="font-12"
@@ -743,7 +771,7 @@ export default function PaymentDetail(): JSX.Element {
                           color: "rgba(0,0,0,0.4)",
                         }}
                       >
-                        {txtLength}/200
+                        {delayReasonLength.delayReason}/200
                       </div>
                     </div>
                   </div>
@@ -757,7 +785,7 @@ export default function PaymentDetail(): JSX.Element {
                 onClick={() => setOrderStatusPopup("")}
                 styleClass="mr-10"
               />
-              <ButtonR name="저장" onClick={() => {}} />
+              <ButtonR name="저장" onClick={() => handleOrderStatusUpdate("상품준비")} />
             </div>
           </Modal>
         )}
@@ -972,25 +1000,27 @@ export default function PaymentDetail(): JSX.Element {
                       </div>
 
                       <div className="w10p">
-                        <p className="text-line">12345678</p>
+                        <p className={`${item.checked && "text-cancel"} text-line`}>12345678</p>
                       </div>
 
                       <div className="w20p text-left">
-                        <p className="text-line">Seletti 하이브리드 푸르트 볼그릇1</p>
+                        <p className={`${item.checked && "text-cancel"} text-line`}>
+                          Seletti 하이브리드 푸르트 볼그릇1
+                        </p>
                       </div>
 
                       <div className="w10p">
-                        <p>Small</p>
+                        <p className={`${item.checked && "text-cancel"}`}>Small</p>
                       </div>
                       <div className="w10p">
-                        <p>{currency(200000)}</p>
+                        <p className={`${item.checked && "text-cancel"}`}>{currency(200000)}</p>
                       </div>
 
                       <div className="w10p">
-                        <p>{currency(-10000)}</p>
+                        <p className={`${item.checked && "text-cancel"}`}>{currency(-10000)}</p>
                       </div>
                       <div className="w10p">
-                        <p>{currency(10000)}</p>
+                        <p className={`${item.checked && "text-cancel"}`}>{currency(10000)}</p>
                       </div>
                       <div className="w10p">
                         <div className="flex align-c justify-c">
@@ -1005,7 +1035,7 @@ export default function PaymentDetail(): JSX.Element {
                       </div>
 
                       <div className="w15p">
-                        <p>{currency(400000)}</p>
+                        <p className={`${item.checked && "text-cancel"}`}>{currency(400000)}</p>
                       </div>
                     </div>
                   ))}
@@ -1131,7 +1161,10 @@ export default function PaymentDetail(): JSX.Element {
               <div className="product-field mr-20">
                 <p>주문상태</p>
               </div>
-              <p className="font-bold">{orderInfo.orderStatus}</p>
+              <p className="font-bold mr-8">{orderInfo.orderStatus}</p>
+              {orderInfo.orderStatus === "상품준비" && (
+                <p className="font-12">지연사유: {orderInfo.delayType}</p>
+              )}
             </div>
 
             <div className="product-field-wrapper mt-2">
@@ -1176,6 +1209,38 @@ export default function PaymentDetail(): JSX.Element {
 
               <div className="flex align-c flex1 pt-10 pb-10">
                 <p>{orderInfo.deliveryType}</p>
+              </div>
+            </div>
+
+            <div className="field-list-wrapper mt-2">
+              <div className="product-field mr-20">
+                <p>배송정보</p>
+              </div>
+
+              <div className="flex align-c flex1 pt-10 pb-10">
+                <SelectBox
+                  containerStyles={{ marginRight: 8, width: 120 }}
+                  placeholder={"택배사선택"}
+                  value={{
+                    value: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
+                    label: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
+                  }}
+                  onChange={() => {}}
+                  options={[
+                    {
+                      value: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
+                      label: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
+                    },
+                  ]}
+                  noOptionsMessage={"카테고리가 없습니다."}
+                />
+                <InputR
+                  value={trackingNumber}
+                  onChange={(e: any) => onChange("trackingNumber", e)}
+                  placeholer="운송장번호(숫자만 입력)"
+                  innerStyle={{ width: 160 }}
+                />
+                <ButtonR name={"적용"} color={"white"} onClick={handleAddDeliveryAccount} />
               </div>
             </div>
 
@@ -1240,6 +1305,19 @@ export default function PaymentDetail(): JSX.Element {
               </div>
             </div>
 
+            {orderInfo.delayType && orderInfo.delayType !== "" && (
+              <div className="field-list-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>지연 상태</p>
+                </div>
+
+                <div className="flex align-c flex1 pt-10 pb-10">
+                  <p className="font-red font-bold">+ {countDelayDays()}일</p>
+                  {/* <p>[적립금] {currency(orderInfo.rewardPoints)}원</p> */}
+                </div>
+              </div>
+            )}
+
             <div className="field-list-wrapper mt-2">
               <div className="product-field mr-20">
                 <p>배송지 정보</p>
@@ -1300,12 +1378,14 @@ export default function PaymentDetail(): JSX.Element {
             onClick={() => setOrderCancelPopup(true)}
             color={"white"}
           />
-          <ButtonR
-            name={"상품준비"}
-            styleClass={"mr-8"}
-            onClick={() => setOrderStatusPopup("상품준비")}
-            color={"white"}
-          />
+          {orderInfo.orderStatus !== "상품준비" && (
+            <ButtonR
+              name={"상품준비"}
+              styleClass={"mr-8"}
+              onClick={() => setOrderStatusPopup("상품준비")}
+              color={"white"}
+            />
+          )}
           <ButtonR name={"배송완료"} styleClass={"mr-8"} onClick={() => {}} color={"white"} />
           <ButtonR name={"주문확인"} onClick={() => setOrderStatusPopup("주문확인")} />
         </div>

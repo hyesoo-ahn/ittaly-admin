@@ -305,3 +305,31 @@ export const getValidCheckCustomCode = async (): Promise<boolean | object> => {
     return false;
   }
 };
+
+// 주문내역 검색
+export const getOrderData = async (body: any): Promise<boolean | object> => {
+  try {
+    const find = body.find ? body.find : {};
+    const sort = body.sort ? body.sort : {};
+    const start = body.skip ? body.skip : 0;
+    const limit = body.limit ? body.limit : {};
+    const text = body.text ? encodeURIComponent(body.text) : encodeURIComponent("");
+
+    const { data }: any = await axios.get(
+      `${URI}/admin/searchprojectnamefororders?find=${JSON.stringify(
+        find
+      )}&skip=${start}&limit=${limit}&text=${text}
+      `,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${ADMIN_TOKEN}`,
+        },
+      }
+    );
+
+    return data;
+  } catch (error) {
+    return false;
+  }
+};
