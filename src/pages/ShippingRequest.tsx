@@ -1,37 +1,276 @@
 import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import _ from "lodash";
 import Select from "react-select";
-import { getDatas, getUsers } from "../common/apis";
-import { currency, timeFormat1, timeFormat2 } from "../common/utils";
+import {
+  getDataLength,
+  getDatas,
+  getOrderData,
+  getUsers,
+  putUpdateData,
+  putUpdateDataBulk,
+  putUpdateDataBulk2,
+} from "../common/apis";
+import {
+  PAGINATION_LIMIT,
+  PAGINATION_NUM_LIMIT,
+  currency,
+  formatOnlyDate,
+  formatOnlyTime,
+  timeFormat1,
+  timeFormat2,
+} from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
 import Modal from "../components/Modal";
 import close from "../images/close.png";
+import Pagination from "../components/Pagination";
+import OrderCancelPopup from "../components/OrderCancelPopup";
+import { useInput, usePriceInput } from "../hooks/useInput";
+import { CustomSelectbox } from "../components/CustomSelectbox";
 
-const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
+const DELIVERY_TYPE = [
+  {
+    value: "전체",
+    label: "전체",
+  },
+  {
+    value: "해외배송",
+    label: "해외배송",
+  },
+  {
+    value: "국내배송",
+    label: "국내배송",
+  },
+];
+
+const DELAY_REASON = [
+  {
+    value: "품절 - 재고확보중",
+    label: "품절 - 재고확보중",
+  },
+  {
+    value: "교환출고",
+    label: "교환출고",
+  },
+  {
+    value: "예약주문/주문제작",
+    label: "예약주문/주문제작",
+  },
+  {
+    value: "연휴 배송마감",
+    label: "연휴 배송마감",
+  },
 ];
 
 export default function ShippingRequest(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
   const [exportItem, setExportItem] = useState<boolean>(false);
+  const [filterOb, setFilterOb] = useState<any>({});
+  const [filterInfo, setFilterInfo] = useState<any>({});
 
-  const [users, setUsers] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [data, setData] = useState<any[]>([]);
+
+  // pagination
+  const [numPage, setNumPage] = useState<number>(1);
+  const [page, setPage] = useState(1);
+  const limit = PAGINATION_LIMIT;
+  const numLimit = PAGINATION_NUM_LIMIT;
+  const offset = (page - 1) * limit; // 시작점과 끝점을 구하는 offset
+  const numPagesTotal = Math.ceil(totalCount / limit);
+  const numOffset = (numPage - 1) * numLimit;
+
+  const [orderStatusPopup, setOrderStatusPopup] = useState<string>("");
+  const [selectedDelayReason, setSelectedDelayReason] = useState<any>({});
+  // 주문취소 form
+  const [orderCancelPopup, setOrderCancelPopup] = useState<boolean>(false);
+  const [orderInfo, setOrderInfo] = useState<any>({});
+  const [orderInfoCopy, setOrderInfoCopy] = useState<any>({});
+  // 주문취소처리 폼
+  const [cancelForm, setCancelForm] = useState<any>({});
+  const [txtLength, setTxtLength] = useState(0);
+  const [{ cancelCouponPrice, cancelRewardPrice }, onChangePrice, resetPrice] = usePriceInput({
+    cancelCouponPrice: "",
+    cancelRewardPrice: "",
+  });
+  const [{ delayReason, trackingNumber }, delayReasonLength, onChange, resetInput, handleSetInput] =
+    useInput(
+      {
+        delayReason: "",
+        trackingNumber: "",
+      },
+      200
+    );
 
   useEffect(() => {
     init();
-  }, []);
+  }, [page, filterInfo]);
 
   const init = async () => {
-    const { data }: any = await getUsers({
-      // sort: { sort: -1 },
+    const count: any = await getDataLength({
+      collection: "orders",
+      find: { ...filterInfo },
     });
 
-    setUsers(data);
+    let data: any = [];
+
+    const text = filterInfo.text;
+
+    delete filterInfo.text;
+    if (!text || text === "") {
+      data = await getDatas({
+        // sort: { sort: -1 },
+        collection: "orders",
+        find: { ...filterInfo, orderStatus: "결제완료" },
+      });
+    } else {
+      data = await getOrderData({
+        text: text,
+        // sort: { sort: -1 },
+        find: { ...filterInfo, orderStatus: "결제완료" },
+      });
+    }
+
+    setTotalCount(count.count);
+    setData(data.data);
+  };
+
+  const paginationNumbering = () => {
+    const numArr: number[] = Array.from({ length: numPagesTotal }, (v, i) => i + 1);
+    const result = numArr.slice(numOffset, numOffset + 5);
+    return result;
+  };
+  // pagination end
+
+  const handleChangeFilterInput = (type: string, value: any) => {
+    setFilterOb((prev: any) => {
+      return {
+        ...prev,
+        [type]: value,
+      };
+    });
+  };
+
+  const handleFilter = async () => {
+    let find: any = {};
+
+    if (filterOb.startingDate) {
+      find.orderDate = {
+        $gte: new Date(filterOb.startingDate).getTime(),
+      };
+    }
+    if (filterOb.endingDate) {
+      find.orderDate = {
+        ...find.creaated,
+        $lte: new Date(filterOb.endingDate).getTime(),
+      };
+    }
+    if (filterOb.orderNo && filterOb.orderNo !== "") {
+      find.orderNo = filterOb.orderNo;
+    }
+
+    find.text = filterOb.productNameK;
+
+    if (filterOb.userName && filterOb.userName !== "") {
+      find.userName = filterOb.userName;
+    }
+
+    if (filterOb.deliveryType && filterOb.deliveryType.value !== "전체") {
+      find.deliveryType = filterOb.deliveryType.value;
+    }
+
+    setFilterInfo(find);
+  };
+
+  const handleInitFilter = () => {
+    setFilterOb({});
+    setFilterInfo({});
+    // setPage(1);
+
+    init();
+  };
+
+  const setProductQuantityRange = (index: number) => {
+    const range = [];
+    for (let i = 1; i < parseInt(orderInfoCopy.orderedProduct[index]?.quantity + 1); i++) {
+      range.push({
+        label: i,
+        value: i,
+      });
+    }
+
+    return range;
+  };
+
+  const handleCancelPaymentPopup = (item: any) => {
+    setOrderInfo(item);
+    setOrderCancelPopup(true);
+    setOrderInfoCopy(_.cloneDeep(item));
+  };
+
+  // 상품준비일때
+  const handleOrderStatusUpdateReady = async (status: string) => {
+    const update = await putUpdateData({
+      collection: "orders".toString(),
+      _id: orderInfo._id,
+      orderStatus: status,
+      delayType: selectedDelayReason.value ? selectedDelayReason.value : "",
+      delayReason: delayReason !== "" ? delayReason : "",
+    });
+
+    setOrderStatusPopup("");
+    setSelectedDelayReason({});
+    setOrderInfo({});
+    resetInput();
+
+    if (update) {
+      alert("배송 상태가 변경되었습니다.");
+    }
+
+    init();
+  };
+
+  const handleClickBtn = (orderState: string, item: any) => {
+    setOrderStatusPopup(orderState);
+    setOrderInfo(item);
+    setOrderInfoCopy(_.cloneDeep(item));
+  };
+
+  const handleCheckData = (item: any, i: number) => {
+    const temp = [...data];
+    temp[i].checked = !temp[i].checked;
+    setOrderInfo((prev: any) => {
+      return {
+        ...prev,
+        orderedProduct: temp,
+      };
+    });
+  };
+
+  const handleOrderCheckBulk = async () => {
+    const filterData: any = data.filter((el: any) => el.checked);
+
+    let updateTemp = [];
+    for (let i in filterData) {
+      updateTemp.push({
+        _id: filterData[i]._id,
+        setData: {
+          orderStatus: "배송준비",
+          delayType: "",
+          delayReason: "",
+        },
+      });
+    }
+
+    await putUpdateDataBulk({
+      collection: "orders",
+      updateData: [...updateTemp],
+    });
+
+    init();
   };
 
   return (
@@ -83,6 +322,130 @@ export default function ShippingRequest(): JSX.Element {
           </div>
         </Modal>
       )}
+
+      {orderCancelPopup && (
+        <OrderCancelPopup
+          setOrderCancelPopup={setOrderCancelPopup}
+          resetPrice={resetPrice}
+          orderInfo={orderInfo}
+          setOrderInfo={setOrderInfo}
+          cancelForm={cancelForm}
+          setCancelForm={setCancelForm}
+          txtLength={txtLength}
+          setTxtLength={setTxtLength}
+          setProductQuantityRange={setProductQuantityRange}
+          onChangePrice={onChangePrice}
+          cancelCouponPrice={cancelCouponPrice}
+          cancelRewardPrice={cancelRewardPrice}
+          handleResetPopup={() => {
+            setOrderInfo({});
+            setOrderInfoCopy({});
+          }}
+        />
+      )}
+
+      {orderStatusPopup === "주문확인" && (
+        <Modal
+          innerStyle={{
+            display: "flex",
+            justifyContent: "space-between",
+            flexDirection: "column",
+            width: "20%",
+            minHeight: "15vh",
+            padding: 30,
+          }}
+        >
+          <div className="flex justify-sb align-c f-direction-column">
+            <p className="font-16">주문 확인처리 하시겠습니까?</p>
+            <p className="font-16 mt-8">처리 시 배송준비중으로 변경됩니다.</p>
+          </div>
+          <div className="flex justify-c mt-20">
+            <ButtonR
+              color={"white"}
+              name="취소"
+              onClick={() => setOrderStatusPopup("")}
+              styleClass="mr-10"
+            />
+            <ButtonR name="저장" onClick={handleOrderCheckBulk} />
+          </div>
+        </Modal>
+      )}
+
+      {orderStatusPopup === "상품준비" && (
+        <Modal
+          innerStyle={{
+            display: "flex",
+            justifyContent: "space-between",
+            flexDirection: "column",
+            width: "30%",
+            minHeight: "20vh",
+            padding: 30,
+          }}
+        >
+          <div className="flex justify-sb align-c relative">
+            <h2 className="margin-0">상품준비(미출고) 처리</h2>
+            <img
+              onClick={() => {
+                setOrderStatusPopup("");
+                setSelectedDelayReason({});
+                resetInput();
+              }}
+              src={close}
+              style={{ width: 24, top: -10, right: -10 }}
+              className="cursor absolute"
+            />
+          </div>
+
+          <div className="flex flex-wrap mt-12">
+            <div className="w100p">
+              <div className="field-list-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>미출고 사유</p>
+                </div>
+
+                <div className="flex1 pt-10 pb-10 relative">
+                  <CustomSelectbox
+                    selected={selectedDelayReason}
+                    setSelected={setSelectedDelayReason}
+                    data={DELAY_REASON}
+                    noDataMessage={"지연사유 선택"}
+                  />
+                  <div className="mt-8 flex1 relative">
+                    <textarea
+                      className="input-textarea"
+                      placeholder="200자 이내로 입력해주세요"
+                      value={delayReason}
+                      onChange={(e) => onChange("delayReason", e)}
+                    />
+                    <div
+                      className="font-12"
+                      style={{
+                        position: "absolute",
+                        bottom: 10,
+                        right: 10,
+                        fontWeight: 400,
+                        color: "rgba(0,0,0,0.4)",
+                      }}
+                    >
+                      {delayReasonLength.delayReason}/200
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-c mt-20">
+            <ButtonR
+              color={"white"}
+              name="취소"
+              onClick={() => setOrderStatusPopup("")}
+              styleClass="mr-10"
+            />
+            <ButtonR name="저장" onClick={() => handleOrderStatusUpdateReady("상품준비")} />
+          </div>
+        </Modal>
+      )}
+
       <div className="flex justify-sb align-c">
         <p className="page-title">출고요청 리스트</p>
       </div>
@@ -91,6 +454,15 @@ export default function ShippingRequest(): JSX.Element {
         <div className="flex">
           <div className="flex1 ml-4 mr-4 flex">
             <input
+              value={filterOb.startingDate || ""}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    startingDate: e.target.value,
+                  };
+                });
+              }}
               type="date"
               className="main-event-date-input mr-4"
               data-placeholder="주문일(~부터)"
@@ -98,55 +470,94 @@ export default function ShippingRequest(): JSX.Element {
               aria-required="true"
             />
             <input
+              value={filterOb.endingDate || ""}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    endingDate: e.target.value,
+                  };
+                });
+              }}
               type="date"
               className="main-event-date-input ml-4"
               data-placeholder="주문일(~까지)"
               required
               aria-required="true"
             />
-
-            {/* <input style={{ width: "100%", marginRight: 4 }} type="date" /> */}
-            {/* <input style={{ width: "100%", marginLeft: 4 }} type="date" /> */}
           </div>
           <div style={{ flex: 1, margin: "0 4px" }}>
-            <InputR size="full" placeholer="주문번호" innerStyle={{ margin: 0 }} />
+            <InputR
+              value={filterOb.orderNo || ""}
+              onChange={(e: any) => handleChangeFilterInput("orderNo", e.target.value)}
+              size="full"
+              placeholer="주문번호"
+              innerStyle={{ margin: 0 }}
+            />
           </div>
           <div style={{ flex: 1, margin: "0 4px" }}>
-            <InputR size="full" placeholer="상품명" innerStyle={{ margin: 0 }} />
-          </div>
-        </div>
-
-        <div style={{ display: "flex", marginTop: 8 }}>
-          <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}>
-            <InputR placeholer="상품코드" size="full" innerStyle={{ marginRight: 0 }} />
-          </div>
-          <div className="flex1 ml-4 mr-4" style={{ height: 32 }}>
-            <InputR size="full" placeholer="주문자 이름/ID" innerStyle={{ margin: 0 }} />
-          </div>
-          <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
-            <SelectBox
-              containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
-              noOptionsMessage={"상태가 없습니다."}
-              placeholder="배송 유형"
+            <InputR
+              value={filterOb.productNameK || ""}
+              onChange={(e: any) => handleChangeFilterInput("productNameK", e.target.value)}
+              size="full"
+              placeholer="상품명"
+              innerStyle={{ margin: 0 }}
             />
           </div>
         </div>
 
         <div style={{ display: "flex", marginTop: 8 }}>
-          <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}></div>
-          <div className="flex1 ml-4 mr-4" style={{ height: 32 }}></div>
+          <div className="flex1 ml-4 mr-4" style={{ height: 32 }}>
+            <InputR
+              value={filterOb.userName || ""}
+              onChange={(e: any) => handleChangeFilterInput("userName", e.target.value)}
+              size="full"
+              placeholer="주문자 이름"
+              innerStyle={{ margin: 0 }}
+            />
+          </div>
           <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
-            <button className="btn-add-b w50p mr-4 border-none" style={{ height: "100%" }}>
-              검색
-            </button>
-            <button className="w50p bg-white ml-4 border-black" style={{ height: "100%" }}>
-              초기화
-            </button>
+            <SelectBox
+              containerStyles={{ width: "100%" }}
+              value={filterOb.ordererType || ""}
+              onChange={(e: any) => handleChangeFilterInput("deliveryType", e)}
+              options={DELIVERY_TYPE}
+              noOptionsMessage={"상태가 없습니다."}
+              placeholder="배송 유형"
+            />
+          </div>
+          <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}>
+            {/* <InputR
+              value={filterOb.productCode || ""}
+              onChange={(e: any) => handleChangeFilterInput("productCode", e.target.value)}
+              placeholer="상품코드"
+              size="full"
+              innerStyle={{ marginRight: 0 }}
+            /> */}
+
+            <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
+              <button
+                onClick={handleFilter}
+                className="btn-add-b w50p mr-4 border-none"
+                style={{ height: "100%" }}
+              >
+                검색
+              </button>
+              <button
+                onClick={handleInitFilter}
+                className="w50p bg-white ml-4 border-black"
+                style={{ height: "100%" }}
+              >
+                초기화
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* <div style={{ display: "flex", marginTop: 8 }}>
+          <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}></div>
+          <div className="flex1 ml-4 mr-4" style={{ height: 32 }}></div>
+        </div> */}
       </div>
 
       <div className="mt-34 flex justify-sb align-c">
@@ -191,45 +602,58 @@ export default function ShippingRequest(): JSX.Element {
       </div>
 
       <div className={`list-content pl-18 pr-18`}>
-        {users?.map((user: any, i: number) => (
+        {data?.map((item: any, i: number) => (
           <div key={i} className={`flex align-c mt-8 mb-8`}>
             <div className="w5p">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={item.checked || ""}
+                onChange={(e: any) => handleCheckData(item, i)}
+              />
             </div>
             <div className="w5p text-left">
               <p>결제완료</p>
             </div>
-            <div className="w10p text-center" onClick={() => navigate("/order/payments/1234")}>
-              <p className="font-blue text-underline cursor">123456789</p>
+            <div
+              className="w10p text-center"
+              onClick={() => navigate(`/order/payments/${item._id}`)}
+            >
+              <p className="font-blue text-underline cursor">{item.orderNo}</p>
             </div>
             <div className="w25p text-center">
               <p className="text-line">
-                {user.email}
-                {user.email}
-                {user.email}
-                {user.email}
-                {user.email}
-                {user.email}1
+                {item.orderedProduct[0]?.productNameK}{" "}
+                {item.orderedProduct.length !== 0 && `외 ${item.orderedProduct.length - 1}건`}
               </p>
             </div>
 
             <div className="w10p text-center">
-              <p>김모노(aff77h2r)</p>
-              <p>Gold, 총 12건</p>
+              <p>{item.userName}</p>
+              <p>{item.userLevel}</p>
             </div>
             <div className="w10p text-center">
-              <p>국내배송</p>
+              <p>{item.deliveryType}</p>
             </div>
             <div className="w10p text-center">
-              <p>1,234,567</p>
+              <p>{currency(item.totalAmount)}</p>
             </div>
             <div className="w10p text-center">
-              <p className="text-line">2023.01.01 11:11:22</p>
+              <p className="text-line">{formatOnlyDate(item.orderDate)}</p>
+              <p className="text-line">{formatOnlyTime(item.orderDate)}</p>
             </div>
             <div className="w15p text-center">
               <div className="flex align-c justify-c">
-                <ButtonR name={"주문취소"} onClick={() => {}} color="white" styleClass={"mr-4"} />
-                <ButtonR name={"상품준비"} onClick={() => {}} color="white" />
+                <ButtonR
+                  name={"주문취소"}
+                  onClick={() => handleCancelPaymentPopup(item)}
+                  color="white"
+                  styleClass={"mr-4"}
+                />
+                <ButtonR
+                  name={"상품준비"}
+                  onClick={() => handleClickBtn("상품준비", item)}
+                  color="white"
+                />
               </div>
             </div>
           </div>
@@ -244,19 +668,28 @@ export default function ShippingRequest(): JSX.Element {
             onClick={() => setExportItem(true)}
             styles={{ marginRight: 4 }}
           />
-          <ButtonR name="배송준비" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
+          <ButtonR
+            name="주문확인"
+            color="white"
+            onClick={() => setOrderStatusPopup("주문확인")}
+            styles={{ marginRight: 4 }}
+          />
           <ButtonR name="배송완료" color="white" onClick={() => {}} styles={{ marginRight: 4 }} />
         </div>
 
-        <div className="flex pagination">
-          <p className="font-lightgray">{"<"}</p>
-          <p className="font-bold">1</p>
-          <p>2</p>
-          <p>3</p>
-          <p>4</p>
-          <p>5</p>
-          <p className="font-lightgray">{">"}</p>
-        </div>
+        <Pagination
+          data={data}
+          numPagesTotal={numPagesTotal}
+          numOffset={numOffset}
+          numLimit={numLimit}
+          limit={limit}
+          numPage={numPage}
+          setNumPage={setNumPage}
+          paginationNumbering={paginationNumbering}
+          page={page}
+          setPage={setPage}
+          offset={offset}
+        />
       </div>
     </div>
   );

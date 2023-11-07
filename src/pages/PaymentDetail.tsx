@@ -7,12 +7,19 @@ import Modal from "../components/Modal";
 import SelectBox from "../components/SelectBox";
 import close from "../images/close.png";
 import forward from "../images/Forward.png";
-import { getDatas, getValidCheckCustomCode, postCollection, putUpdateData } from "../common/apis";
+import {
+  deleteData,
+  getDatas,
+  getValidCheckCustomCode,
+  postCollection,
+  putUpdateData,
+} from "../common/apis";
 import { currency, timeFormat1, timeFormat2 } from "../common/utils";
 import DaumPostcode from "react-daum-postcode";
 import InputR from "../components/InputR";
 import { CustomSelectbox } from "../components/CustomSelectbox";
 import { useInput, usePriceInput } from "../hooks/useInput";
+import OrderCancelPopup from "../components/OrderCancelPopup";
 
 const CS_ORDER_PATH = [
   {
@@ -104,7 +111,6 @@ export default function PaymentDetail(): JSX.Element {
     restAddress: "101동 101호",
   });
   const [orderCancelPopup, setOrderCancelPopup] = useState<boolean>(false);
-  const [desc, setDesc] = useState<string>("");
   const [txtLength, setTxtLength] = useState(0);
   const [orderStatusPopup, setOrderStatusPopup] = useState<string>("");
   const [selectedDelayReason, setSelectedDelayReason] = useState<any>({});
@@ -124,13 +130,14 @@ export default function PaymentDetail(): JSX.Element {
     cancelCouponPrice: "",
     cancelRewardPrice: "",
   });
-  const [{ delayReason, trackingNumber }, delayReasonLength, onChange, resetInput] = useInput(
-    {
-      delayReason: "",
-      trackingNumber: "",
-    },
-    200
-  );
+  const [{ delayReason, trackingNumber }, delayReasonLength, onChange, resetInput, handleSetInput] =
+    useInput(
+      {
+        delayReason: "",
+        trackingNumber: "",
+      },
+      200
+    );
 
   const handle = {
     // 버튼 클릭 이벤트
@@ -152,7 +159,7 @@ export default function PaymentDetail(): JSX.Element {
         targetOrderId: orderId,
         targetCsId: csInfo[0]?._id,
         memo: csMemo.memo,
-        process: "N",
+        process: csMemo.process,
         path: csMemo.csPath.value,
       };
       const postResult = await postCollection(body);
@@ -167,7 +174,7 @@ export default function PaymentDetail(): JSX.Element {
         targetOrderId: orderId,
         targetCsId: csInfo[0]?._id,
         memo: csMemo.memo,
-        process: "N",
+        process: csMemo.process,
         path: csMemo.csPath.value,
       };
       const updateResult: any = await putUpdateData(body);
@@ -213,18 +220,9 @@ export default function PaymentDetail(): JSX.Element {
       address: data[0]?.address?.address,
       restAddress: data[0]?.address?.restAddress,
     });
-  };
 
-  const onChangeHandler = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
-    if (e.target.value.length > 200) return;
-    setCancelForm((prev: any) => {
-      return {
-        ...prev,
-        reason: e.target.value,
-      };
-    });
-    setTxtLength(e.target.value.length);
-  }, []);
+    handleSetInput("trackingNumber", data[0]?.trackingNumber);
+  };
 
   const handleValidCustomCode = () => {
     let regText = /^(p|P)[0-9]{12}$/;
@@ -235,7 +233,15 @@ export default function PaymentDetail(): JSX.Element {
     return true;
   };
 
-  const handleDeleteMemo = async (_id: string) => {};
+  const handleDeleteMemo = async (_id: string) => {
+    const deleteResult: any = await deleteData({
+      collection: "csMemos",
+      _id,
+    });
+
+    alert("해당 메모가 삭제되었습니다.");
+    init();
+  };
 
   const handleSetAddress = async () => {
     const updateAddress: any = await putUpdateData({
@@ -250,28 +256,6 @@ export default function PaymentDetail(): JSX.Element {
 
     setEditAddressPopup(false);
     init();
-  };
-
-  const handleCheckOrderedProduct = (item: any) => {
-    let ordered = [...orderInfo.orderedProduct];
-    const getIdx = ordered.findIndex((el) => el === item);
-    ordered[getIdx].checked = !ordered[getIdx].checked;
-
-    setOrderInfo((prev: any) => {
-      return {
-        ...prev,
-        orderedProduct: ordered,
-      };
-    });
-  };
-
-  const handleCancelFormChange = (type: string, value: string) => {
-    setCancelForm((prev: any) => {
-      return {
-        ...prev,
-        [type]: value,
-      };
-    });
   };
 
   const handlePostCancelOrder = async () => {
@@ -294,40 +278,25 @@ export default function PaymentDetail(): JSX.Element {
     return range;
   };
 
-  const handleChangeProductQuantity = (item: any, e: any) => {
-    let tempProducts = [...orderInfo.orderedProduct];
-    const tIndex = tempProducts.findIndex((el) => el === item);
-    tempProducts[tIndex].quantity = parseInt(e.value);
-
-    setOrderInfo((prev: any) => {
-      return {
-        ...prev,
-        orderedProduct: tempProducts,
-      };
-    });
-  };
-
   const handleOrderStatusUpdate = async (status: string) => {
-    if (status === "상품준비") {
-      const update = await putUpdateData({
-        colleciton: "orders",
-        _id: orderId,
-        // tid: "testId",
-        orderStatus: status,
-        delayType: selectedDelayReason.value,
-        delayReason,
-      });
+    const update = await putUpdateData({
+      collection: "orders".toString(),
+      _id: orderId,
+      // tid: "testId",
+      orderStatus: status,
+      delayType: selectedDelayReason.value ? selectedDelayReason.value : "",
+      delayReason: delayReason !== "" ? delayReason : "",
+    });
 
-      setOrderStatusPopup("");
-      setSelectedDelayReason({});
-      resetInput();
+    setOrderStatusPopup("");
+    setSelectedDelayReason({});
+    resetInput();
 
-      if (update) {
-        alert("배송 상태가 변경되었습니다.");
-      }
-
-      init();
+    if (update) {
+      alert("배송 상태가 변경되었습니다.");
     }
+
+    init();
   };
 
   const countDelayDays = () => {
@@ -340,8 +309,15 @@ export default function PaymentDetail(): JSX.Element {
     return delayDays;
   };
 
-  const handleAddDeliveryAccount = () => {
-    console.log(trackingNumber);
+  const handleAddDeliveryAccount = async (): Promise<void> => {
+    const update = await putUpdateData({
+      collection: "orders".toString(),
+      _id: orderId,
+      trackingNumber,
+      orderStatus: "배송중",
+    });
+
+    init();
   };
 
   return (
@@ -685,7 +661,15 @@ export default function PaymentDetail(): JSX.Element {
                 onClick={() => setPersonalCustomCodePopup(false)}
                 styleClass="mr-4"
               />
-              <ButtonR name="저장" onClick={() => {}} />
+              <ButtonR
+                name="저장"
+                onClick={() => {
+                  if (!handleValidCustomCode())
+                    return alert("개인통관고유부호를 정확히 입력해 주세요.");
+
+                  setPersonalCustomCodePopup(false);
+                }}
+              />
             </div>
           </Modal>
         )}
@@ -711,7 +695,7 @@ export default function PaymentDetail(): JSX.Element {
                 onClick={() => setOrderStatusPopup("")}
                 styleClass="mr-10"
               />
-              <ButtonR name="저장" onClick={() => {}} />
+              <ButtonR name="저장" onClick={() => handleOrderStatusUpdate("배송준비")} />
             </div>
           </Modal>
         )}
@@ -790,358 +774,45 @@ export default function PaymentDetail(): JSX.Element {
           </Modal>
         )}
         {orderCancelPopup && (
-          <Modal innerStyle={{ width: "80%", minHeight: "0" }}>
-            <div className="padding-24">
-              <div className="flex justify-sb">
-                <h2 className="margin-0 mb-20">주문 취소 처리</h2>
-
-                <div>
-                  <img
-                    onClick={() => {
-                      setOrderCancelPopup(false);
-                      resetPrice();
-                    }}
-                    src={close}
-                    className="img-close cursor"
-                    alt="close"
-                  />
-                </div>
-              </div>
-
-              <p className="font-category">주문정보</p>
-              <div className="flex flex-wrap mt-8">
-                <div className="w50p">
-                  <div className="field-list-wrapper mt-2">
-                    <div className="product-field mr-20">
-                      <p>주문번호</p>
-                    </div>
-
-                    <div className="flex1 pt-10 pb-10">
-                      <p>{orderInfo.orderNo}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="w50p">
-                  <div className="field-list-wrapper mt-2">
-                    <div className="product-field mr-20">
-                      <p>결제수단</p>
-                    </div>
-
-                    <div className="flex1 pt-10 pb-10">
-                      <p>{orderInfo.paymentMethod}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="w100p">
-                  <div className="field-list-wrapper mt-2">
-                    <div className="product-field mr-20">
-                      <p>원주문내역</p>
-                    </div>
-
-                    <div className="flex1 pt-10 pb-10">
-                      <p>
-                        [판매가합계]{currency(orderInfo.totalAmount)}원 + [배송비]
-                        {currency(orderInfo.deliveryFee)}원 - [쿠폰할인]
-                        {currency(orderInfo.couponDiscount)}원 - [적립금]
-                        {currency(orderInfo.usingPoint)}원 = {currency(orderInfo.totalPayAmount)}원
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="w50p">
-                  <div className="field-list-wrapper mt-2">
-                    <div className="product-field mr-20">
-                      <p>할인정보</p>
-                    </div>
-
-                    <div className="flex1 pt-10 pb-10">
-                      <p>
-                        [쿠폰할인]{currency(orderInfo.couponDiscount)}원 / [적립금]
-                        {currency(orderInfo.usingPoint)}원
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="w50p">
-                  <div className="field-list-wrapper mt-2">
-                    <div className="product-field mr-20">
-                      <p>적립정보</p>
-                    </div>
-
-                    <div className="flex1 pt-10 pb-10">
-                      <p>[적립금] {currency(orderInfo.rewardPoints)}원</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="w50p">
-                  <div className="field-list-wrapper mt-2">
-                    <div className="product-field mr-20">
-                      <p>배송유형</p>
-                    </div>
-
-                    <div className="flex1 pt-10 pb-10">
-                      <p>{orderInfo.deliveryType}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <p className="font-category mt-30">CS정보</p>
-
-              <div className="flex flex-wrap mt-8">
-                <div className="w100p">
-                  <div className="field-list-wrapper mt-2">
-                    <div className="product-field mr-20">
-                      <p>CS접수경로</p>
-                    </div>
-
-                    <div className="flex1 pt-10 pb-10 relative">
-                      <CustomSelectbox
-                        selected={cancelForm.csRoute || ""}
-                        setSelected={(e: any) => handleCancelFormChange("csRoute", e)}
-                        data={CS_ORDER_PATH}
-                        noDataMessage={"CS접수경로 선택"}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="w100p">
-                  <div className="field-list-wrapper mt-2">
-                    <div className="product-field mr-20">
-                      <p>접수사유</p>
-                    </div>
-
-                    <div className="flex1 pt-10 pb-10 relative">
-                      <CustomSelectbox
-                        selected={cancelForm.cancelReason || ""}
-                        setSelected={(e: any) => handleCancelFormChange("cancelReason", e)}
-                        data={CANCEL_REASON}
-                        noDataMessage={"접수사유 선택"}
-                      />
-                      <div className="mt-8 flex1 relative">
-                        <textarea
-                          className="input-textarea"
-                          placeholder="200자 이내로 입력해주세요"
-                          value={cancelForm.reason}
-                          onChange={(e) => onChangeHandler(e)}
-                        />
-                        <div
-                          className="font-12"
-                          style={{
-                            position: "absolute",
-                            bottom: 10,
-                            right: 10,
-                            fontWeight: 400,
-                            color: "rgba(0,0,0,0.4)",
-                          }}
-                        >
-                          {txtLength}/200
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-30">
-                <div className="flex justify-sb align-c mb-8">
-                  <p className="font-bold font-16">
-                    주문상품
-                    <span className="font-400">건</span>
-                  </p>
-                </div>
-
-                {/* table header */}
-                <div className="list-header pl-18 pr-18 text-center">
-                  <div className="w5p text-left">
-                    <input type="checkbox" />
-                  </div>
-
-                  <div className="w10p">
-                    <p>상품코드</p>
-                  </div>
-
-                  <div className="w20p text-left">
-                    <p>상품명</p>
-                  </div>
-
-                  <div className="w10p">
-                    <p>옵션명</p>
-                  </div>
-
-                  <div className="w10p">
-                    <p>판매가</p>
-                  </div>
-                  <div className="w10p">
-                    <p>쿠폰할인</p>
-                  </div>
-                  <div className="w10p">
-                    <p>배송비</p>
-                  </div>
-                  <div className="w10p">
-                    <p>구매수량</p>
-                  </div>
-
-                  <div className="w15p">
-                    <p>취소금액</p>
-                  </div>
-                </div>
-
-                <div className="list-content pl-18 pr-18 pt-12">
-                  {orderInfo.orderedProduct.map((item: any, i: number) => (
-                    <div key={i} className="flex align-c text-center pt-12">
-                      <div className="w5p text-left">
-                        <input
-                          type="checkbox"
-                          checked={item.checked ? item.checked : false}
-                          onChange={() => handleCheckOrderedProduct(item)}
-                        />
-                      </div>
-
-                      <div className="w10p">
-                        <p className={`${item.checked && "text-cancel"} text-line`}>12345678</p>
-                      </div>
-
-                      <div className="w20p text-left">
-                        <p className={`${item.checked && "text-cancel"} text-line`}>
-                          Seletti 하이브리드 푸르트 볼그릇1
-                        </p>
-                      </div>
-
-                      <div className="w10p">
-                        <p className={`${item.checked && "text-cancel"}`}>Small</p>
-                      </div>
-                      <div className="w10p">
-                        <p className={`${item.checked && "text-cancel"}`}>{currency(200000)}</p>
-                      </div>
-
-                      <div className="w10p">
-                        <p className={`${item.checked && "text-cancel"}`}>{currency(-10000)}</p>
-                      </div>
-                      <div className="w10p">
-                        <p className={`${item.checked && "text-cancel"}`}>{currency(10000)}</p>
-                      </div>
-                      <div className="w10p">
-                        <div className="flex align-c justify-c">
-                          <CustomSelectbox
-                            style={{ width: 100, height: 28 }}
-                            selected={{ value: item.quantity, label: item.quantity }}
-                            setSelected={(e: any) => handleChangeProductQuantity(item, e)}
-                            data={setProductQuantityRange(i)}
-                            noDataMessage={"수량"}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="w15p">
-                        <p className={`${item.checked && "text-cancel"}`}>{currency(400000)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <p className="font-category mt-30">취소내역</p>
-                <div className="flex flex-wrap mt-8">
-                  <div className="w50p">
-                    <div className="field-list-wrapper mt-2">
-                      <div className="product-field mr-20">
-                        <p>판매가합계</p>
-                      </div>
-
-                      <div className="flex1 pt-10 pb-10">
-                        <p>{currency(200000)}원</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w50p">
-                    <div className="field-list-wrapper mt-2">
-                      <div className="product-field mr-20">
-                        <p>배송비</p>
-                      </div>
-
-                      <div className="flex1 pt-10 pb-10">
-                        <p>{currency(10000)}원</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w50p">
-                    <div className="field-list-wrapper mt-2">
-                      <div className="product-field mr-20">
-                        <p>쿠폰할인취소</p>
-                      </div>
-
-                      <div className="flex1 flex align-c pt-10 pb-10">
-                        <InputR
-                          value={cancelCouponPrice}
-                          onChange={(e: any) => onChangePrice("cancelCouponPrice", e)}
-                        />
-                        <p>원</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w50p">
-                    <div className="field-list-wrapper mt-2">
-                      <div className="product-field mr-20">
-                        <p>사용적립금 반환</p>
-                      </div>
-
-                      <div className="flex1 flex align-c pt-10 pb-10">
-                        <InputR
-                          value={cancelRewardPrice}
-                          onChange={(e: any) => onChangePrice("cancelRewardPrice", e)}
-                        />
-                        <p>원</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="font-category mt-30">고객환불정보</p>
-                <div className="flex flex-wrap mt-8">
-                  <div className="w100p">
-                    <div className="field-list-wrapper mt-2">
-                      <div className="product-field mr-20">
-                        <p>환불내역</p>
-                      </div>
-
-                      <div className="flex1 pt-10 pb-10">
-                        <p>
-                          [판매가합계]{currency(orderInfo.totalAmount)}원 - [쿠폰할인취소]
-                          {currency(cancelCouponPrice.replaceAll(",", ""))}원 - [적립금반환]
-                          {currency(cancelRewardPrice.replaceAll(",", ""))}원 = 190,000원
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w50p">
-                    <div className="field-list-wrapper mt-2">
-                      <div className="product-field mr-20">
-                        <p>환불예정금액</p>
-                      </div>
-
-                      <div className="flex1 pt-10 pb-10">
-                        <p>{currency(190000)}원</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w50p">
-                    <div className="field-list-wrapper mt-2">
-                      <div className="product-field mr-20">
-                        <p>환불수단</p>
-                      </div>
-
-                      <div className="flex1 flex align-c pt-10 pb-10">
-                        <p>신용/체크카드</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-fe">
-                <ButtonR name={"확인"} onClick={() => {}} />
-              </div>
+          <OrderCancelPopup
+            setOrderCancelPopup={setOrderCancelPopup}
+            resetPrice={resetPrice}
+            orderInfo={orderInfo}
+            setOrderInfo={setOrderInfo}
+            cancelForm={cancelForm}
+            setCancelForm={setCancelForm}
+            txtLength={txtLength}
+            setTxtLength={setTxtLength}
+            setProductQuantityRange={setProductQuantityRange}
+            onChangePrice={onChangePrice}
+            cancelCouponPrice={cancelCouponPrice}
+            cancelRewardPrice={cancelRewardPrice}
+            handleResetPopup={() => {}}
+          />
+        )}
+        {orderStatusPopup === "배송완료" && (
+          <Modal
+            innerStyle={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexDirection: "column",
+              width: "20%",
+              minHeight: "15vh",
+              padding: 30,
+            }}
+          >
+            <div className="flex justify-sb align-c f-direction-column">
+              <p className="font-16">배송완료 하시겠습니까?</p>
+              <p className="font-16 mt-8">처리 시 배송완료 상태로 변경됩니다.</p>
+            </div>
+            <div className="flex justify-c mt-20">
+              <ButtonR
+                color={"white"}
+                name="취소"
+                onClick={() => setOrderStatusPopup("")}
+                styleClass="mr-10"
+              />
+              <ButtonR name="저장" onClick={() => handleOrderStatusUpdate("배송완료")} />
             </div>
           </Modal>
         )}
@@ -1212,37 +883,76 @@ export default function PaymentDetail(): JSX.Element {
               </div>
             </div>
 
-            <div className="field-list-wrapper mt-2">
-              <div className="product-field mr-20">
-                <p>배송정보</p>
-              </div>
+            {orderInfo.orderStatus === "배송중" && (
+              <div className="field-list-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>배송정보</p>
+                </div>
 
-              <div className="flex align-c flex1 pt-10 pb-10">
-                <SelectBox
-                  containerStyles={{ marginRight: 8, width: 120 }}
-                  placeholder={"택배사선택"}
-                  value={{
-                    value: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
-                    label: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
-                  }}
-                  onChange={() => {}}
-                  options={[
-                    {
+                <div className="flex align-c flex1 pt-10 pb-10">
+                  <p className="mr-8">{orderInfo.deliveryType === "국내배송" ? "CJ" : "GSMNtoN"}</p>
+                  <p className="font-blue text-underline cursor">{orderInfo.trackingNumber}</p>
+                  {/* <SelectBox
+                    containerStyles={{ marginRight: 8, width: 120 }}
+                    placeholder={"택배사선택"}
+                    value={{
                       value: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
                       label: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
-                    },
-                  ]}
-                  noOptionsMessage={"카테고리가 없습니다."}
-                />
-                <InputR
-                  value={trackingNumber}
-                  onChange={(e: any) => onChange("trackingNumber", e)}
-                  placeholer="운송장번호(숫자만 입력)"
-                  innerStyle={{ width: 160 }}
-                />
-                <ButtonR name={"적용"} color={"white"} onClick={handleAddDeliveryAccount} />
+                    }}
+                    onChange={() => {}}
+                    options={[
+                      {
+                        value: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
+                        label: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
+                      },
+                    ]}
+                    noOptionsMessage={"카테고리가 없습니다."}
+                  /> */}
+                  {/* <InputR
+                    value={trackingNumber}
+                    onChange={(e: any) => onChange("trackingNumber", e)}
+                    placeholer="운송장번호(숫자만 입력)"
+                    innerStyle={{ width: 160 }}
+                  />
+                  <ButtonR name={"적용"} color={"white"} onClick={handleAddDeliveryAccount} /> */}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* 배송준비시 배송정보 인풋  */}
+            {orderInfo.orderStatus === "배송준비" && (
+              <div className="field-list-wrapper mt-2">
+                <div className="product-field mr-20">
+                  <p>배송정보</p>
+                </div>
+
+                <div className="flex align-c flex1 pt-10 pb-10">
+                  <SelectBox
+                    containerStyles={{ marginRight: 8, width: 120 }}
+                    placeholder={"택배사선택"}
+                    value={{
+                      value: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
+                      label: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
+                    }}
+                    onChange={() => {}}
+                    options={[
+                      {
+                        value: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
+                        label: orderInfo?.deliveryType === "국내배송" ? "CJ" : "GSMNtoN",
+                      },
+                    ]}
+                    noOptionsMessage={"카테고리가 없습니다."}
+                  />
+                  <InputR
+                    value={trackingNumber}
+                    onChange={(e: any) => onChange("trackingNumber", e)}
+                    placeholer="운송장번호(숫자만 입력)"
+                    innerStyle={{ width: 160 }}
+                  />
+                  <ButtonR name={"적용"} color={"white"} onClick={handleAddDeliveryAccount} />
+                </div>
+              </div>
+            )}
 
             <div className="field-list-wrapper mt-2">
               <div className="product-field mr-20">
@@ -1305,7 +1015,7 @@ export default function PaymentDetail(): JSX.Element {
               </div>
             </div>
 
-            {orderInfo.delayType && orderInfo.delayType !== "" && (
+            {orderInfo.orderStatus === "상품준비" && (
               <div className="field-list-wrapper mt-2">
                 <div className="product-field mr-20">
                   <p>지연 상태</p>
@@ -1372,13 +1082,18 @@ export default function PaymentDetail(): JSX.Element {
           </div>
         </div>
         <div className="flex justify-fe">
-          <ButtonR
-            name={"주문취소"}
-            styleClass={"mr-8"}
-            onClick={() => setOrderCancelPopup(true)}
-            color={"white"}
-          />
-          {orderInfo.orderStatus !== "상품준비" && (
+          {(orderInfo.orderStatus === "결제완료" ||
+            orderInfo.orderStatus === "상품준비" ||
+            orderInfo.orderStatus === "배송준비") && (
+            <ButtonR
+              name={"주문취소"}
+              styleClass={"mr-8"}
+              onClick={() => setOrderCancelPopup(true)}
+              color={"white"}
+            />
+          )}
+
+          {orderInfo.orderStatus === "결제완료" && (
             <ButtonR
               name={"상품준비"}
               styleClass={"mr-8"}
@@ -1386,8 +1101,39 @@ export default function PaymentDetail(): JSX.Element {
               color={"white"}
             />
           )}
-          <ButtonR name={"배송완료"} styleClass={"mr-8"} onClick={() => {}} color={"white"} />
-          <ButtonR name={"주문확인"} onClick={() => setOrderStatusPopup("주문확인")} />
+
+          {(orderInfo.orderStatus === "결제완료" ||
+            orderInfo.orderStatus === "상품준비" ||
+            orderInfo.orderStatus === "배송준비" ||
+            orderInfo.orderStatus === "배송중") && (
+            <ButtonR
+              name={"배송완료"}
+              styleClass={"mr-8"}
+              onClick={() => setOrderStatusPopup("배송완료")}
+              color={"white"}
+            />
+          )}
+
+          {(orderInfo.orderStatus === "결제완료" || orderInfo.orderStatus === "상품준비") && (
+            <ButtonR name={"주문확인"} onClick={() => setOrderStatusPopup("주문확인")} />
+          )}
+
+          {orderInfo.orderStatus === "배송완료" && (
+            <div className="flex">
+              <ButtonR
+                name={"교환신청"}
+                styleClass={"mr-8"}
+                onClick={() => setOrderStatusPopup("상품준비")}
+                color={"white"}
+              />
+              <ButtonR
+                name={"반품신청"}
+                styleClass={"mr-8"}
+                onClick={() => setOrderStatusPopup("상품준비")}
+                color={"white"}
+              />
+            </div>
+          )}
         </div>
 
         {csInfo.length !== 0 && (
@@ -1408,7 +1154,12 @@ export default function PaymentDetail(): JSX.Element {
                     <p>CS접수번호</p>
                   </div>
 
-                  <p className="font-blue text-underline">{csInfo[0]?.csNo}</p>
+                  <p
+                    onClick={() => setOrderCancelPopup(true)}
+                    className="font-blue text-underline cursor"
+                  >
+                    {csInfo[0]?.csNo}
+                  </p>
                 </div>
 
                 <div className="field-list-wrapper mt-2">

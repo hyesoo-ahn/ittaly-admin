@@ -370,6 +370,16 @@ export const handleDeleteBrand = async (item: any, init: any) => {
   }
 };
 
+export const countDelayDays = (timestamp: number) => {
+  const today: any = new Date();
+  const orderDate: any = new Date(timestamp);
+  const gapNum: any = today - orderDate - 86400000;
+
+  const delayDays = Math.ceil(gapNum / (1000 * 60 * 60 * 24));
+
+  return delayDays;
+};
+
 export const CSV_ADD_PRODUCT_TEMPLATE = [
   {
     option1: "A1 옵션명 수정 가능, 열 삭제 불가",

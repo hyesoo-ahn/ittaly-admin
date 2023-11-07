@@ -32,7 +32,15 @@ function useInput(initialInput: any, txtLengthLimit: number) {
     setInput((input: any) => ({ ...input, [name]: value }));
   }, []);
   const reset = useCallback(() => setInput(initialInput), [initialInput]);
-  return [input, txtLength, onChange, reset];
+  const handleSetInput = (name: string, value: string) => {
+    setInput((prev: any) => {
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
+  };
+  return [input, txtLength, onChange, reset, handleSetInput];
 }
 
 export { usePriceInput, useInput };

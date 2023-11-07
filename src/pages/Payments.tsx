@@ -479,8 +479,7 @@ export default function Payments(): JSX.Element {
             </div>
             <div className="w20p text-center">
               <p className="text-line">
-                {order.orderedProduct[0]?.productName}상품명은 서버에서 받아온다 외{" "}
-                {order.orderedProduct.length}건
+                {order.orderedProduct[0]?.productNameK} 외 {order.orderedProduct?.length}건
               </p>
             </div>
 
