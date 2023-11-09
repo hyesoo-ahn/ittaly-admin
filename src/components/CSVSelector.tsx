@@ -19,9 +19,10 @@ const CSVSelector = forwardRef((props: Props, ref: any) => {
         const response = await fetch(fileUrl);
 
         // 3. get the text from the response
-        const previosData: any = await response.text();
+        const previousData: any = await response.text();
 
-        const _data: any = csvToJSON(previosData);
+        const _data: any = csvToJSON(previousData);
+
         // 4. split the text by newline
         // const lines = text.split("\n");
 
@@ -45,9 +46,9 @@ const CSVSelector = forwardRef((props: Props, ref: any) => {
         if (props.csvType === "invoice") {
           for (let i in _data) {
             if (!isNaN(parseInt(_data[i].송장번호.replace(/,/gi, "")))) {
-              temp.push({ ..._data[i], status: true });
+              temp.push({ ..._data[i], status: true, _id: _data[i]._id });
             } else {
-              temp.push({ ..._data[i], status: false });
+              temp.push({ ..._data[i], status: false, _id: _data[i]._id });
             }
           }
         }

@@ -686,6 +686,9 @@ input {
 .bg-blue2 {
   background-color: #bffff7 !important;
 }
+.bg-gray {
+  background-color: #f1f1f1;
+}
 
 .border-black {
   border: 1px solid #000;

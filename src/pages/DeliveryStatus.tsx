@@ -1,8 +1,13 @@
 import React, { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Select from "react-select";
-import { getDatas, getUsers } from "../common/apis";
-import { CSV_INVOICE_TEMPLATE, currency, timeFormat1, timeFormat2 } from "../common/utils";
+import { getDataLength, getDatas, getOrderData, putUpdateData } from "../common/apis";
+import {
+  CSV_INVOICE_TEMPLATE,
+  PAGINATION_LIMIT,
+  PAGINATION_NUM_LIMIT,
+  formatOnlyDate,
+  formatOnlyTime,
+} from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
@@ -11,11 +16,28 @@ import close from "../images/close.png";
 import CSVSelector from "../components/CSVSelector";
 import { CSVLink } from "react-csv";
 import { CustomSelectbox } from "../components/CustomSelectbox";
+import { usePriceInput } from "../hooks/useInput";
+import Pagination from "../components/Pagination";
 
-const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
+interface ISelectedInvoice {
+  _id: string;
+  invoice: string;
+  deliveryType: String;
+}
+
+const DELIVERY_TYPE = [
+  {
+    value: "전체",
+    label: "전체",
+  },
+  {
+    value: "해외배송",
+    label: "해외배송",
+  },
+  {
+    value: "국내배송",
+    label: "국내배송",
+  },
 ];
 
 // 운송장 조회 참고하기
@@ -32,18 +54,139 @@ export default function Deliverystatus(): JSX.Element {
     value: "CJ",
   });
 
-  const [users, setUsers] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [data, setData] = useState<any[]>([]);
+  const [filterOb, setFilterOb] = useState<any>({});
+  const [filterInfo, setFilterInfo] = useState<any>({});
+  const [selectedInvoiceInfo, setSelectedInvoiceInfo] = useState<ISelectedInvoice>({
+    _id: "",
+    invoice: "",
+    deliveryType: "",
+  });
+
+  // pagination
+  const [numPage, setNumPage] = useState<number>(1);
+  const [page, setPage] = useState(1);
+  const limit = PAGINATION_LIMIT;
+  const numLimit = PAGINATION_NUM_LIMIT;
+  const offset = (page - 1) * limit; // 시작점과 끝점을 구하는 offset
+  const numPagesTotal = Math.ceil(totalCount / limit);
+  const numOffset = (numPage - 1) * numLimit;
 
   useEffect(() => {
     init();
-  }, []);
+  }, [page, filterInfo]);
 
   const init = async () => {
-    const { data }: any = await getUsers({
-      // sort: { sort: -1 },
+    const count: any = await getDataLength({
+      collection: "orders",
+      find: { ...filterInfo },
     });
 
-    setUsers(data);
+    let data: any = [];
+
+    const text = filterInfo.text;
+
+    delete filterInfo.text;
+
+    if (!text || text === "") {
+      data = await getDatas({
+        // sort: { sort: -1 },
+        collection: "orders",
+        find: { ...filterInfo, orderStatus: { $in: ["배송중", "배송완료"] } },
+      });
+    } else {
+      data = await getOrderData({
+        text: text,
+        // sort: { sort: -1 },
+        find: { ...filterInfo, orderStatus: { $in: ["배송중", "배송완료"] } },
+      });
+    }
+
+    setTotalCount(count.count);
+    setData(data.data);
+  };
+
+  const paginationNumbering = () => {
+    const numArr: number[] = Array.from({ length: numPagesTotal }, (v, i) => i + 1);
+    const result = numArr.slice(numOffset, numOffset + 5);
+    return result;
+  };
+
+  const handleChangeFilterInput = (type: string, value: any) => {
+    setFilterOb((prev: any) => {
+      return {
+        ...prev,
+        [type]: value,
+      };
+    });
+  };
+
+  const handleFilter = async () => {
+    let find: any = {};
+
+    if (filterOb.startingDate) {
+      find.orderDate = {
+        $gte: new Date(filterOb.startingDate).getTime(),
+      };
+    }
+    if (filterOb.endingDate) {
+      find.orderDate = {
+        ...find.creaated,
+        $lte: new Date(filterOb.endingDate).getTime(),
+      };
+    }
+    if (filterOb.orderNo && filterOb.orderNo !== "") {
+      find.orderNo = filterOb.orderNo;
+    }
+
+    find.text = filterOb.productNameK;
+
+    if (filterOb.userName && filterOb.userName !== "") {
+      find.userName = filterOb.userName;
+    }
+
+    if (filterOb.deliveryType && filterOb.deliveryType.value !== "전체") {
+      find.deliveryType = filterOb.deliveryType.value;
+    }
+
+    setFilterInfo(find);
+  };
+
+  const handleInitFilter = () => {
+    setFilterOb({});
+    setFilterInfo({});
+    init();
+  };
+
+  const handleChangeInvoice = (e: any) => {
+    const { value } = e.target;
+
+    const check = /^[0-9]+$/;
+
+    if (check.test(value)) {
+      setSelectedInvoiceInfo((prev: any) => {
+        return {
+          ...prev,
+          invoice: value,
+        };
+      });
+    }
+  };
+
+  const handleUpdateInvoice = async () => {
+    // selectedInvoiceInfo
+    const confirm = window.confirm("해당 주문의 운송장을 수정하시겠습니까?");
+    if (confirm) {
+      await putUpdateData({
+        collection: "orders",
+        _id: selectedInvoiceInfo._id,
+        trackingNumber: selectedInvoiceInfo.invoice,
+      });
+    }
+
+    setModifyInvoicePopup(false);
+    init();
   };
 
   return (
@@ -121,16 +264,21 @@ export default function Deliverystatus(): JSX.Element {
               selected={selectedDeliveryService}
               setSelected={setSelectedDeliveryService}
               data={[
-                {
-                  label: "CJ",
-                  value: "CJ",
-                },
-                { label: "GSMNtoN", value: "GSMNtoN" },
+                selectedInvoiceInfo.deliveryType === "국내배송"
+                  ? {
+                      label: "CJ",
+                      value: "CJ",
+                    }
+                  : { label: "GSMNtoN", value: "GSMNtoN" },
               ]}
               noDataMessage={"택배사 선택"}
             />
             <div className="w100p">
-              <InputR size="full" />
+              <InputR
+                onChange={(e: any) => handleChangeInvoice(e)}
+                value={selectedInvoiceInfo.invoice}
+                size="full"
+              />
             </div>
           </div>
           <div className="flex justify-fe mt-20">
@@ -140,7 +288,7 @@ export default function Deliverystatus(): JSX.Element {
               onClick={() => setModifyInvoicePopup(false)}
               styleClass="mr-4"
             />
-            <ButtonR name="저장" onClick={() => {}} />
+            <ButtonR name="저장" onClick={handleUpdateInvoice} />
           </div>
         </Modal>
       )}
@@ -152,6 +300,15 @@ export default function Deliverystatus(): JSX.Element {
         <div className="flex">
           <div className="flex1 ml-4 mr-4 flex">
             <input
+              value={filterOb.startingDate || ""}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    startingDate: e.target.value,
+                  };
+                });
+              }}
               type="date"
               className="main-event-date-input mr-4"
               data-placeholder="주문일(~부터)"
@@ -159,6 +316,15 @@ export default function Deliverystatus(): JSX.Element {
               aria-required="true"
             />
             <input
+              value={filterOb.endingDate || ""}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    endingDate: e.target.value,
+                  };
+                });
+              }}
               type="date"
               className="main-event-date-input ml-4"
               data-placeholder="주문일(~까지)"
@@ -170,44 +336,71 @@ export default function Deliverystatus(): JSX.Element {
             {/* <input style={{ width: "100%", marginLeft: 4 }} type="date" /> */}
           </div>
           <div style={{ flex: 1, margin: "0 4px" }}>
-            <InputR size="full" placeholer="주문번호" innerStyle={{ margin: 0 }} />
+            <InputR
+              size="full"
+              value={filterOb.orderNo || ""}
+              onChange={(e: any) => handleChangeFilterInput("orderNo", e.target.value)}
+              placeholer="주문번호"
+              innerStyle={{ margin: 0 }}
+            />
           </div>
           <div style={{ flex: 1, margin: "0 4px" }}>
-            <InputR size="full" placeholer="상품명" innerStyle={{ margin: 0 }} />
-          </div>
-        </div>
-
-        <div style={{ display: "flex", marginTop: 8 }}>
-          <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}>
-            <InputR placeholer="상품코드" size="full" innerStyle={{ marginRight: 0 }} />
-          </div>
-          <div className="flex1 ml-4 mr-4" style={{ height: 32 }}>
-            <InputR size="full" placeholer="주문자 이름/ID" innerStyle={{ margin: 0 }} />
-          </div>
-          <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
-            <SelectBox
-              containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
-              noOptionsMessage={"상태가 없습니다."}
-              placeholder="배송 유형"
+            <InputR
+              value={filterOb.productNameK || ""}
+              onChange={(e: any) => handleChangeFilterInput("productNameK", e.target.value)}
+              size="full"
+              placeholer="상품명"
+              innerStyle={{ margin: 0 }}
             />
           </div>
         </div>
 
         <div style={{ display: "flex", marginTop: 8 }}>
-          <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}></div>
-          <div className="flex1 ml-4 mr-4" style={{ height: 32 }}></div>
+          <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}>
+            <InputR
+              value={filterOb.userName || ""}
+              onChange={(e: any) => handleChangeFilterInput("userName", e.target.value)}
+              size="full"
+              placeholer="주문자 이름/ID"
+              innerStyle={{ margin: 0 }}
+            />
+            {/* <InputR placeholer="상품코드" size="full" innerStyle={{ marginRight: 0 }} /> */}
+          </div>
+          <div className="flex1 ml-4 mr-4" style={{ height: 32 }}>
+            <SelectBox
+              containerStyles={{ width: "100%" }}
+              value={filterOb.ordererType || ""}
+              onChange={(e: any) => handleChangeFilterInput("deliveryType", e)}
+              options={DELIVERY_TYPE}
+              noOptionsMessage={"상태가 없습니다."}
+              placeholder="배송 유형"
+            />
+          </div>
           <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
-            <button className="btn-add-b w50p mr-4 border-none" style={{ height: "100%" }}>
+            <button
+              onClick={handleFilter}
+              className="btn-add-b w50p mr-4 border-none"
+              style={{ height: "100%" }}
+            >
               검색
             </button>
-            <button className="w50p bg-white ml-4 border-black" style={{ height: "100%" }}>
+            <button
+              onClick={handleInitFilter}
+              className="w50p bg-white ml-4 border-black"
+              style={{ height: "100%" }}
+            >
               초기화
             </button>
           </div>
         </div>
+
+        {/* <div style={{ display: "flex", marginTop: 8 }}>
+          <div className="flex1 ml-4 mr-4 w100p flex" style={{ height: 32 }}></div>
+          <div className="flex1 ml-4 mr-4" style={{ height: 32 }}></div>
+          <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
+          
+          </div>
+        </div> */}
       </div>
 
       <div className="mt-34 flex justify-sb align-c">
@@ -257,7 +450,7 @@ export default function Deliverystatus(): JSX.Element {
       </div>
 
       <div className={`list-content pl-18 pr-18`}>
-        {users?.map((user: any, i: number) => (
+        {data?.map((item: any, i: number) => (
           <div key={i} className={`flex align-c mt-8 mb-8`}>
             <div className="w5p">
               <input type="checkbox" />
@@ -265,36 +458,35 @@ export default function Deliverystatus(): JSX.Element {
             <div className="w5p text-left">
               <p>배송중</p>
             </div>
-            <div className="w10p text-center" onClick={() => navigate("/order/payments/1234")}>
-              <p className="font-blue text-underline cursor">123456789</p>
+            <div
+              className="w10p text-center"
+              onClick={() => navigate(`/order/payments/${item._id}`)}
+            >
+              <p className="font-blue text-underline cursor">{item.orderNo}</p>
             </div>
             <div className="w20p text-center">
               <p className="text-line">
-                {user.email}
-                {user.email}
-                {user.email}
-                {user.email}
-                {user.email}
-                {user.email}
+                {item.orderedProduct[0]?.productNameK}{" "}
+                {item.orderedProduct.length !== 0 && `외 ${item.orderedProduct.length - 1}건`}
               </p>
             </div>
 
             <div className="w10p text-center">
-              <p>김모노(aff77h2r)</p>
-              <p>Gold, 총 12건</p>
+              <p>{item.userName}</p>
+              <p>{item.userLevel}</p>
             </div>
             <div className="w10p text-center">
-              <p>국내배송</p>
+              <p>{item.deliveryType}</p>
             </div>
             <div className="w10p text-center">
-              <p>GSMNtoN</p>
-              <p className="font-blue text-underline">566907170023</p>
+              <p>{item.deliveryType === "국내배송" ? "CJ" : "GSMNToN"}</p>
+              <p className="font-blue text-underline">{item.trackingNumber}</p>
             </div>
 
             <div className="w10p text-center">
               <p className="text-line">
-                2023.01.01
-                <br /> 11:11:22
+                {formatOnlyDate(item.orderDate)}
+                <br /> {formatOnlyTime(item.orderDate)}
               </p>
             </div>
 
@@ -309,7 +501,16 @@ export default function Deliverystatus(): JSX.Element {
               <div className="flex align-c justify-c">
                 <ButtonR
                   name={"운송장 수정"}
-                  onClick={() => setModifyInvoicePopup(true)}
+                  onClick={() => {
+                    setSelectedInvoiceInfo((prev: ISelectedInvoice) => {
+                      return {
+                        _id: item._id,
+                        invoice: item.trackingNumber,
+                        deliveryType: item.deliveryType,
+                      };
+                    });
+                    setModifyInvoicePopup(true);
+                  }}
                   color="white"
                 />
               </div>
@@ -328,15 +529,19 @@ export default function Deliverystatus(): JSX.Element {
           />
         </div>
 
-        <div className="flex pagination">
-          <p className="font-lightgray">{"<"}</p>
-          <p className="font-bold">1</p>
-          <p>2</p>
-          <p>3</p>
-          <p>4</p>
-          <p>5</p>
-          <p className="font-lightgray">{">"}</p>
-        </div>
+        <Pagination
+          data={data}
+          numPagesTotal={numPagesTotal}
+          numOffset={numOffset}
+          numLimit={numLimit}
+          limit={limit}
+          numPage={numPage}
+          setNumPage={setNumPage}
+          paginationNumbering={paginationNumbering}
+          page={page}
+          setPage={setPage}
+          offset={offset}
+        />
       </div>
     </div>
   );

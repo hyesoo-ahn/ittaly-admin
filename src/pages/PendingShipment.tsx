@@ -58,7 +58,6 @@ const DELAY_REASON = [
 
 export default function Pendingshipment(): JSX.Element {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<any>("");
   const [exportItem, setExportItem] = useState<boolean>(false);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [data, setData] = useState<any[]>([]);
@@ -75,7 +74,6 @@ export default function Pendingshipment(): JSX.Element {
   const numOffset = (numPage - 1) * numLimit;
 
   const [orderStatusPopup, setOrderStatusPopup] = useState<string>("");
-  const [selectedDelayReason, setSelectedDelayReason] = useState<any>({});
   // 주문취소 form
   const [orderCancelPopup, setOrderCancelPopup] = useState<boolean>(false);
   const [orderInfo, setOrderInfo] = useState<any>({});
@@ -87,14 +85,6 @@ export default function Pendingshipment(): JSX.Element {
     cancelCouponPrice: "",
     cancelRewardPrice: "",
   });
-  const [{ delayReason, trackingNumber }, delayReasonLength, onChange, resetInput, handleSetInput] =
-    useInput(
-      {
-        delayReason: "",
-        trackingNumber: "",
-      },
-      200
-    );
 
   useEffect(() => {
     init();
@@ -178,8 +168,6 @@ export default function Pendingshipment(): JSX.Element {
   const handleInitFilter = () => {
     setFilterOb({});
     setFilterInfo({});
-    // setPage(1);
-
     init();
   };
 
