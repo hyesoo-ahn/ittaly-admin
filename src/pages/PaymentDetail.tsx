@@ -310,11 +310,18 @@ export default function PaymentDetail(): JSX.Element {
   };
 
   const handleAddDeliveryAccount = async (): Promise<void> => {
+    const check = /^[0-9]+$/;
+    if (!check.test(trackingNumber)) {
+      return alert("숫자만 입력해 주세요.");
+    }
+
     const update = await putUpdateData({
       collection: "orders".toString(),
       _id: orderId,
       trackingNumber,
       orderStatus: "배송중",
+      delayReason: "",
+      delayType: "",
     });
 
     init();

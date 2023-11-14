@@ -168,6 +168,7 @@ export default function Invoice(): JSX.Element {
       _id: item._id,
       orderStatus: "배송중",
       trackingNumber: item.trackingNumber,
+      invoiceTimestamp: Date.now(),
     });
     init();
   };

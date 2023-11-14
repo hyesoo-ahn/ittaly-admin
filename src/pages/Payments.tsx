@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, useEffect, useState } from "react";
+import React, { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { getDataLength, getDatas, getOrderData, getUsers } from "../common/apis";
@@ -15,6 +15,7 @@ import SelectBox from "../components/SelectBox";
 import Modal from "../components/Modal";
 import close from "../images/close.png";
 import Pagination from "../components/Pagination";
+import { CSVLink } from "react-csv";
 
 const ORDER_STATUS_OPTIONS = [
   {
@@ -226,6 +227,28 @@ export default function Payments(): JSX.Element {
     setFilterInfo(find);
   };
 
+  const getOrderCSVData = () => {
+    const csvData: any = [];
+
+    for (let i = 0; i < datas?.length; i++) {
+      csvData.push({
+        orderStatus: datas[i]?.orderStatus,
+        orderNo: `${datas[i].orderNo}`,
+        deliveryType: datas[i]?.deliveryType,
+        userName: datas[i]?.userName,
+        orderedProduct: `${datas[i]?.orderedProduct[0]?.productNameK} ${
+          datas[i]?.orderedProduct.length !== 0 ? `외 ${datas[i]?.orderedProduct.length}` : ""
+        }`,
+        totalAmount: datas[i]?.totalAmount,
+        paymentMethod: datas[0]?.paymentMethod,
+        orderDate: timeFormat1(datas[0]?.orderDate),
+      });
+    }
+    return csvData;
+  };
+
+  const csvLink = useRef<CSVLink & HTMLAnchorElement & { link: HTMLAnchorElement }>(null);
+
   return (
     <div>
       {exportItem && (
@@ -421,9 +444,37 @@ export default function Payments(): JSX.Element {
       <div className="mt-34 flex justify-sb align-c">
         <p>총 0건</p>
 
-        <div>
-          <ButtonR name={"전체 목록 내보내기"} onClick={() => {}} />
-        </div>
+        <button
+          onClick={() => {
+            const confirm = window.confirm("csv파일을 다운로드 받겠습니까?");
+            if (confirm) {
+              csvLink?.current?.link.click();
+            }
+          }}
+          className="btn-add-b btn-csv"
+        >
+          <p className="font-white font-14">전체 목록 내보내기</p>
+        </button>
+        <CSVLink
+          ref={csvLink}
+          className="display-none"
+          data={getOrderCSVData()}
+          headers={[
+            { label: "주문상태", key: "orderStatus" },
+            { label: "주문번호", key: "orderNo" },
+            { label: "상품명", key: "orderedProduct" },
+            { label: "주문자", key: "userName" },
+            { label: "배송유형", key: "deliveryType" },
+            { label: "주문금액", key: "totalAmount" },
+            { label: "결제수단", key: "paymentMethod" },
+            { label: "주문일시", key: "orderDate" },
+          ]}
+          // confirm 창에서 '확인'을 눌렀을 때만 csv 파일 다운로드
+
+          filename={`주문내역`}
+        >
+          <p>dd</p>
+        </CSVLink>
       </div>
 
       <div className="list-header mt-10 pl-18 pr-18">

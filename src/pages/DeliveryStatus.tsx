@@ -7,6 +7,7 @@ import {
   PAGINATION_NUM_LIMIT,
   formatOnlyDate,
   formatOnlyTime,
+  timeFormat1,
 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
@@ -182,11 +183,32 @@ export default function Deliverystatus(): JSX.Element {
         collection: "orders",
         _id: selectedInvoiceInfo._id,
         trackingNumber: selectedInvoiceInfo.invoice,
+        invoiceTimestamp: Date.now(),
       });
     }
 
     setModifyInvoicePopup(false);
     init();
+  };
+
+  const getOrderCSVData = () => {
+    const csvData: any = [];
+
+    for (let i = 0; i < data?.length; i++) {
+      csvData.push({
+        orderStatus: data[i]?.orderStatus,
+        orderNo: `${data[i].orderNo}`,
+        deliveryType: data[i]?.deliveryType,
+        userName: data[i]?.userName,
+        orderedProduct: `${data[i]?.orderedProduct[0]?.productNameK} ${
+          data[i]?.orderedProduct.length !== 0 ? `외 ${data[i]?.orderedProduct.length}` : ""
+        }`,
+        totalAmount: data[i]?.totalAmount,
+        paymentMethod: data[0]?.paymentMethod,
+        orderDate: timeFormat1(data[0]?.orderDate),
+      });
+    }
+    return csvData;
   };
 
   return (
@@ -369,7 +391,7 @@ export default function Deliverystatus(): JSX.Element {
           <div className="flex1 ml-4 mr-4" style={{ height: 32 }}>
             <SelectBox
               containerStyles={{ width: "100%" }}
-              value={filterOb.ordererType || ""}
+              value={filterOb.deliveryType || ""}
               onChange={(e: any) => handleChangeFilterInput("deliveryType", e)}
               options={DELIVERY_TYPE}
               noOptionsMessage={"상태가 없습니다."}
@@ -407,6 +429,30 @@ export default function Deliverystatus(): JSX.Element {
         <p>총 0건</p>
 
         <div className="flex">
+          {/* <CSVLink
+            data={getOrderCSVData()}
+            headers={[
+              { label: "주문상태", key: "orderStatus" },
+              { label: "주문번호", key: "orderNo" },
+              { label: "상품명", key: "orderedProduct" },
+              { label: "주문자", key: "userName" },
+              { label: "배송유형", key: "deliveryType" },
+              { label: "주문금액", key: "totalAmount" },
+              { label: "결제수단", key: "paymentMethod" },
+              { label: "주문일시", key: "orderDate" },
+            ]}
+            // confirm 창에서 '확인'을 눌렀을 때만 csv 파일 다운로드
+            onClick={() => {
+              if (window.confirm("csv파일을 다운로드 받겠습니까?")) {
+                return true;
+              } else {
+                return false;
+              }
+            }}
+            filename={`주문내역`}
+          >
+            <p>CSV 양식 내려받기</p>
+          </CSVLink> */}
           <ButtonR name={"전체 목록 내보내기"} onClick={() => {}} />
         </div>
       </div>
@@ -492,8 +538,8 @@ export default function Deliverystatus(): JSX.Element {
 
             <div className="w10p text-center">
               <p className="text-line">
-                2023.01.01
-                <br /> 11:11:22
+                {formatOnlyDate(item.invoiceTimestamp)}
+                <br /> {formatOnlyTime(item.invoiceTimestamp)}
               </p>
             </div>
 

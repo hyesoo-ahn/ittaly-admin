@@ -535,7 +535,7 @@ export default function ShippingRequest(): JSX.Element {
               innerStyle={{ marginRight: 0 }}
             /> */}
 
-            <div className="flex flex1 ml-4 mr-4" style={{ height: 32 }}>
+            <div className="flex flex1" style={{ height: 32 }}>
               <button
                 onClick={handleFilter}
                 className="btn-add-b w50p mr-4 border-none"
