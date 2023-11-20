@@ -158,7 +158,7 @@ export default function Coupon(): JSX.Element {
     setFilterInfo({});
     setPage(1);
 
-    productData();
+    // productData();
   };
 
   const handleCouponStatusChange = async (state: boolean) => {

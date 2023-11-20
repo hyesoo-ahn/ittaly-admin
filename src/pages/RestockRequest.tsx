@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { getDatas } from "../common/apis";
+import { getAdminLookup, getDatas } from "../common/apis";
 import { currency, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
@@ -16,19 +16,49 @@ const Cateogyoptions1 = [
 export default function RestockRequest(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
-
-  const [events, setEvents] = useState<any[]>([]);
+  const [data, setData] = useState<any[]>([]);
 
   useEffect(() => {
     init();
   }, []);
 
   const init = async () => {
-    const productData: any = await getDatas({
-      collection: "events",
-      sort: { sort: -1 },
+    // const productData: any = await getDatas({
+    //   collection: "restockRequest",
+    //   sort: { sort: -1 },
+    // });
+    // setData(productData.data);
+    let requests: any = await getAdminLookup({
+      collection: "restockRequest",
+      lookupFrom: "products",
+      addField: "productId",
+      as: "productInfo",
     });
-    setEvents(productData.data);
+    requests = requests.data;
+
+    let brands: any = await getAdminLookup({
+      collection: "restockRequest",
+      lookupFrom: "brands",
+      addField: "brandId",
+      as: "brandInfo",
+    });
+    brands = brands.data;
+
+    let users: any = await getAdminLookup({
+      collection: "restockRequest",
+      lookupFrom: "users",
+      addField: "userId",
+      as: "userInfo",
+    });
+    users = users.data;
+
+    for (let i = 0; i < requests.length; i++) {
+      requests[i].userInfo = users[i].userInfo;
+      requests[i].brandInfo = brands[i].brandInfo;
+    }
+
+    console.log(requests);
+    setData(requests);
   };
 
   return (

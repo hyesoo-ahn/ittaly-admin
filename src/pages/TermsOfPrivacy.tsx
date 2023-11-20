@@ -53,6 +53,9 @@ const TermsOfPrivacy = () => {
   };
 
   const handleSaveTerms = async () => {
+    if (reason === "" || !date) {
+      return alert("필수 항목을 모두 입력해 주세요.");
+    }
     let getTimeStamp = new Date(date).getTime();
     getTimeStamp = getTimeStamp - 3600000 * 9;
 

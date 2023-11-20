@@ -17,12 +17,6 @@ interface IFile {
   url: string;
 }
 
-const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
-];
-
 const AddMainEvent: React.FC = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState<string>("");
@@ -250,6 +244,7 @@ const AddMainEvent: React.FC = () => {
     }
 
     const addResult: any = await postCollection(body);
+    console.log(addResult);
     if (addResult.result && addResult.status === 200) {
       alert("이벤트 등록이 완료되었습니다.");
     }

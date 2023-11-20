@@ -175,7 +175,7 @@ export default function Payments(): JSX.Element {
   const handleInitFilter = () => {
     setFilterOb({});
     setFilterInfo({});
-    // setPage(1);
+    setPage(1);
 
     init();
   };

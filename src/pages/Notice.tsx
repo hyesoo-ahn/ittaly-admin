@@ -1,13 +1,20 @@
 import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { getDatas, getUsers, putUpdateDataBulk } from "../common/apis";
-import { currency, timeFormat1, timeFormat2 } from "../common/utils";
+import { getDataLength, getDatas, getUsers, putUpdateDataBulk } from "../common/apis";
+import {
+  PAGINATION_LIMIT,
+  PAGINATION_NUM_LIMIT,
+  currency,
+  timeFormat1,
+  timeFormat2,
+} from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
 import Modal from "../components/Modal";
 import close from "../images/close.png";
+import Pagination from "../components/Pagination";
 
 const OPEN_STATUS = [
   { value: "Y", label: "Y" },
@@ -27,20 +34,46 @@ export default function Notice(): JSX.Element {
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [selectedOpenStatus, setSelectedOpenStatus] = useState<any>(null);
   const [title, setTitle] = useState<string>("");
+  const [filterInfo, setFilterInfo] = useState<any>({});
+
+  // pagination
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [numPage, setNumPage] = useState<number>(1);
+  const [page, setPage] = useState(1);
+  const limit = PAGINATION_LIMIT;
+  const numLimit = PAGINATION_NUM_LIMIT;
+  const offset = (page - 1) * limit; // 시작점과 끝점을 구하는 offset
+  const numPagesTotal = Math.ceil(totalCount / limit);
+  const numOffset = (numPage - 1) * numLimit;
 
   useEffect(() => {
     init();
-  }, []);
+  }, [page, filterInfo]);
 
   const init = async () => {
-    const { data }: any = await getDatas({
+    const count: any = await getDataLength({
       collection: "notice",
-      sort: { sort: 1 },
+      find: { ...filterInfo },
     });
 
+    const { data }: any = await getDatas({
+      collection: "notice",
+      sort: { created: 1 },
+      skip: (page - 1) * limit,
+      find: { ...filterInfo },
+      // 처음 스킵0 리미트10 다음 스킵10 리미트 10
+      limit: 10,
+    });
+
+    setTotalCount(count.count);
     setNoticeData(data);
   };
 
+  const paginationNumbering = () => {
+    const numArr: number[] = Array.from({ length: numPagesTotal }, (v, i) => i + 1);
+    const result = numArr.slice(numOffset, numOffset + 5);
+    return result;
+  };
   const handleSearchData = async () => {
     let find: any = {};
     if (selectedCategory && selectedCategory.value !== "전체")
@@ -53,6 +86,7 @@ export default function Notice(): JSX.Element {
       find: find,
     });
 
+    setFilterInfo(find);
     setNoticeData(data);
   };
 
@@ -156,10 +190,11 @@ export default function Notice(): JSX.Element {
             </button>
             <button
               onClick={() => {
-                init();
                 setSelectedCategory(null);
                 setSelectedOpenStatus(null);
                 setTitle("");
+                setFilterInfo({});
+                init();
               }}
               className="ml-4"
               style={{
@@ -266,15 +301,19 @@ export default function Notice(): JSX.Element {
           />
         </div>
 
-        <div className="flex pagination">
-          <p className="font-lightgray">{"<"}</p>
-          <p className="font-bold">1</p>
-          <p>2</p>
-          <p>3</p>
-          <p>4</p>
-          <p>5</p>
-          <p className="font-lightgray">{">"}</p>
-        </div>
+        <Pagination
+          data={noticeData}
+          numPagesTotal={numPagesTotal}
+          numOffset={numOffset}
+          numLimit={numLimit}
+          limit={limit}
+          numPage={numPage}
+          setNumPage={setNumPage}
+          paginationNumbering={paginationNumbering}
+          page={page}
+          setPage={setPage}
+          offset={offset}
+        />
       </div>
     </div>
   );

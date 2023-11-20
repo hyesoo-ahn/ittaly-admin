@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { getDatas, putUpdateDataBulk } from "../common/apis";
-import { currency, deleteItem, timeFormat1 } from "../common/utils";
+import { getDataLength, getDatas, putUpdateDataBulk } from "../common/apis";
+import {
+  PAGINATION_LIMIT,
+  PAGINATION_NUM_LIMIT,
+  currency,
+  deleteItem,
+  timeFormat1,
+} from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
+import Pagination from "../components/Pagination";
 
 const CategoryOption1 = [
   { value: "전체", label: "전체" },
@@ -28,17 +35,44 @@ export default function FAQ(): JSX.Element {
   const [faqData, setFaqData] = useState<any[]>([]);
   const [question, setQuestion] = useState<string>("");
 
+  const [filterInfo, setFilterInfo] = useState<any>({});
+  const [totalCount, setTotalCount] = useState<number>(0);
+  // pagination
+  const [numPage, setNumPage] = useState<number>(1);
+  const [page, setPage] = useState(1);
+  const limit = PAGINATION_LIMIT;
+  const numLimit = PAGINATION_NUM_LIMIT;
+  const offset = (page - 1) * limit; // 시작점과 끝점을 구하는 offset
+  const numPagesTotal = Math.ceil(totalCount / limit);
+  const numOffset = (numPage - 1) * numLimit;
+
   useEffect(() => {
     init();
-  }, []);
+  }, [page, filterInfo]);
 
   const init = async () => {
-    const { data }: any = await getDatas({
+    const count: any = await getDataLength({
       collection: "faq",
-      sort: { topview: -1 },
+      find: { ...filterInfo },
     });
 
+    const { data }: any = await getDatas({
+      collection: "faq",
+      sort: { created: 1, topview: -1 },
+      skip: (page - 1) * limit,
+      find: { ...filterInfo },
+      // 처음 스킵0 리미트10 다음 스킵10 리미트 10
+      limit: 10,
+    });
+
+    setTotalCount(count.count);
     setFaqData(data);
+  };
+
+  const paginationNumbering = () => {
+    const numArr: number[] = Array.from({ length: numPagesTotal }, (v, i) => i + 1);
+    const result = numArr.slice(numOffset, numOffset + 5);
+    return result;
   };
 
   const handleCheckFaq = (item: any) => {
@@ -138,6 +172,7 @@ export default function FAQ(): JSX.Element {
       sort: { topview: -1 },
     });
 
+    setFilterInfo(find);
     setFaqData(data);
   };
 
@@ -145,8 +180,8 @@ export default function FAQ(): JSX.Element {
     setSelected("");
     setSelected2("");
     setQuestion("");
-
-    init();
+    setFilterInfo({});
+    setPage(1);
   };
 
   return (
@@ -316,15 +351,19 @@ export default function FAQ(): JSX.Element {
           </button>
         </div>
 
-        <div className="flex pagination">
-          <p className="font-lightgray">{"<"}</p>
-          <p className="font-bold">1</p>
-          <p>2</p>
-          <p>3</p>
-          <p>4</p>
-          <p>5</p>
-          <p className="font-lightgray">{">"}</p>
-        </div>
+        <Pagination
+          data={faqData}
+          numPagesTotal={numPagesTotal}
+          numOffset={numOffset}
+          numLimit={numLimit}
+          limit={limit}
+          numPage={numPage}
+          setNumPage={setNumPage}
+          paginationNumbering={paginationNumbering}
+          page={page}
+          setPage={setPage}
+          offset={offset}
+        />
       </div>
     </div>
   );

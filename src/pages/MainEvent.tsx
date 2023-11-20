@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { getDatas, putUpdateDataBulk } from "../common/apis";
-import { currency, timeFormat1 } from "../common/utils";
+import { deleteData, getDataLength, getDatas, putUpdateDataBulk } from "../common/apis";
+import { PAGINATION_LIMIT, PAGINATION_NUM_LIMIT, currency, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
-
-const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
-];
+import Pagination from "../components/Pagination";
 
 const EVENT_TYPE = [
   { value: "normal", label: "일반" },
@@ -31,7 +26,6 @@ const EVENT_OPEN_STATUS = [
 
 export default function MainEvent(): JSX.Element {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<any>("");
   const [events, setEvents] = useState<any[]>([]);
   const [filterOb, setFilterOb] = useState<any>({
     startingDate: "",
@@ -41,23 +35,50 @@ export default function MainEvent(): JSX.Element {
     title: "",
     openStatus: null,
   });
-  const [filterStartingDate, setFilterStartingDate] = useState<string | null>(null);
-  const [filterEndingDate, setFilterEndingDate] = useState<string | null>(null);
+
+  const [filterInfo, setFilterInfo] = useState<any>({});
+  const [totalCount, setTotalCount] = useState<number>(0);
+  // pagination
+  const [numPage, setNumPage] = useState<number>(1);
+  const [page, setPage] = useState(1);
+  const limit = PAGINATION_LIMIT;
+  const numLimit = PAGINATION_NUM_LIMIT;
+  const offset = (page - 1) * limit; // 시작점과 끝점을 구하는 offset
+  const numPagesTotal = Math.ceil(totalCount / limit);
+  const numOffset = (numPage - 1) * numLimit;
 
   useEffect(() => {
     init();
-  }, []);
+  }, [page, filterInfo]);
 
   const init = async () => {
-    const { data }: any = await getDatas({
+    const count: any = await getDataLength({
       collection: "events",
-      sort: { topview: -1 },
+      find: { ...filterInfo },
     });
 
+    const { data }: any = await getDatas({
+      collection: "events",
+      sort: { created: 1 },
+      skip: (page - 1) * limit,
+      find: { ...filterInfo },
+      // 처음 스킵0 리미트10 다음 스킵10 리미트 10
+      limit: 10,
+    });
+
+    setTotalCount(count.count);
+    // setPagesTotal(Math.ceil(count.count / limit));
     setEvents(data);
   };
 
-  const initialFilter = () => {
+  const paginationNumbering = () => {
+    const numArr: number[] = Array.from({ length: numPagesTotal }, (v, i) => i + 1);
+    const result = numArr.slice(numOffset, numOffset + 5);
+    return result;
+  };
+  // pagination end
+
+  const handleInitFilter = () => {
     setFilterOb({
       startingDate: "",
       endingDate: "",
@@ -66,6 +87,8 @@ export default function MainEvent(): JSX.Element {
       title: "",
       openStatus: null,
     });
+    setFilterInfo({});
+    setPage(1);
     init();
   };
 
@@ -164,6 +187,20 @@ export default function MainEvent(): JSX.Element {
     if (updateResult.status === 200) {
       alert("이벤트 변경이 완료되었습니다.");
     }
+    init();
+  };
+
+  const handleDeleteEventItem = async (eventItem: any) => {
+    const confirm = window.confirm("해당 이벤트를 삭제하시겠습니까?");
+    if (confirm) {
+      await deleteData({
+        _id: eventItem._id,
+        collection: "events",
+      });
+    } else {
+      return false;
+    }
+
     init();
   };
 
@@ -283,7 +320,7 @@ export default function MainEvent(): JSX.Element {
             <button onClick={handleFilterEvent} className="btn-add-b w50p mr-4 h100p border-none">
               검색
             </button>
-            <button onClick={initialFilter} className="w50p bg-white h100p ml-4 border-black">
+            <button onClick={handleInitFilter} className="w50p bg-white h100p ml-4 border-black">
               초기화
             </button>
           </div>
@@ -385,10 +422,7 @@ export default function MainEvent(): JSX.Element {
                 name="삭제"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={async () => {
-                  // await deleteItem("banners", aBanner._id, "배너");
-                  // await init();
-                }}
+                onClick={() => handleDeleteEventItem(eventItem)}
               />
             </div>
           </div>
@@ -425,15 +459,19 @@ export default function MainEvent(): JSX.Element {
           />
         </div>
 
-        <div className="flex pagination">
-          <p className="font-lightgray">{"<"}</p>
-          <p className="font-bold">1</p>
-          <p>2</p>
-          <p>3</p>
-          <p>4</p>
-          <p>5</p>
-          <p className="font-lightgray">{">"}</p>
-        </div>
+        <Pagination
+          data={events}
+          numPagesTotal={numPagesTotal}
+          numOffset={numOffset}
+          numLimit={numLimit}
+          limit={limit}
+          numPage={numPage}
+          setNumPage={setNumPage}
+          paginationNumbering={paginationNumbering}
+          page={page}
+          setPage={setPage}
+          offset={offset}
+        />
       </div>
     </div>
   );

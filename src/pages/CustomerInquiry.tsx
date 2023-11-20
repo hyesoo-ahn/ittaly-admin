@@ -6,28 +6,52 @@ import { getAdminLookup, getDatas, getUsers } from "../common/apis";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
-import { timeFormat1, timeFormat2 } from "../common/utils";
+import { PAGINATION_LIMIT, PAGINATION_NUM_LIMIT, timeFormat1, timeFormat2 } from "../common/utils";
 
-const Cateogyoptions1 = [
-  { value: "대분류 카테고리1", label: "대분류 카테고리1" },
-  { value: "대분류 카테고리2", label: "대분류 카테고리2" },
-  { value: "대분류 카테고리3", label: "대분류 카테고리3" },
+const INQUIRY_STATUS = [
+  { value: "전체", label: "전체" },
+  { value: "미답변", label: "미답변" },
+  { value: "답변완료", label: "답변완료" },
+];
+
+const CATEGORY = [
+  { value: "전체", label: "전체" },
+  { value: "주문/교환/반품 문의", label: "주문/교환/반품 문의" },
+  { value: "이벤트/쿠폰/적립금 문의", label: "이벤트/쿠폰/적립금 문의" },
+  { value: "상품 문의", label: "상품 문의" },
+  { value: "배송 문의", label: "배송 문의" },
+  { value: "결제 문의", label: "결제 문의" },
+  { value: "기타 문의", label: "기타 문의" },
 ];
 
 export default function CustomerInquiry(): JSX.Element {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<any>("");
-  const [rewardsPopup, setRewardsPopup] = useState<boolean>(false);
-  const [rewards, setRewards] = useState<string>("");
-  const [rewardType, setRewardType] = useState<string>("지급");
-
-  const [couponPopup, setCouponPopup] = useState<boolean>(false);
-
   const [data, setData] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [filterOb, setFilterOb] = useState<any>({
+    startingDate: "",
+    endingDate: "",
+    target: null,
+    benefit: null,
+    title: "",
+    status: null,
+  });
+  const [filterInfo, setFilterInfo] = useState<any>({});
+
+  // pagination
+  const [numPage, setNumPage] = useState<number>(1);
+  const [page, setPage] = useState(1);
+  const limit = PAGINATION_LIMIT;
+  const numLimit = PAGINATION_NUM_LIMIT;
+  const offset = (page - 1) * limit; // 시작점과 끝점을 구하는 offset
+  const numPagesTotal = Math.ceil(totalCount / limit);
+  const numOffset = (numPage - 1) * numLimit;
+  // const [pagesTotal, setPagesTotal] = useState<number>(0);
 
   useEffect(() => {
     init();
-  }, []);
+  }, [page, filterInfo]);
 
   const init = async () => {
     const { data }: any = await getAdminLookup({
@@ -41,6 +65,19 @@ export default function CustomerInquiry(): JSX.Element {
     setData(data);
   };
 
+  const handleFilter = async () => {
+    let find: any = {};
+  };
+
+  const handleChangeFilterInput = (type: string, value: any) => {
+    setFilterOb((prev: any) => {
+      return {
+        ...prev,
+        [type]: value,
+      };
+    });
+  };
+
   return (
     <div>
       <div className="flex justify-sb align-c">
@@ -51,6 +88,15 @@ export default function CustomerInquiry(): JSX.Element {
         <div className="flex">
           <div className="flex1 ml-4 mr-4 flex">
             <input
+              value={filterOb.startingDate}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    startingDate: e.target.value,
+                  };
+                });
+              }}
               type="date"
               className="main-event-date-input mr-4"
               data-placeholder="작성일(~부터)"
@@ -58,6 +104,15 @@ export default function CustomerInquiry(): JSX.Element {
               aria-required="true"
             />
             <input
+              value={filterOb.endingDate}
+              onChange={(e: any) => {
+                setFilterOb((prev: any) => {
+                  return {
+                    ...prev,
+                    endingDate: e.target.value,
+                  };
+                });
+              }}
               type="date"
               className="main-event-date-input ml-4"
               data-placeholder="작성일(~까지)"
@@ -68,9 +123,9 @@ export default function CustomerInquiry(): JSX.Element {
           <div style={{ flex: 1, margin: "0 4px" }}>
             <SelectBox
               containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
+              value={filterOb.target}
+              onChange={(e: any) => handleChangeFilterInput("target", e)}
+              options={INQUIRY_STATUS}
               noOptionsMessage={"상태가 없습니다."}
               placeholder="상태"
             />
@@ -78,9 +133,9 @@ export default function CustomerInquiry(): JSX.Element {
           <div style={{ flex: 1, margin: "0 4px" }}>
             <SelectBox
               containerStyles={{ width: "100%" }}
-              value={selected}
-              onChange={(e: any) => setSelected(e)}
-              options={Cateogyoptions1}
+              value={filterOb.category}
+              onChange={(e: any) => handleChangeFilterInput("category", e)}
+              options={CATEGORY}
               noOptionsMessage={"상태가 없습니다."}
               placeholder="카테고리"
             />
