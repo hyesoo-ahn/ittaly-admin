@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import ButtonR from "../components/ButtonR";
 import { useNavigate, useParams } from "react-router-dom";
 import { getAdminLookup, getDatas, putUpdateData } from "../common/apis";
-import { timeFormat1, timeFormat2, timeFormat3 } from "../common/utils";
+import { formatOnlyDate, timeFormat1, timeFormat2, timeFormat3 } from "../common/utils";
 
 export const RestockRequestDetail = () => {
   const navigate = useNavigate();
@@ -17,6 +17,39 @@ export const RestockRequestDetail = () => {
 
   const init = async () => {
     console.log(restockrequestid);
+    let request: any = await getAdminLookup({
+      collection: "restockRequest",
+      lookupFrom: "products",
+      addField: "productId",
+      as: "productInfo",
+      find: { _id: restockrequestid },
+    });
+    request = request.data;
+
+    let brands: any = await getAdminLookup({
+      collection: "restockRequest",
+      lookupFrom: "brands",
+      addField: "brandId",
+      as: "brandInfo",
+      find: { _id: restockrequestid },
+    });
+    brands = brands.data;
+
+    let users: any = await getAdminLookup({
+      collection: "restockRequest",
+      lookupFrom: "users",
+      addField: "userId",
+      as: "userInfo",
+      find: { _id: restockrequestid },
+    });
+    users = users.data;
+
+    request[0].userInfo = users[0].userInfo;
+    request[0].brandInfo = brands[0].brandInfo;
+
+    setDetail(request);
+    console.log(request);
+
     // let qna: any = await getAdminLookup({
     //   collection: "productQna",
     //   find: { _id: productinquiryId },
@@ -50,7 +83,7 @@ export const RestockRequestDetail = () => {
                 <p>작성자</p>
               </div>
 
-              <p>se29dsk</p>
+              <p>{detail[0]?.userInfo[0]?.nickname}</p>
             </div>
           </div>
           <div className="flex2-item">
@@ -59,7 +92,7 @@ export const RestockRequestDetail = () => {
                 <p>작성일자</p>
               </div>
 
-              <p>2023.01.01</p>
+              <p>{formatOnlyDate(detail[0]?.created)}</p>
             </div>
           </div>
         </div>
@@ -71,7 +104,7 @@ export const RestockRequestDetail = () => {
               <p>카테고리</p>
             </div>
 
-            <p>패션잡화</p>
+            <p>{detail[0]?.productInfo[0]?.category1}</p>
           </div>
         </div>
 

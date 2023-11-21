@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { getAdminLookup, getDatas } from "../common/apis";
-import { currency, timeFormat1 } from "../common/utils";
+import { currency, formatOnlyDate, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
 import SelectBox from "../components/SelectBox";
@@ -23,11 +23,6 @@ export default function RestockRequest(): JSX.Element {
   }, []);
 
   const init = async () => {
-    // const productData: any = await getDatas({
-    //   collection: "restockRequest",
-    //   sort: { sort: -1 },
-    // });
-    // setData(productData.data);
     let requests: any = await getAdminLookup({
       collection: "restockRequest",
       lookupFrom: "products",
@@ -57,7 +52,6 @@ export default function RestockRequest(): JSX.Element {
       requests[i].brandInfo = brands[i].brandInfo;
     }
 
-    console.log(requests);
     setData(requests);
   };
 
@@ -128,31 +122,33 @@ export default function RestockRequest(): JSX.Element {
       </div>
 
       <div className={`list-content pl-18 pr-18`}>
-        <div className={`flex align-c mt-8 mb-8`}>
-          <div className="w10p text-left pl-6 pl-6">
-            <p>패션잡화</p>
-          </div>
-          <div className="w20p text-center pl-6 pl-6">
-            <p>Valentino Garavani</p>
-          </div>
-          <div className="w30p text-center pl-6 pl-6">
-            <p>Valentino Garavani Rockstud Tote Bag</p>
-          </div>
+        {data?.map((item: any, i: number) => (
+          <div key={i} className={`flex align-c mt-8 mb-8`}>
+            <div className="w10p text-left pl-6 pl-6">
+              <p>{item.productInfo[0]?.category1}</p>
+            </div>
+            <div className="w20p text-center pl-6 pl-6">
+              <p>{item.brandInfo[0]?.brandName}</p>
+            </div>
+            <div className="w30p text-center pl-6 pl-6">
+              <p>{item.productInfo[0]?.productNameK}</p>
+            </div>
 
-          <div className="w10p text-center pl-6 pl-6">
-            <p>se29dsk</p>
+            <div className="w10p text-center pl-6 pl-6">
+              <p>{item.userInfo[0]?.name}</p>
+            </div>
+            <div className="w20p text-center pl-6 pl-6">
+              <p>{formatOnlyDate(item.created)}</p>
+            </div>
+            <div className="w10p text-center pl-6 pl-6">
+              <ButtonR
+                name={"상세"}
+                onClick={() => navigate(`/customer/restockrequest/${item._id}`)}
+                color="white"
+              />
+            </div>
           </div>
-          <div className="w20p text-center pl-6 pl-6">
-            <p>2023. 01. 01</p>
-          </div>
-          <div className="w10p text-center pl-6 pl-6">
-            <ButtonR
-              name={"상세"}
-              onClick={() => navigate(`/customer/restockrequest/${"12345"}`)}
-              color="white"
-            />
-          </div>
-        </div>
+        ))}
       </div>
 
       <div className="mt-20 flex justify-fe align-c flex-wrap">

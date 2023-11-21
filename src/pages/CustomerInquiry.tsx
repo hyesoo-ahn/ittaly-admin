@@ -152,13 +152,31 @@ export default function CustomerInquiry(): JSX.Element {
               display: "flex",
             }}
           >
-            <InputR size="full" placeholer="작성자 ID" innerStyle={{ margin: 0 }} />
+            <InputR
+              value={filterOb.userid}
+              onChange={(e: any) => handleChangeFilterInput("userid", e.target.value)}
+              size="full"
+              placeholer="작성자 ID"
+              innerStyle={{ margin: 0 }}
+            />
           </div>
           <div style={{ flex: 1, margin: "0 4px", height: 32 }}>
-            <InputR size="full" placeholer="이메일" innerStyle={{ margin: 0 }} />
+            <InputR
+              value={filterOb.email}
+              onChange={(e: any) => handleChangeFilterInput("email", e.target.value)}
+              size="full"
+              placeholer="이메일"
+              innerStyle={{ margin: 0 }}
+            />
           </div>
           <div style={{ flex: 1, margin: "0 4px", height: 32 }}>
-            <InputR size="full" placeholer="내용" innerStyle={{ margin: 0 }} />
+            <InputR
+              value={filterOb.content}
+              onChange={(e: any) => handleChangeFilterInput("content", e.target.value)}
+              size="full"
+              placeholer="내용"
+              innerStyle={{ margin: 0 }}
+            />
           </div>
         </div>
 
