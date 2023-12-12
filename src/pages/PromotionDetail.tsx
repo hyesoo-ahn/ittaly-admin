@@ -196,6 +196,8 @@ const PromotionDetail: React.FC = () => {
         _id: relatedProducts.products[i]._id,
         productNameK: relatedProducts.products[i].productNameK,
         thumbnail: relatedProducts.products[i].thumbnail,
+        discounted: relatedProducts.products[i].discounted,
+        price: relatedProducts.products[i].price,
       });
     }
 
