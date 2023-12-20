@@ -12,8 +12,8 @@ import ObjectID from "bson-objectid";
 
 const SELECT_STATUS = [
   { value: "전체", label: "전체" },
-  { value: "상품문의", label: "상품문의" },
-  { value: "배송문의", label: "배송문의" },
+  { value: "상품 문의", label: "상품 문의" },
+  { value: "배송 문의", label: "배송 문의" },
   { value: "교환/환불/취소 문의", label: "교환/환불/취소 문의" },
   { value: "기타 문의", label: "기타 문의" },
 ];
