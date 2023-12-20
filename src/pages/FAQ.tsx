@@ -58,7 +58,7 @@ export default function FAQ(): JSX.Element {
 
     const { data }: any = await getDatas({
       collection: "faq",
-      sort: { created: 1, topview: -1 },
+      sort: { created: 1, top10: -1 },
       skip: (page - 1) * limit,
       find: { ...filterInfo },
       // 처음 스킵0 리미트10 다음 스킵10 리미트 10
@@ -129,7 +129,7 @@ export default function FAQ(): JSX.Element {
           updateData.push({
             _id: filtered[i]._id,
             setData: {
-              topview: true,
+              top10: true,
             },
           });
         }
@@ -140,7 +140,7 @@ export default function FAQ(): JSX.Element {
           updateData.push({
             _id: filtered[i]._id,
             setData: {
-              topview: false,
+              top10: false,
             },
           });
         }
@@ -169,7 +169,7 @@ export default function FAQ(): JSX.Element {
       find: {
         ...find,
       },
-      sort: { topview: -1 },
+      sort: { top10: -1 },
     });
 
     setFilterInfo(find);
@@ -279,7 +279,7 @@ export default function FAQ(): JSX.Element {
       {faqData?.map((element: any, i: number) => (
         <div
           key={i}
-          className={`list-content pl-18 pr-18 pt-2 pb-2 ${element.topview ? "bg-blue2" : ""} mt-4`}
+          className={`list-content pl-18 pr-18 pt-2 pb-2 ${element.top10 ? "bg-blue2" : ""} mt-4`}
         >
           <div className={`flex align-c`}>
             <div className="w5p">

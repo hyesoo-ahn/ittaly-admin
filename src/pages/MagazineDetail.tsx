@@ -279,6 +279,7 @@ export default function MagazineDetail(): JSX.Element {
           detail: "",
           images: [],
         });
+
         break;
     }
   };
@@ -333,7 +334,7 @@ export default function MagazineDetail(): JSX.Element {
     let _body: any = {
       title,
       desc,
-      contents,
+      contents: contents,
       openingStamp: timeStamp,
       relatedProd: tempRelatedProds,
       openStatus,
