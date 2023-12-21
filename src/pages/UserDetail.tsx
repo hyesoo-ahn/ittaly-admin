@@ -857,7 +857,9 @@ const Tab4 = ({ rewards }: any) => {
               </div>
 
               <div className="w30p pl-6 pr-6">
-                <p>{el.detail}</p>
+                <p>
+                  [{el.category}] {el.detail}
+                </p>
               </div>
 
               <div className="w10p pl-6 pr-6">

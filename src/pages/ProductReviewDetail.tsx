@@ -91,7 +91,8 @@ export const ProductReviewDetail = () => {
         collection: "userRewards",
         targetCollection: "reviews",
         targetUserId: detail[0]?.userInfo[0]?._id,
-        detail: `[리뷰작성] ${detail[0]?.productInfo[0]?.productNameK}`,
+        cagegory: "후기적립",
+        detail: `${detail[0]?.productInfo[0]?.productNameK}`,
         rewards: rewardPrice,
       };
 
