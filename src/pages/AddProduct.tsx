@@ -162,6 +162,18 @@ export default function AddProduct(): JSX.Element {
     title: "",
     contents: [""],
   });
+  // new options
+  const [selectOption2, setSelectOption2] = useState<any>({
+    value: 1,
+    label: "1개",
+  });
+  const [optionPurchase, setOptionPurchase] = useState<any>([
+    {
+      active: false,
+      optionName: "",
+      optionValues: [{ optionsName: "", addAmount: 0 }],
+    },
+  ]);
 
   useEffect(() => {
     init();
@@ -1137,6 +1149,26 @@ export default function AddProduct(): JSX.Element {
     handleClose();
   };
 
+  const onSelectOptionCount = (e: any) => {
+    setSelectOption2(e);
+    let tempArr = [...optionPurchase];
+    // if ()
+    // for (let i = 0; i < e.value; i++) {
+    //   tempArr.push({
+    //     active: false,
+    //     optionName: "",
+    //     optionValues: [
+    //       {
+    //         optionName: "",
+    //         addAmoun: 0,
+    //       },
+    //     ],
+    //   });
+    // }
+
+    setOptionPurchase(tempArr);
+  };
+
   return (
     <>
       {productOptionPopup && (
@@ -1154,7 +1186,100 @@ export default function AddProduct(): JSX.Element {
                 />
               </div>
             </div>
-            {Object.keys(productOptions).length !== 0 && (
+
+            {/* 새로운 옵션 */}
+            <div className="product-field-wrapper mt-2">
+              <div className="product-field mr-20">
+                <p>옵션 개수</p>
+              </div>
+
+              <Select
+                classNamePrefix="react-select"
+                placeholder={"옵션 개수"}
+                defaultValue={{
+                  value: 1,
+                  label: "1개",
+                }}
+                onChange={(e: any) => onSelectOptionCount(e)}
+                options={[
+                  {
+                    value: 1,
+                    label: "1개",
+                  },
+                  {
+                    value: 2,
+                    label: "2개",
+                  },
+                  {
+                    value: 3,
+                    label: "3개",
+                  },
+                ]}
+                className="react-select-container"
+              />
+            </div>
+            <div className="mt-2 field-list-wrapper">
+              <div className="product-field mr-20">
+                <p>
+                  옵션 입력
+                  <span className="font-red">*</span>
+                </p>
+              </div>
+
+              <div style={{ flex: 1 }} className="mt-10 mb-10">
+                <div className="list-header">
+                  <div className="text-center w25p">옵션명</div>
+                  <div className="text-center w25p">옵션값</div>
+                  <div className="text-center w25p">옵션추가금액</div>
+                  <div className="text-center w25p">삭제/추가</div>
+                </div>
+
+                {optionPurchase?.map((aOption: any, i: number) => (
+                  <div key={i} className="list-header-content">
+                    <div className="w25p text-center">
+                      <InputR size={"small"} />
+                    </div>
+
+                    {/* 옵션 아이템 */}
+                    <div className="flex w75p" style={{ flexDirection: "column" }}>
+                      {aOption.optionValues?.map((optionItem: any, index: number) => (
+                        <div key={index} className="flex w100p">
+                          <div className="w33p text-center">
+                            <InputR innerStyle={{ marginTop: 4 }} />
+                          </div>
+                          <div className="w33p text-center">
+                            <InputR innerStyle={{ marginTop: 4 }} />
+                          </div>
+
+                          <div className="w33p text-center mt-4">
+                            <div className="flex justify-c">
+                              <button className="btn-add-b">추가</button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* <div className="flex w100p">
+                        <div className="w33p text-center">
+                          <InputR innerStyle={{ marginTop: 4 }} />
+                        </div>
+                        <div className="w33p text-center">
+                          <InputR innerStyle={{ marginTop: 4 }} />
+                        </div>
+
+                        <div className="w33p text-center mt-4">
+                          <div className="flex justify-c">
+                            <button className="btn-add-b">추가</button>
+                          </div>
+                        </div>
+                      </div> */}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* {Object.keys(productOptions).length !== 0 && (
               <div className="product-field-wrapper mt-2">
                 <div className="product-field mr-20">
                   <p>옵션 개수</p>
@@ -1185,9 +1310,9 @@ export default function AddProduct(): JSX.Element {
                   className="react-select-container"
                 />
               </div>
-            )}
+            )} */}
 
-            {Object.keys(productOptions).length !== 0 && (
+            {/* {Object.keys(productOptions).length !== 0 && (
               <div className="mt-2 field-list-wrapper">
                 <div className="product-field mr-20">
                   <p>
@@ -1264,11 +1389,11 @@ export default function AddProduct(): JSX.Element {
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* <div>{JSON.stringify(handleGetOptions())}</div> */}
 
-            <div className="mt-20">
+            {/* <div className="mt-20">
               <div className="flex flex-wrap flex1">
                 <div className="flex1">
                   <p className="font-bold font-14 mb-10">항목</p>
@@ -1297,7 +1422,7 @@ export default function AddProduct(): JSX.Element {
                   </div>
                 </div>
               ))}
-            </div>
+            </div> */}
 
             <div className="flex justify-fe">
               <ButtonR
