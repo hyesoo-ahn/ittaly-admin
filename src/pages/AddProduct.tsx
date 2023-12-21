@@ -171,9 +171,10 @@ export default function AddProduct(): JSX.Element {
     {
       active: false,
       optionName: "",
-      optionValues: [{ optionsName: "", addAmount: 0 }],
+      optionValues: [{ optionName: "", addAmount: "" }],
     },
   ]);
+  const [optionSelect, setOptionSelect] = useState<boolean>(false);
 
   useEffect(() => {
     init();
@@ -1053,6 +1054,9 @@ export default function AddProduct(): JSX.Element {
     setProductOptions({});
     setOptionsArr([]);
     setProductOptionPopup(false);
+    setOptionPurchase([
+      { active: false, optionName: "", optionValues: [{ optionName: "", addAmount: "" }] },
+    ]);
   };
 
   const handleCheckOption = (el: any, i: number) => {
@@ -1068,6 +1072,7 @@ export default function AddProduct(): JSX.Element {
 
     setOptionsArr(filterData);
     setProductOptionPopup(false);
+    setOptionSelect(true);
   };
 
   const handleFixCsvOptions = () => {
@@ -1149,24 +1154,94 @@ export default function AddProduct(): JSX.Element {
     handleClose();
   };
 
-  const onSelectOptionCount = (e: any) => {
-    setSelectOption2(e);
-    let tempArr = [...optionPurchase];
-    // if ()
-    // for (let i = 0; i < e.value; i++) {
-    //   tempArr.push({
-    //     active: false,
-    //     optionName: "",
-    //     optionValues: [
-    //       {
-    //         optionName: "",
-    //         addAmoun: 0,
-    //       },
-    //     ],
-    //   });
-    // }
+  const handleAddOptionItem = () => {
+    const temp = [...optionPurchase];
+    if (temp.length < 3) {
+      temp.push({
+        optionName: "",
+        optionValues: [
+          {
+            optionName: "",
+            addAmount: "",
+          },
+        ],
+      });
+    }
 
-    setOptionPurchase(tempArr);
+    setOptionPurchase(temp);
+  };
+
+  const handleOptionItems = (mainIndex: number, subIndex: number) => {
+    const tempData: any = [...optionPurchase];
+    if (subIndex === 0) {
+      tempData[mainIndex]?.optionValues?.push({
+        optionName: "",
+        addAmount: "",
+      });
+    } else {
+      tempData[mainIndex]?.optionValues?.splice(subIndex, 1);
+    }
+    // if (index === 0) {
+    //   tempData[index]?.optionValues?.push({
+    //     optionName: "",
+    //     addAmount: 0,
+    //   });
+    // } else {
+    // }
+    // console.log(tempData);
+    setOptionPurchase(tempData);
+  };
+
+  const handleDeleteOptionItem = (i: number) => {
+    if (optionPurchase.length === 1) return;
+    const temp = [...optionPurchase];
+    temp.splice(i, 1);
+
+    setOptionPurchase(temp);
+  };
+
+  const handleChangeOptionValue2 = (body: any) => {
+    let tempData: any = [...optionPurchase];
+    if (body.type1 === "option") {
+      tempData[body.index][body.type2] = body.value;
+    }
+    if (body.type1 === "optionItem" && body.type2 === "optionName") {
+      tempData[body.index].optionValues[body.subIndex][body.type2] = body.value;
+    }
+
+    if (body.type1 === "optionItem" && body.type2 === "addAmount") {
+      let n: string = body.value.replace(/,/gi, "");
+      if (n !== "") {
+        let currencyPrice = currency(parseInt(n));
+
+        tempData[body.index].optionValues[body.subIndex].addAmount = currencyPrice;
+      } else {
+        tempData[body.index].optionValues[body.subIndex].addAmount = "";
+      }
+    }
+
+    setOptionPurchase(tempData);
+  };
+
+  const onChangePriceOptionItem = (type: string, value: string) => {
+    let n: string = value.replace(/,/gi, "");
+    if (n !== "") {
+      let currencyPrice = currency(parseInt(n));
+
+      setForm((prev: any) => {
+        return {
+          ...prev,
+          [type]: currencyPrice,
+        };
+      });
+    } else {
+      setForm((prev: any) => {
+        return {
+          ...prev,
+          [type]: "",
+        };
+      });
+    }
   };
 
   return (
@@ -1193,30 +1268,9 @@ export default function AddProduct(): JSX.Element {
                 <p>옵션 개수</p>
               </div>
 
-              <Select
-                classNamePrefix="react-select"
-                placeholder={"옵션 개수"}
-                defaultValue={{
-                  value: 1,
-                  label: "1개",
-                }}
-                onChange={(e: any) => onSelectOptionCount(e)}
-                options={[
-                  {
-                    value: 1,
-                    label: "1개",
-                  },
-                  {
-                    value: 2,
-                    label: "2개",
-                  },
-                  {
-                    value: 3,
-                    label: "3개",
-                  },
-                ]}
-                className="react-select-container"
-              />
+              <button onClick={handleAddOptionItem} className="btn-add-b">
+                옵션 추가
+              </button>
             </div>
             <div className="mt-2 field-list-wrapper">
               <div className="product-field mr-20">
@@ -1228,38 +1282,85 @@ export default function AddProduct(): JSX.Element {
 
               <div style={{ flex: 1 }} className="mt-10 mb-10">
                 <div className="list-header">
-                  <div className="text-center w25p">옵션명</div>
-                  <div className="text-center w25p">옵션값</div>
-                  <div className="text-center w25p">옵션추가금액</div>
-                  <div className="text-center w25p">삭제/추가</div>
+                  <div className="text-center w20p">옵션삭제</div>
+                  <div className="text-center w20p">옵션명</div>
+                  <div className="text-center w20p">옵션값</div>
+                  <div className="text-center w20p">옵션추가금액</div>
+                  <div className="text-center w20p">삭제/추가</div>
                 </div>
 
-                {optionPurchase?.map((aOption: any, i: number) => (
-                  <div key={i} className="list-header-content">
-                    <div className="w25p text-center">
-                      <InputR size={"small"} />
-                    </div>
+                {optionPurchase.length > 0 &&
+                  optionPurchase?.map((aOption: any, i: number) => (
+                    <div key={i} className="list-header-content">
+                      <div className="w20p text-center mt-4">
+                        <button onClick={() => handleDeleteOptionItem(i)} className="btn-add">
+                          옵션 삭제
+                        </button>
+                      </div>
+                      <div className="w20p text-center mt-4">
+                        <InputR
+                          size={"full"}
+                          value={aOption.optionName}
+                          onChange={(e: any) =>
+                            handleChangeOptionValue2({
+                              type1: "option",
+                              type2: "optionName",
+                              index: i,
+                              value: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
 
-                    {/* 옵션 아이템 */}
-                    <div className="flex w75p" style={{ flexDirection: "column" }}>
-                      {aOption.optionValues?.map((optionItem: any, index: number) => (
-                        <div key={index} className="flex w100p">
-                          <div className="w33p text-center">
-                            <InputR innerStyle={{ marginTop: 4 }} />
-                          </div>
-                          <div className="w33p text-center">
-                            <InputR innerStyle={{ marginTop: 4 }} />
-                          </div>
+                      {/* 옵션 아이템 */}
+                      <div className="flex w60p" style={{ flexDirection: "column" }}>
+                        {aOption.optionValues?.map((optionItem: any, index: number) => (
+                          <div key={index} className="flex w100p">
+                            <div className="w33p text-center">
+                              <InputR
+                                value={optionItem.optionName}
+                                onChange={(e: any) =>
+                                  handleChangeOptionValue2({
+                                    type1: "optionItem",
+                                    type2: "optionName",
+                                    index: i,
+                                    subIndex: index,
+                                    value: e.target.value,
+                                  })
+                                }
+                                innerStyle={{ marginTop: 4 }}
+                              />
+                            </div>
+                            <div className="w33p text-center">
+                              <InputR
+                                value={optionItem.addAmount}
+                                onChange={(e: any) =>
+                                  handleChangeOptionValue2({
+                                    type1: "optionItem",
+                                    type2: "addAmount",
+                                    index: i,
+                                    subIndex: index,
+                                    value: e.target.value,
+                                  })
+                                }
+                                innerStyle={{ marginTop: 4 }}
+                              />
+                            </div>
 
-                          <div className="w33p text-center mt-4">
-                            <div className="flex justify-c">
-                              <button className="btn-add-b">추가</button>
+                            <div className="w33p text-center mt-4">
+                              <div className="flex justify-c">
+                                <button
+                                  onClick={() => handleOptionItems(i, index)}
+                                  className={`${index === 0 ? "btn-add-b" : "btn-add"} `}
+                                >
+                                  {index === 0 ? "추가" : "삭제"}
+                                </button>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
 
-                      {/* <div className="flex w100p">
+                        {/* <div className="flex w100p">
                         <div className="w33p text-center">
                           <InputR innerStyle={{ marginTop: 4 }} />
                         </div>
@@ -1273,9 +1374,9 @@ export default function AddProduct(): JSX.Element {
                           </div>
                         </div>
                       </div> */}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
 
@@ -2502,7 +2603,7 @@ export default function AddProduct(): JSX.Element {
               )}
             </div>
             <p
-              onClick={() =>
+              onClick={() => {
                 setProductOptions({
                   option1: {
                     optionName: "",
@@ -2512,8 +2613,9 @@ export default function AddProduct(): JSX.Element {
                       },
                     ],
                   },
-                })
-              }
+                });
+                setOptionSelect(false);
+              }}
               className="font-desc cursor"
             >
               옵션있음
@@ -2531,15 +2633,44 @@ export default function AddProduct(): JSX.Element {
                   <ButtonR
                     name={"옵션 추가하기"}
                     styleClass="mr-10"
-                    onClick={() => setProductOptionPopup(true)}
+                    onClick={() => {
+                      setOptionSelect(false);
+                      setProductOptionPopup(true);
+                    }}
                   />
-                  <ButtonR
+                  {/* <ButtonR
                     color={"white"}
                     name={"옵션 엑셀 등록"}
                     onClick={() => setOptionCsvPopup(true)}
-                  />
+                  /> */}
                 </div>
-                <div className={`${optionsArr.length !== 0 ? "mt-10" : ""}`}>
+                <div style={{ display: "inline-block" }}>
+                  {optionSelect &&
+                    optionPurchase?.map((el: any, i: number) => (
+                      <div
+                        key={i}
+                        className="flex mt-10"
+                        style={{ backgroundColor: "#ececec", borderRadius: 4, padding: 4 }}
+                      >
+                        <div className="mr-10" style={{ minWidth: 100 }}>
+                          <p style={{ fontWeight: "bold" }}>{el.optionName}</p>
+                        </div>
+
+                        <div className="">
+                          {el.optionValues.map((optionItem: any, index: number) => (
+                            <p>
+                              <span>{optionItem.optionName}</span>
+                              {optionItem.addAmount && optionItem.addAmount?.replace(/,/gi, "") > 0
+                                ? `(+${optionItem.addAmount})`
+                                : ""}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                {/* <div className={`${optionsArr.length !== 0 ? "mt-10" : ""}`}>
                   {optionsArr.map((aOption: any, i: number) => (
                     <div key={i} className="border-bottom-gray pt-10 pb-10">
                       <p>
@@ -2550,7 +2681,7 @@ export default function AddProduct(): JSX.Element {
                       </p>
                     </div>
                   ))}
-                </div>
+                </div> */}
               </div>
             </div>
           )}
