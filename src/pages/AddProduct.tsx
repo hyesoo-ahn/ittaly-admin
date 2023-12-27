@@ -833,7 +833,7 @@ export default function AddProduct(): JSX.Element {
       relatedProd,
       deliveryTerms,
       cancellationTerms,
-      optionPurchase
+      optionPurchase,
     };
 
     // console.log(_body);
