@@ -833,6 +833,7 @@ export default function AddProduct(): JSX.Element {
       relatedProd,
       deliveryTerms,
       cancellationTerms,
+      optionPurchase
     };
 
     // console.log(_body);
@@ -2650,7 +2651,7 @@ export default function AddProduct(): JSX.Element {
                       <div
                         key={i}
                         className="flex mt-10"
-                        style={{ backgroundColor: "#ececec", borderRadius: 4, padding: 4 }}
+                        style={{ backgroundColor: "#ececec", borderRadius: 4, padding: 14 }}
                       >
                         <div className="mr-10" style={{ minWidth: 100 }}>
                           <p style={{ fontWeight: "bold" }}>{el.optionName}</p>
