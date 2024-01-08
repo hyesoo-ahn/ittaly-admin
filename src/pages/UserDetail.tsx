@@ -359,9 +359,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
               <p>닉네임/ID</p>
             </div>
 
-            <p>
-              {user.nickname} ({user.kakaoId})
-            </p>
+            <p>{user.nickname}</p>
           </div>
 
           <div className="product-field-wrapper mt-2">
@@ -369,10 +367,10 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
               <p>가입 SNS 채널</p>
             </div>
 
-            {user.kakao && <p>카카오</p>}
-            {user.naver && <p>네이버</p>}
-            {user.google && <p>구글</p>}
-            {user.apple && <p>애플</p>}
+            {user.kakao && user.kakao !== "" && <p>카카오</p>}
+            {user.naver && user.naver !== "" && <p>네이버</p>}
+            {user.google && user.google !== "" && <p>구글</p>}
+            {user.apple && user.apple !== "" && <p>애플</p>}
           </div>
 
           <div className="product-field-wrapper mt-2">
@@ -380,7 +378,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
               <p>이름</p>
             </div>
 
-            <p>{user.name}</p>
+            <p>{user.nickname}</p>
           </div>
 
           <div className="field-list-wrapper mt-2">
@@ -453,7 +451,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
               <p>이메일</p>
             </div>
 
-            <p>abcdefg@kakao.com</p>
+            <p>{user.email}</p>
           </div>
 
           <div className="product-field-wrapper mt-2">
@@ -461,7 +459,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
               <p>가입일</p>
             </div>
 
-            <p>2023.01.01</p>
+            <p>{timeFormat1(user.created)}</p>
           </div>
 
           <div className="product-field-wrapper mt-2">
@@ -469,7 +467,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
               <p>휴대폰번호</p>
             </div>
 
-            <p>010-1234-5678</p>
+            <p>{user.phone}</p>
           </div>
 
           <div className="field-list-wrapper mt-2">
