@@ -54,6 +54,7 @@ export default function Users(): JSX.Element {
 
   const init = async () => {
     const { data }: any = await getUsers({
+      find: { tempuser: { $ne: true } },
       // sort: { sort: -1 },
     });
 

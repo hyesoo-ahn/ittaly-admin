@@ -808,6 +808,8 @@ export default function AddProduct(): JSX.Element {
       });
     }
 
+    let tempOptions:any =[];
+
     let _body = {
       ...tempForm,
       category1: form.category1.value,
