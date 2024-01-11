@@ -482,19 +482,22 @@ export default function Users(): JSX.Element {
             </div>
 
             <div className="w10p text-center">
-              <p>카카오</p>
+              {user.kakao && <p>카카오</p>}
+              {user.naver && <p>네이버</p>}
+              {user.google && <p>구글</p>}
+              {user.apple && <p>애플</p>}
             </div>
             <div className="w10p text-center">
               <p>{user.membership}</p>
             </div>
             <div className="w10p text-center">
-              <p>1,234,567</p>
+              <p>{user.rewards}</p>
             </div>
             <div className="w10p text-center">
-              <p>1,234,000</p>
+              <p>{user.totalPayAmount}</p>
             </div>
             <div className="w10p text-center">
-              <p>24</p>
+              <p>{user.totalOrderCount}</p>
             </div>
             <div className="w10p text-center">
               <ButtonR

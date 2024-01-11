@@ -4,7 +4,7 @@ import ButtonR from "../components/ButtonR";
 import Modal from "../components/Modal";
 import SelectBox from "../components/SelectBox";
 import close from "../images/close.png";
-import { getDatas, getUsers, postCollection, putUpdateData } from "../common/apis";
+import { getDatas, getUsers, postCollection, putUpdateData, putUserData } from "../common/apis";
 import { timeFormat1, timeFormat2 } from "../common/utils";
 import { history } from "../hooks/history";
 
@@ -61,6 +61,7 @@ export default function UserDetail(): JSX.Element {
   const [user, setUser] = useState<any>({});
   const [memos, setMemos] = useState<any>([]);
   const [rewards, setRewards] = useState<any>([]);
+  const [defaultAddress, setDefaultAddress] = useState<any>([]);
   const { pathname } = location;
 
   useEffect(() => {
@@ -103,6 +104,19 @@ export default function UserDetail(): JSX.Element {
       find: { _id: userId },
     });
 
+    let addressData: any = await getDatas({
+      collection: "userAddress",
+      find: { userId: userId },
+    });
+
+    addressData = addressData.data[0];
+
+    for (let i = 0; i < addressData?.address?.length; i++) {
+      if (addressData?.address[i].defaultAddress) {
+        setDefaultAddress(addressData?.address[i]);
+      }
+    }
+
     const memoData: any = await getDatas({
       collection: "customerMemos",
       find: { targetUserId: userId },
@@ -141,7 +155,13 @@ export default function UserDetail(): JSX.Element {
       {/* 컨텐츠 */}
       <div className="mt-30 mb-30">
         {selectedTab === "tab1" && (
-          <Tab1 navigate={navigate} user={user} init={init} memos={memos} />
+          <Tab1
+            defaultAddress={defaultAddress}
+            navigate={navigate}
+            user={user}
+            init={init}
+            memos={memos}
+          />
         )}
         {selectedTab === "tab2" && <Tab2 />}
         {selectedTab === "tab3" && <Tab3 />}
@@ -152,7 +172,7 @@ export default function UserDetail(): JSX.Element {
   );
 }
 
-const Tab1 = ({ navigate, user, init, memos }: any) => {
+const Tab1 = ({ navigate, user, init, memos, defaultAddress }: any) => {
   const [memoPopup, setMemoPopup] = useState<boolean>(false);
   const [customerLevelPopup, setCustomerLevelPopup] = useState<boolean>(false);
   const [popupAdd, setPopupAdd] = useState<string>("");
@@ -189,6 +209,19 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
 
     setMemoPopup(false);
     setMemoContents("");
+    init();
+  };
+
+  const handleUpdateUserLevel = async (): Promise<void> => {
+    console.log(selectedLevel);
+
+    const updateUserLevel = await putUserData({
+      _id: user._id,
+      level: selectedLevel.value,
+    });
+
+    setSelectedLevel(null);
+    setCustomerLevelPopup(false);
     init();
   };
 
@@ -315,7 +348,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
                     <p>현재 등급</p>
                   </div>
 
-                  <p className="font-bold">Gold</p>
+                  <p className="font-bold">{user.level ? user.level : "Family"}</p>
                 </div>
               </div>
             </div>
@@ -347,7 +380,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
                 styleClass={"mr-8"}
               />
 
-              <ButtonR name={"저장"} onClick={() => {}} />
+              <ButtonR name={"저장"} onClick={handleUpdateUserLevel} />
             </div>
           </div>
         </Modal>
@@ -386,10 +419,14 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
               <p>주소(기본배송지)</p>
             </div>
 
-            <div className="flex1 pt-10 pb-10">
+            <div className="flex1 pt-10 pb-10 flex">
+              <p className="mr-4">({defaultAddress?.addressData?.zonecode})</p>
               <p>
-                (30098) 세종특별자치시 보듬4로 20 10단지 호반베르디움 어반시티 아파트 101동 101{" "}
+                {defaultAddress?.addressData?.address} {defaultAddress?.addressDetail}
               </p>
+              {/* <p>
+                (30098) 세종특별자치시 보듬4로 20 10단지 호반베르디움 어반시티 아파트 101동 101{" "}
+              </p> */}
             </div>
           </div>
 
@@ -399,7 +436,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
             </div>
 
             <div className="flex align-c flex1 pt-10 pb-10">
-              <p className="mr-20">Gold</p>
+              <p className="mr-20">{user.level ? user.level : "Family"}</p>
 
               <ButtonR
                 name="등급변경"
@@ -416,7 +453,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
             </div>
 
             <div className="flex align-c flex1 pt-10 pb-10">
-              <p>1,234,567</p>
+              <p>{user.totalPayAmount}</p>
             </div>
           </div>
 
@@ -486,7 +523,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
             </div>
 
             <div className="flex align-c flex1 pt-10 pb-10">
-              <p className="mr-20">12</p>
+              <p className="mr-20">{user.totalOrderCount}</p>
             </div>
           </div>
 
@@ -497,7 +534,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
             </div>
 
             <div className="flex align-c flex1 pt-10 pb-10">
-              <p>1,234,567</p>
+              <p>{user.totalPayAmount}</p>
             </div>
           </div>
 
@@ -507,7 +544,7 @@ const Tab1 = ({ navigate, user, init, memos }: any) => {
             </div>
 
             <div className="flex align-c flex1 pt-10 pb-10">
-              <p>1,234원</p>
+              <p>{user.rewards}</p>
             </div>
           </div>
 

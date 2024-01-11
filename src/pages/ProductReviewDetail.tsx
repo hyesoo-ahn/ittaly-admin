@@ -134,7 +134,8 @@ export const ProductReviewDetail = () => {
             </div>
 
             <p>
-              {detail[0]?.userInfo[0]?.nickname} ({detail[0]?.userInfo[0]?.kakaoId})
+              {detail[0]?.userInfo[0]?.nickname} ({detail[0]?.userInfo[0]?.email})
+              {/* ({detail[0]?.userInfo[0]?.kakaoId}) */}
             </p>
           </div>
 

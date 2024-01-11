@@ -333,3 +333,21 @@ export const getOrderData = async (body: any): Promise<boolean | object> => {
     return false;
   }
 };
+
+// 유저데이터 수정
+
+// 데이터 수정 (개별)
+export const putUserData = async (_body: any): Promise<boolean> => {
+  try {
+    // const token: any = localStorage.getItem("token");
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${ADMIN_TOKEN}`,
+    };
+    const { data } = await axios.put(`${URI}/admin/user`, _body, { headers });
+    // console.log(data);
+    return data;
+  } catch (error) {
+    return false;
+  }
+};
