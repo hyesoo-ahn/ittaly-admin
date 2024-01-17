@@ -41,6 +41,11 @@ const DELIVERY_TYPE = [
   },
 ];
 
+interface ILabel {
+  label: string;
+  value: string;
+}
+
 // 운송장 조회 참고하기
 // https://development-pro.tistory.com/entry/%ED%83%9D%EB%B0%B0%EC%82%AC%EC%A1%B0%ED%9A%8C%EA%B0%81-%ED%83%9D%EB%B0%B0%EC%82%AC-%EB%B0%8F-%EB%8C%80%ED%95%9C%ED%86%B5%EC%9A%B4-API-%EC%9D%B8%ED%84%B0%ED%8E%98%EC%9D%B4%EC%8A%A4
 
@@ -50,7 +55,7 @@ export default function Deliverystatus(): JSX.Element {
   const [exportItem, setExportItem] = useState<boolean>(false);
   const csvRef = useRef<HTMLInputElement>(null);
   const [modifyInvoicePopup, setModifyInvoicePopup] = useState<boolean>(false);
-  const [selectedDeliveryService, setSelectedDeliveryService] = useState<any>({
+  const [selectedDeliveryService, setSelectedDeliveryService] = useState<ILabel>({
     label: "CJ",
     value: "CJ",
   });

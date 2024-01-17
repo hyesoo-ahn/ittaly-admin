@@ -818,6 +818,10 @@ input {
   background-color: #2684ff;
 }
 
+.selectbox-custom-selected:hover {
+  background-color: #2684ff !important;
+}
+
 .font-gray {
   color: #cccccc !important;
 }
