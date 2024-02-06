@@ -892,6 +892,12 @@ export default function ProductDetail(): JSX.Element {
       });
     }
 
+    let tempOptionPurchase = [];
+    for (let i in optionPurchase) {
+      if (optionPurchase[i].optionName !== "") {
+        tempOptionPurchase.push(optionPurchase[i]);
+      }
+    }
     let _body = {
       ...tempForm,
       category1: form.category1.value,
@@ -914,7 +920,7 @@ export default function ProductDetail(): JSX.Element {
       relatedProd,
       deliveryTerms,
       cancellationTerms,
-      optionPurchase,
+      optionPurchase: tempOptionPurchase,
     };
 
     // 대표이미지(썸네일)

@@ -849,7 +849,9 @@ export default function PaymentDetail(): JSX.Element {
               <div className="product-field mr-20">
                 <p>결제수단</p>
               </div>
-              <p>{orderInfo.paymentMethod}</p>
+              <p>
+                {orderInfo.paymentMethod} ({orderInfo.pg})
+              </p>
             </div>
 
             <div className="field-list-wrapper mt-2">
@@ -1298,19 +1300,17 @@ export default function PaymentDetail(): JSX.Element {
                 </div>
                 <div className="w10p">
                   <p className={`${item.status === "cancel" ? "text-cancel" : ""}`}>
-                    {currency(-item.couponDiscount)}
+                    {currency(-item.couponDiscount ? item.couponDiscount : 0)}
                   </p>
                 </div>
 
                 <div className="w10p">
                   <p className={`${item.status === "cancel" ? "text-cancel" : ""}`}>
-                    {currency(4500)}
+                    {currency(item.deliveryFee)}
                   </p>
                 </div>
                 <div className="w10p">
-                  <p className={`${item.status === "cancel" ? "text-cancel" : ""}`}>
-                    {item.quantity}
-                  </p>
+                  <p className={`${item.status === "cancel" ? "text-cancel" : ""}`}>{item.count}</p>
                 </div>
               </div>
             </div>

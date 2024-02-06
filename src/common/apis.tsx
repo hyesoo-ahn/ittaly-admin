@@ -1,5 +1,5 @@
 import axios from "axios";
-import { URI, ADMIN_TOKEN } from "./config";
+import { URI, ADMIN_TOKEN, IMP_KEY, IMP_SECRET } from "./config";
 
 export const getSignin = async (body: any): Promise<any> => {
   try {
@@ -346,6 +346,26 @@ export const putUserData = async (_body: any): Promise<boolean> => {
     };
     const { data } = await axios.put(`${URI}/admin/user`, _body, { headers });
     // console.log(data);
+    return data;
+  } catch (error) {
+    return false;
+  }
+};
+
+// 아임포트 액세스토큰 발급
+export const getIamportPaymentCancel = async (_body: any): Promise<boolean | object> => {
+  try {
+    const { data }: any = await axios.post(
+      `${URI}/custom/payment/portonecancel`,
+      { ..._body },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${ADMIN_TOKEN}`,
+        },
+      }
+    );
+
     return data;
   } catch (error) {
     return false;

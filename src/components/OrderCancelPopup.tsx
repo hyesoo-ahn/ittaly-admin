@@ -1,10 +1,11 @@
-import React, { ChangeEvent, useCallback } from "react";
+import React, { ChangeEvent, useCallback, useEffect } from "react";
 import Modal from "./Modal";
 import close from "../images/close.png";
 import { currency } from "../common/utils";
 import { CustomSelectbox } from "./CustomSelectbox";
 import InputR from "./InputR";
 import ButtonR from "./ButtonR";
+import { getIamportPaymentCancel, putUpdateData } from "../common/apis";
 
 const CS_ORDER_PATH = [
   {
@@ -27,36 +28,40 @@ const CS_ORDER_PATH = [
 
 const CANCEL_REASON = [
   {
-    value: "[고객신청] 단순 변심",
+    value: "단순 변심",
     label: "[고객신청] 단순 변심",
   },
   {
-    value: "[고객신청] 주문 실수",
+    value: "주문 실수",
     label: "[고객신청] 주문 실수",
   },
   {
-    value: "[고객신청] 배송 지연",
+    value: "배송 지연",
     label: "[고객신청] 배송 지연",
   },
   {
-    value: "[고객신청] 서비스 불만족",
+    value: "서비스 불만족",
     label: "[고객신청] 서비스 불만족",
   },
   {
-    value: "[고객신청] 기타",
+    value: "기타",
     label: "[고객신청] 기타",
   },
   {
-    value: "[본사신청] 품절",
+    value: "품절",
     label: "[본사신청] 품절",
   },
   {
-    value: "[본사신청] 기타",
+    value: "기타",
     label: "[본사신청] 기타",
   },
 ];
 
 export default function OrderCancelPopup(props: any) {
+  useEffect(() => {
+    console.log(props.orderInfo);
+  }, []);
+
   const handleCancelFormChange = (type: string, value: string) => {
     props.setCancelForm((prev: any) => {
       return {
@@ -104,7 +109,49 @@ export default function OrderCancelPopup(props: any) {
   };
 
   const handleCancelPaymenet = async () => {
-    console.log("주문취소 준비중입니다.");
+    let updateCancelForm: any = {
+      _id: props.orderInfo?._id,
+      orderStatus: "주문취소",
+    };
+
+    if (props.cancelForm.cancelReason.label.includes("[고객신청]")) {
+      updateCancelForm.cancelType = "고객신청";
+    }
+    if (props.cancelForm.cancelReason.label.includes("[본사신청]")) {
+      updateCancelForm.cancelType = "본사신청";
+    }
+
+    updateCancelForm.reason = props.cancelForm.value;
+    updateCancelForm.cancelReasonDetail = props.cancelForm.reason;
+
+    let updateData: any = {
+      ...updateCancelForm,
+      collection: "orders",
+    };
+
+    const cancelResult: any = await getIamportPaymentCancel({
+      imp_uid: props.orderInfo.imp_uid,
+      merchant_uid: props.orderInfo.orderNo,
+    });
+
+    // console.log(cancelResult.data);
+
+    if (
+      cancelResult.data.code === 1 &&
+      cancelResult.data.message !== "취소할 결제건이 존재하지 않습니다."
+    ) {
+      return alert(cancelResult.data.message);
+    }
+
+    alert("취소 요청이 완료되었습니다.");
+    const updateResult: any = await putUpdateData({
+      collection: "orders",
+      ...updateData,
+    });
+
+    props.setOrderCancelPopup(false);
+    props.resetPrice();
+    props.handleResetPopup();
   };
 
   return (
@@ -275,15 +322,15 @@ export default function OrderCancelPopup(props: any) {
 
             {/* table header */}
             <div className="list-header pl-18 pr-18 text-center">
-              <div className="w5p text-left">
+              {/* <div className="w5p text-left">
                 <input type="checkbox" />
-              </div>
+              </div> */}
 
-              <div className="w10p">
+              {/* <div className="w10p">
                 <p>상품코드</p>
-              </div>
+              </div> */}
 
-              <div className="w20p text-left">
+              <div className="w25p text-left">
                 <p>상품명</p>
               </div>
 
@@ -293,6 +340,9 @@ export default function OrderCancelPopup(props: any) {
 
               <div className="w10p">
                 <p>판매가</p>
+              </div>
+              <div className="w10p">
+                <p>할인가</p>
               </div>
               <div className="w10p">
                 <p>쿠폰할인</p>
@@ -312,21 +362,22 @@ export default function OrderCancelPopup(props: any) {
             <div className="list-content pl-18 pr-18 pt-12">
               {props.orderInfo.orderedProduct.map((item: any, i: number) => (
                 <div key={i} className="flex align-c text-center pt-12">
-                  <div className="w5p text-left">
+                  {/* <div className="w5p text-left">
                     <input
                       type="checkbox"
                       checked={item.checked ? item.checked : false}
                       onChange={() => handleCheckOrderedProduct(item)}
                     />
-                  </div>
+                  </div> */}
 
-                  <div className="w10p">
+                  {/* <div className="w10p">
                     <p className={`${item.checked && "text-cancel"} text-line`}>
                       {item.productCode}
                     </p>
-                  </div>
+                  </div> */}
 
-                  <div className="w20p text-left">
+                  {/* 상품명 */}
+                  <div className="w25p text-left">
                     <p className={`${item.checked && "text-cancel"} text-line`}>
                       {item.productNameK}
                     </p>
@@ -341,26 +392,37 @@ export default function OrderCancelPopup(props: any) {
 
                   <div className="w10p">
                     <p className={`${item.checked && "text-cancel"}`}>
-                      -{currency(item.couponDiscount)}
+                      {currency(item.discounted)}
+                    </p>
+                  </div>
+
+                  <div className="w10p">
+                    <p className={`${item.checked && "text-cancel"}`}>
+                      {/* -{currency(item.couponDiscount)} */} 0
                     </p>
                   </div>
                   <div className="w10p">
-                    <p className={`${item.checked && "text-cancel"}`}>{currency(10000)}</p>
+                    <p className={`${item.checked && "text-cancel"}`}>
+                      {currency(item.deliveryFee)}
+                    </p>
                   </div>
                   <div className="w10p">
                     <div className="flex align-c justify-c">
-                      <CustomSelectbox
+                      <p>{item.count}</p>
+                      {/* <CustomSelectbox
                         style={{ width: 100, height: 28 }}
                         selected={{ value: item.quantity, label: item.quantity }}
                         setSelected={(e: any) => handleChangeProductQuantity(item, e)}
                         data={props.setProductQuantityRange(i)}
                         noDataMessage={"수량"}
-                      />
+                      /> */}
                     </div>
                   </div>
 
                   <div className="w15p">
-                    <p className={`${item.checked && "text-cancel"}`}>{currency(400000)}</p>
+                    <p className={`${item.checked && "text-cancel"}`}>
+                      {currency(item.discounted)}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -371,11 +433,12 @@ export default function OrderCancelPopup(props: any) {
               <div className="w50p">
                 <div className="field-list-wrapper mt-2">
                   <div className="product-field mr-20">
-                    <p>판매가합계</p>
+                    <p>실결제금액</p>
+                    <p className="font-12">(배송비 포함)</p>
                   </div>
 
                   <div className="flex1 pt-10 pb-10">
-                    <p>{currency(200000)}원</p>
+                    <p>{currency(props.orderInfo.totalPayAmount)}원</p>
                   </div>
                 </div>
               </div>
@@ -386,7 +449,7 @@ export default function OrderCancelPopup(props: any) {
                   </div>
 
                   <div className="flex1 pt-10 pb-10">
-                    <p>{currency(10000)}원</p>
+                    <p>{currency(props.orderInfo.deliveryFee)}원</p>
                   </div>
                 </div>
               </div>
@@ -397,11 +460,11 @@ export default function OrderCancelPopup(props: any) {
                   </div>
 
                   <div className="flex1 flex align-c pt-10 pb-10">
-                    <InputR
+                    {/* <InputR
                       value={props.cancelCouponPrice}
                       onChange={(e: any) => props.onChangePrice("cancelCouponPrice", e)}
                     />
-                    <p>원</p>
+                    <p>원</p> */}
                   </div>
                 </div>
               </div>
@@ -412,11 +475,11 @@ export default function OrderCancelPopup(props: any) {
                   </div>
 
                   <div className="flex1 flex align-c pt-10 pb-10">
-                    <InputR
+                    {/* <InputR
                       value={props.cancelRewardPrice}
                       onChange={(e: any) => props.onChangePrice("cancelRewardPrice", e)}
                     />
-                    <p>원</p>
+                    <p>원</p> */}
                   </div>
                 </div>
               </div>
@@ -432,9 +495,10 @@ export default function OrderCancelPopup(props: any) {
 
                   <div className="flex1 pt-10 pb-10">
                     <p>
-                      [판매가합계]{currency(props.orderInfo.totalAmount)}원 - [쿠폰할인취소]
+                      [주문금액합계]{currency(props.orderInfo.totalAmount)}원 - [쿠폰할인취소]
                       {currency(props.cancelCouponPrice.replaceAll(",", ""))}원 - [적립금반환]
-                      {currency(props.cancelRewardPrice.replaceAll(",", ""))}원 = 190,000원
+                      {currency(props.cancelRewardPrice.replaceAll(",", ""))}원 ={" "}
+                      {currency(props.orderInfo.totalPayAmount)}원
                     </p>
                   </div>
                 </div>
@@ -446,7 +510,7 @@ export default function OrderCancelPopup(props: any) {
                   </div>
 
                   <div className="flex1 pt-10 pb-10">
-                    <p>{currency(190000)}원</p>
+                    <p>{currency(props.orderInfo.totalPayAmount)}원</p>
                   </div>
                 </div>
               </div>
