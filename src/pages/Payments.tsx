@@ -189,9 +189,14 @@ export default function Payments(): JSX.Element {
       };
     }
     if (filterOb.endingDate) {
+      const limitDate = new Date(filterOb.endingDate);
       find.orderDate = {
         ...find.creaated,
-        $lte: new Date(filterOb.endingDate).getTime(),
+        $lt: new Date(
+          limitDate.getFullYear(),
+          limitDate.getMonth(),
+          limitDate.getDate() + 1
+        ).getTime(),
       };
     }
     if (filterOb.orderNo && filterOb.orderNo !== "") {
