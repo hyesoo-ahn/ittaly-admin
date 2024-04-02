@@ -121,9 +121,33 @@ export default function Payments(): JSX.Element {
   const numPagesTotal = Math.ceil(totalCount / limit);
   const numOffset = (numPage - 1) * numLimit;
 
+  const [downloadType, setDownloadType] = useState<string>("");
+  const [allCheck, setAllCheck] = useState<boolean>(false);
+
   useEffect(() => {
     init();
   }, [page, filterInfo]);
+
+  const handleAllCheck = (bool: boolean) => {
+    let temp = [...datas];
+    if (bool) {
+      for (let i in datas) {
+        temp[i].checked = true;
+      }
+
+      setAllCheck(true);
+    }
+    if (!bool) {
+      for (let i in datas) {
+        temp[i].checked = false;
+      }
+
+      setAllCheck(false);
+    }
+
+    setAllCheck(bool);
+    setDatas(temp);
+  };
 
   const init = async () => {
     const count: any = await getDataLength({
@@ -139,13 +163,17 @@ export default function Payments(): JSX.Element {
     if (!text || text === "") {
       data = await getDatas({
         // sort: { sort: -1 },
+        skip: (page - 1) * limit,
         collection: "orders",
         find: { ...filterInfo },
+        limit: 10,
       });
     } else {
       data = await getOrderData({
         text: text,
+        skip: (page - 1) * limit,
         // sort: { sort: -1 },
+        limit: 10,
         find: { ...filterInfo },
       });
     }
@@ -232,27 +260,70 @@ export default function Payments(): JSX.Element {
     setFilterInfo(find);
   };
 
-  const getOrderCSVData = () => {
+  const getOrderCSVData = (type: string = "all") => {
     const csvData: any = [];
 
-    for (let i = 0; i < datas?.length; i++) {
-      csvData.push({
-        orderStatus: datas[i]?.orderStatus,
-        orderNo: `${datas[i].orderNo}`,
-        deliveryType: datas[i]?.deliveryType,
-        userName: datas[i]?.userName,
-        orderedProduct: `${datas[i]?.orderedProduct[0]?.productNameK} ${
-          datas[i]?.orderedProduct.length !== 0 ? `외 ${datas[i]?.orderedProduct.length}` : ""
-        }`,
-        totalAmount: datas[i]?.totalAmount,
-        paymentMethod: datas[0]?.paymentMethod,
-        orderDate: timeFormat1(datas[0]?.orderDate),
-      });
+    if (type === "all") {
+      for (let i = 0; i < datas?.length; i++) {
+        csvData.push({
+          orderStatus: datas[i]?.orderStatus,
+          orderNo: `${datas[i].orderNo}`,
+          deliveryType: datas[i]?.deliveryType,
+          userName: datas[i]?.userName,
+          orderedProduct: `${datas[i]?.orderedProduct[0]?.productNameK} ${
+            datas[i]?.orderedProduct.length !== 0 ? `외 ${datas[i]?.orderedProduct.length}` : ""
+          }`,
+          totalAmount: datas[i]?.totalAmount,
+          paymentMethod: datas[0]?.paymentMethod,
+          orderDate: timeFormat1(datas[0]?.orderDate),
+        });
+      }
     }
+
+    if (type === "checked") {
+      for (let i = 0; i < datas?.length; i++) {
+        if (datas[i]?.checked) {
+          csvData.push({
+            orderStatus: datas[i]?.orderStatus,
+            orderNo: `${datas[i].orderNo}`,
+            deliveryType: datas[i]?.deliveryType,
+            userName: datas[i]?.userName,
+            orderedProduct: `${datas[i]?.orderedProduct[0]?.productNameK} ${
+              datas[i]?.orderedProduct.length !== 0 ? `외 ${datas[i]?.orderedProduct.length}` : ""
+            }`,
+            totalAmount: datas[i]?.totalAmount,
+            paymentMethod: datas[0]?.paymentMethod,
+            orderDate: timeFormat1(datas[0]?.orderDate),
+          });
+        }
+      }
+    }
+
     return csvData;
   };
 
   const csvLink = useRef<CSVLink & HTMLAnchorElement & { link: HTMLAnchorElement }>(null);
+
+  const handleCheckOrder = (order: any, i: number) => {
+    let temp = [...datas];
+    temp[i].checked = !temp[i].checked;
+
+    let count = 0;
+    for (let i in temp) {
+      if (temp[i].checked) {
+        count++;
+      }
+    }
+
+    if (count !== 0 && count === temp.length) {
+      setAllCheck(true);
+    } else {
+      setAllCheck(false);
+    }
+    // else setAllCheck(false);
+
+    setDatas(temp);
+  };
 
   return (
     <div>
@@ -453,6 +524,7 @@ export default function Payments(): JSX.Element {
           onClick={() => {
             const confirm = window.confirm("csv파일을 다운로드 받겠습니까?");
             if (confirm) {
+              setDownloadType("all");
               csvLink?.current?.link.click();
             }
           }}
@@ -463,7 +535,7 @@ export default function Payments(): JSX.Element {
         <CSVLink
           ref={csvLink}
           className="display-none"
-          data={getOrderCSVData()}
+          data={downloadType === "all" ? getOrderCSVData() : getOrderCSVData("checked")}
           headers={[
             { label: "주문상태", key: "orderStatus" },
             { label: "주문번호", key: "orderNo" },
@@ -478,13 +550,17 @@ export default function Payments(): JSX.Element {
 
           filename={`주문내역`}
         >
-          <p>dd</p>
+          <p></p>
         </CSVLink>
       </div>
 
       <div className="list-header mt-10 pl-18 pr-18">
         <div className="w5p">
-          <input type="checkbox" />
+          <input
+            type="checkbox"
+            checked={allCheck}
+            onChange={(e: any) => handleAllCheck(!allCheck)}
+          />
         </div>
 
         <div className="w10p text-center">
@@ -522,7 +598,11 @@ export default function Payments(): JSX.Element {
         {datas?.map((order: any, i: number) => (
           <div key={i} className={`flex align-c mt-8 mb-8`}>
             <div className="w5p">
-              <input type="checkbox" />
+              <input
+                checked={order.checked}
+                onChange={(e: any) => handleCheckOrder(order, i)}
+                type="checkbox"
+              />
             </div>
             <div className="w10p text-center">
               <p>{order.orderStatus}</p>
@@ -569,7 +649,10 @@ export default function Payments(): JSX.Element {
           <ButtonR
             name="선택 목록 내보내기"
             color="white"
-            onClick={() => setExportItem(true)}
+            onClick={() => {
+              setExportItem(true);
+              setDownloadType("checked");
+            }}
             styles={{ marginRight: 4 }}
           />
         </div>
