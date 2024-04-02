@@ -370,7 +370,13 @@ export default function Payments(): JSX.Element {
               onClick={() => setExportItem(false)}
               styleClass="mr-4"
             />
-            <ButtonR name="다운로드" onClick={() => {}} />
+            <ButtonR
+              name="다운로드"
+              onClick={() => {
+                setDownloadType("checked");
+                csvLink?.current?.link.click();
+              }}
+            />
           </div>
         </Modal>
       )}
