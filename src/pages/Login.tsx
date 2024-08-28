@@ -3,7 +3,7 @@ import { MainContext } from "../common/context";
 import { IMainContext } from "../interface/interface";
 import logo from "../images/logo.png";
 import InputR from "../components/InputR";
-import { ADMIN_TOKEN } from "../common/config";
+import { ADMIN_TOKEN, ID_TOKEN } from "../common/config";
 import { useNavigate } from "react-router-dom";
 
 export default function Main(): JSX.Element {
@@ -12,7 +12,7 @@ export default function Main(): JSX.Element {
   const [password, setPassword] = useState<string>("");
 
   const handleLogin = () => {
-    if (password === ADMIN_TOKEN) {
+    if (password === ID_TOKEN) {
       localStorage.setItem("admintoken", password);
       context.handleStateChange("isUser", true);
       navigate("/");
@@ -22,7 +22,10 @@ export default function Main(): JSX.Element {
   };
 
   return (
-    <div className="flex align-c justify-c f-direction-column " style={{ height: "100vh" }}>
+    <div
+      className="flex align-c justify-c f-direction-column "
+      style={{ height: "100vh" }}
+    >
       <div className="text-center mb-40">
         <img src={logo} className="login-logo" alt="login-logo" />
         <div className="mt-20"></div>
