@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { deleteData, deleteProduct, getDatas, putUpdateDataBulk } from "../common/apis";
+import {
+  deleteData,
+  deleteProduct,
+  getDatas,
+  putUpdateDataBulk,
+} from "../common/apis";
 import { currency, deleteItem, timeFormat1 } from "../common/utils";
 import ButtonR from "../components/ButtonR";
 import InputR from "../components/InputR";
@@ -60,7 +65,10 @@ export default function ProductManagement(): JSX.Element {
   };
 
   const paginationNumbering = () => {
-    const numArr: number[] = Array.from({ length: numPagesTotal }, (v, i) => i + 1);
+    const numArr: number[] = Array.from(
+      { length: numPagesTotal },
+      (v, i) => i + 1
+    );
 
     const result = numArr.slice(numOffset, numOffset + 5);
     return result;
@@ -91,11 +99,14 @@ export default function ProductManagement(): JSX.Element {
 
   const handleSearchResult = async () => {
     let find: any = {};
-    if (searchForm.productNameK !== "") find.productNameK = searchForm.productNameK;
+    if (searchForm.productNameK !== "")
+      find.productNameK = searchForm.productNameK;
     if (searchForm.brandName !== "") find.brand = searchForm.brandName;
-    if (searchForm.productCode !== "") find.productCode = searchForm.productCode;
+    if (searchForm.productCode !== "")
+      find.productCode = searchForm.productCode;
     if (searchForm.category?.value) find.category1 = searchForm.category!.value;
-    if (searchForm.salesStatus?.value) find.saleStatus = searchForm.salesStatus!.value;
+    if (searchForm.salesStatus?.value)
+      find.saleStatus = searchForm.salesStatus!.value;
 
     const { data }: any = await getDatas({
       collection: "products",
@@ -135,7 +146,9 @@ export default function ProductManagement(): JSX.Element {
 
   const handleDeleteBulk = async (): Promise<void> => {
     const filterData: any = products.filter((el) => el.checked);
-    const confirm = window.confirm(`선택하신 ${filterData.length}개의 항목을 삭제하시겠습니까?`);
+    const confirm = window.confirm(
+      `선택하신 ${filterData.length}개의 항목을 삭제하시겠습니까?`
+    );
     if (confirm) {
       for (let i in filterData) {
         await deleteData({
@@ -294,7 +307,10 @@ export default function ProductManagement(): JSX.Element {
             style={{ width: "33%", marginTop: 8, height: 32 }}
             className="flex align-c justify-c"
           >
-            <button onClick={handleSearchResult} className="btn-add-b search-btn">
+            <button
+              onClick={handleSearchResult}
+              className="btn-add-b search-btn"
+            >
               검색
             </button>
 
@@ -317,7 +333,11 @@ export default function ProductManagement(): JSX.Element {
 
       <div className="list-header mt-10 pl-18 pr-18">
         <div className="w5p">
-          <input type="checkbox" checked={allCheck} onChange={() => handleAllCheck(allCheck)} />
+          <input
+            type="checkbox"
+            checked={allCheck}
+            onChange={() => handleAllCheck(allCheck)}
+          />
         </div>
 
         <div className="w10p">
@@ -385,7 +405,9 @@ export default function ProductManagement(): JSX.Element {
                 name="상세"
                 color="white"
                 styles={{ marginRight: 4 }}
-                onClick={() => navigate(`/product/productmanage/${productItem._id}`)}
+                onClick={() =>
+                  navigate(`/product/productmanage/${productItem._id}`)
+                }
               />
               <ButtonR
                 name="삭제"
@@ -458,7 +480,10 @@ export default function ProductManagement(): JSX.Element {
 
           <p
             onClick={() => {
-              if (paginationNumbering().length === 5 && numPagesTotal > paginationNumbering()[4]) {
+              if (
+                paginationNumbering().length === 5 &&
+                numPagesTotal > paginationNumbering()[4]
+              ) {
                 setNumPage((prev: number) => prev + 1);
                 setPage(numLimit * numPage + 1);
               }

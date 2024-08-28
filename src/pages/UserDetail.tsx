@@ -4,7 +4,13 @@ import ButtonR from "../components/ButtonR";
 import Modal from "../components/Modal";
 import SelectBox from "../components/SelectBox";
 import close from "../images/close.png";
-import { getDatas, getUsers, postCollection, putUpdateData, putUserData } from "../common/apis";
+import {
+  getDatas,
+  getUsers,
+  postCollection,
+  putUpdateData,
+  putUserData,
+} from "../common/apis";
 import { timeFormat1, timeFormat2 } from "../common/utils";
 import { history } from "../hooks/history";
 
@@ -75,7 +81,7 @@ export default function UserDetail(): JSX.Element {
     const listenBackEvent = () => {
       navigate("/customer/users/active", { replace: true });
     };
-    const unlistenHistoryEvent = history.listen(({ action }) => {
+    const unlistenHistoryEvent = history.listen(({ action }: any) => {
       if (action === "POP") {
         listenBackEvent();
       }
@@ -143,7 +149,11 @@ export default function UserDetail(): JSX.Element {
             }}
             className={`tab-item 
             ${i === 4 && "border-right-black"}
-            ${selectedTab === tabItem.label ? "border-bottom-none font-bold" : "bg-gray"}`}
+            ${
+              selectedTab === tabItem.label
+                ? "border-bottom-none font-bold"
+                : "bg-gray"
+            }`}
           >
             <p className="font-14">{tabItem.value}</p>
           </div>
@@ -317,8 +327,12 @@ const Tab1 = ({ navigate, user, init, memos, defaultAddress }: any) => {
                 color={"white"}
                 styleClass={"mr-8"}
               />
-              {popupAdd === "view" && <ButtonR name={"변경"} onClick={() => setPopupAdd("edit")} />}
-              {popupAdd !== "view" && <ButtonR name={"저장"} onClick={handleSaveCustomerMemo} />}
+              {popupAdd === "view" && (
+                <ButtonR name={"변경"} onClick={() => setPopupAdd("edit")} />
+              )}
+              {popupAdd !== "view" && (
+                <ButtonR name={"저장"} onClick={handleSaveCustomerMemo} />
+              )}
             </div>
           </div>
         </Modal>
@@ -348,7 +362,9 @@ const Tab1 = ({ navigate, user, init, memos, defaultAddress }: any) => {
                     <p>현재 등급</p>
                   </div>
 
-                  <p className="font-bold">{user.level ? user.level : "Family"}</p>
+                  <p className="font-bold">
+                    {user.level ? user.level : "Family"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -422,7 +438,8 @@ const Tab1 = ({ navigate, user, init, memos, defaultAddress }: any) => {
             <div className="flex1 pt-10 pb-10 flex">
               <p className="mr-4">({defaultAddress?.addressData?.zonecode})</p>
               <p>
-                {defaultAddress?.addressData?.address} {defaultAddress?.addressDetail}
+                {defaultAddress?.addressData?.address}{" "}
+                {defaultAddress?.addressDetail}
               </p>
               {/* <p>
                 (30098) 세종특별자치시 보듬4로 20 10단지 호반베르디움 어반시티 아파트 101동 101{" "}
@@ -968,19 +985,23 @@ const Tab5 = () => {
 
             <div className="w30p pl-6 pr-6 text-left">
               <p className="text-line">
-                너무 맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
-                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
-                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
-                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
-                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
-                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
-                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
-                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
-                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
-                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
-                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
-                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
-                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요.
+                너무 맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게
+                젤 맛있었어요. 너무 맛있어요. 여행갈떄마다 그 나라 초콜렛을
+                사먹어 봤는데, 요게 젤 맛있었어요. 너무 맛있어요. 여행갈떄마다
+                그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
+                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤
+                맛있었어요. 너무 맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어
+                봤는데, 요게 젤 맛있었어요. 너무 맛있어요. 여행갈떄마다 그 나라
+                초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무 맛있어요.
+                여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요.
+                너무 맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게
+                젤 맛있었어요. 너무 맛있어요. 여행갈떄마다 그 나라 초콜렛을
+                사먹어 봤는데, 요게 젤 맛있었어요. 너무 맛있어요. 여행갈떄마다
+                그 나라 초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요. 너무
+                맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어 봤는데, 요게 젤
+                맛있었어요. 너무 맛있어요. 여행갈떄마다 그 나라 초콜렛을 사먹어
+                봤는데, 요게 젤 맛있었어요. 너무 맛있어요. 여행갈떄마다 그 나라
+                초콜렛을 사먹어 봤는데, 요게 젤 맛있었어요.
               </p>
             </div>
 
